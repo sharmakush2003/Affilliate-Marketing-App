@@ -74,6 +74,15 @@ data class InsuranceMock(
     val logoResId: Int? = null
 )
 
+data class LoanMock(
+    val name: String,
+    val logoText: String,
+    val offerText: String,
+    val subText: String,
+    val logoBg: Color = Color(0xFFECEFF1),
+    val logoResId: Int? = null
+)
+
 data class TopProductMock(
     val name: String,
     val cost: String,
@@ -115,6 +124,13 @@ fun HomeScreen(
         InsuranceMock("Term Life Insurance", "👥", "Upto 8,000 Coins", "Secure your family's future", Color(0xFFFFF3E0))
     )
 
+    val loans = listOf(
+        LoanMock("Personal Loan", "💰", "Upto 10,000 Coins", "Get instant loan approvals", Color(0xFFF1F8E9)),
+        LoanMock("Home Loan", "🏠", "Upto 25,000 Coins", "Lowest interest rates on loans", Color(0xFFE8F5E9)),
+        LoanMock("Car Loan", "🚗", "Upto 15,000 Coins", "Quick processing & payouts", Color(0xFFE3F2FD)),
+        LoanMock("Business Loan", "📈", "Upto 30,000 Coins", "Fund your business growth", Color(0xFFFFF3E0))
+    )
+
     val coupons = listOf(
         CouponMock("Bloom by Bold Care", "15% Discount"),
         CouponMock("Bombay Shaving Company", "0% Discount"),
@@ -151,7 +167,33 @@ fun HomeScreen(
         // Banner Slider
         BannerSliderSection()
 
+        // Insurance [NEW] (placed at the very top)
+        SectionHeader(title = "Insurance", showViewAll = false)
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(insurances) { insurance ->
+                InsuranceItem(insurance = insurance, onClick = { onBrandClick("Flipkart") })
+            }
+        }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Loan Enquiries [NEW]
+        SectionHeader(title = "Loan Enquiries", showViewAll = false)
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(loans) { loan ->
+                LoanItem(loan = loan, onClick = { onBrandClick("Flipkart") })
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Shop & Earn Coins (moved down)
         SectionHeader(title = "Shop & Earn Coins", onViewAllClick = { onBrandClick("Amazon") })
@@ -176,20 +218,6 @@ fun HomeScreen(
         ) {
             items(creditCards) { card ->
                 CreditCardItem(card = card, onClick = { onBrandClick("Flipkart") })
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Insurance [NEW]
-        SectionHeader(title = "Insurance", showViewAll = false)
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(insurances) { insurance ->
-                InsuranceItem(insurance = insurance, onClick = { onBrandClick("Flipkart") })
             }
         }
 
@@ -1062,6 +1090,68 @@ fun TopProductCard(product: TopProductMock, onClick: () -> Unit) {
                     fontWeight = FontWeight.Bold
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun LoanItem(loan: LoanMock, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .width(150.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+            .background(White)
+            .clickable { onClick() }
+            .padding(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(loan.logoBg),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = loan.logoText,
+                    fontSize = 28.sp
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = loan.name,
+                color = TextDark,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .background(AccentGold, shape = RoundedCornerShape(2.dp))
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = loan.offerText,
+                    color = DarkGreen,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Text(
+                text = loan.subText,
+                color = TextGray,
+                fontSize = 10.sp
+            )
         }
     }
 }
