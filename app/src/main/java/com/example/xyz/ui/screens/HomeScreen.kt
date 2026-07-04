@@ -181,20 +181,6 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Insurance [NEW]
-        SectionHeader(title = "Insurance", showViewAll = false)
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(insurances) { insurance ->
-                InsuranceItem(insurance = insurance, onClick = { onBrandClick("Flipkart") })
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Loan Enquiries [NEW]
         SectionHeader(title = "Loan Enquiries", showViewAll = false)
         LazyRow(
@@ -204,6 +190,20 @@ fun HomeScreen(
         ) {
             items(loans) { loan ->
                 LoanItem(loan = loan, onClick = { onBrandClick("Flipkart") })
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Insurance [NEW]
+        SectionHeader(title = "Insurance", showViewAll = false)
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(insurances) { insurance ->
+                InsuranceItem(insurance = insurance, onClick = { onBrandClick("Flipkart") })
             }
         }
 
