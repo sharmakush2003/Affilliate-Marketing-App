@@ -456,7 +456,7 @@ fun BottomNavigationBar(
     NavigationBar(
         containerColor = Color.White,
         tonalElevation = 8.dp,
-        modifier = Modifier.height(52.dp),
+        modifier = Modifier.height(57.dp),
         windowInsets = WindowInsets(0.dp)
     ) {
         NavigationBarItem(

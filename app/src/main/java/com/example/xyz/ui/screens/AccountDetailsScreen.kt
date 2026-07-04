@@ -287,6 +287,17 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
                     subtitle = "Invite friends and earn bonus coins",
                     onClick = { Toast.makeText(context, "Referral code: RC2024", Toast.LENGTH_SHORT).show() }
                 )
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF5F5F5))
+                QuickMenuRow(
+                    icon = Icons.Default.SupportAgent,
+                    iconBg = Color(0xFFF3E5F5),
+                    iconTint = Color(0xFF7B1FA2),
+                    title = "Contact Us",
+                    subtitle = "Email · Call · Chat support",
+                    onClick = {
+                        Toast.makeText(context, "📧 rewardclub.team@gmail.com\n📞 1800-XXX-XXXX", Toast.LENGTH_LONG).show()
+                    }
+                )
             }
         }
 
