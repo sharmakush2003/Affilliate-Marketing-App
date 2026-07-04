@@ -376,7 +376,7 @@ fun AppMainContainer() {
     ) {
         Scaffold(
             bottomBar = {
-                if (currentScreen is Screen.Home || currentScreen is Screen.Coupons || currentScreen is Screen.Profile) {
+                if (currentScreen is Screen.Home || currentScreen is Screen.Profile) {
                     BottomNavigationBar(
                         currentScreen = currentScreen,
                         onTabSelected = { screen ->
@@ -461,45 +461,6 @@ fun BottomNavigationBar(
             onClick = { onTabSelected(Screen.Home) },
             icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
             label = { Text("Home") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = DarkGreen,
-                selectedTextColor = DarkGreen,
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
-                indicatorColor = Color(0xFFE8F5E9)
-            )
-        )
-        NavigationBarItem(
-            selected = currentScreen is Screen.Products, // map Shop to Products
-            onClick = { onTabSelected(Screen.Products) },
-            icon = { Icon(Icons.Default.ShoppingBag, contentDescription = "Shop") },
-            label = { Text("Shop") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = DarkGreen,
-                selectedTextColor = DarkGreen,
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
-                indicatorColor = Color(0xFFE8F5E9)
-            )
-        )
-        NavigationBarItem(
-            selected = currentScreen is Screen.Vouchers, // map Spend to Vouchers
-            onClick = { onTabSelected(Screen.Vouchers) },
-            icon = { Icon(Icons.Default.Redeem, contentDescription = "Spend") },
-            label = { Text("Spend") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = DarkGreen,
-                selectedTextColor = DarkGreen,
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
-                indicatorColor = Color(0xFFE8F5E9)
-            )
-        )
-        NavigationBarItem(
-            selected = currentScreen is Screen.Coupons,
-            onClick = { onTabSelected(Screen.Coupons) },
-            icon = { Icon(Icons.Default.LocalActivity, contentDescription = "Coupons") },
-            label = { Text("Coupons") },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = DarkGreen,
                 selectedTextColor = DarkGreen,
