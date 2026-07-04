@@ -146,7 +146,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
                 .offset(y = offsetY.value.dp)
                 .graphicsLayer {
                     scaleX = scale.value
-                    scaleY = scale.value 
+                    scaleY = scale.value
                     this.alpha = alpha.value
                 }
         ) {

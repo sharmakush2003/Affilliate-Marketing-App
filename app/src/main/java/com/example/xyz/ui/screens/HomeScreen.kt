@@ -25,6 +25,11 @@ import androidx.compose.ui.unit.sp
 import com.example.xyz.ui.theme.*
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.draw.shadow
+import kotlinx.coroutines.delay
 import com.example.xyz.R
 
 // Mock data classes
@@ -445,71 +450,68 @@ fun CoinBalanceSection(onRedeemClick: () -> Unit) {
 
 @Composable
 fun BannerSliderSection() {
-    Box(
+    val banners = listOf(
+        R.drawable.banner_welcome,
+        R.drawable.banner_amazon,
+        R.drawable.banner_flipkart,
+        R.drawable.banner_finance
+    )
+    
+    var currentSlide by remember { mutableStateOf(0) }
+    
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(4000)
+            currentSlide = (currentSlide + 1) % banners.size
+        }
+    }
+    
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(Color(0xFF7A1FA2), Color(0xFF3F51B5))
-                )
-            )
-            .padding(horizontal = 14.dp, vertical = 10.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(160.dp)
+                .shadow(4.dp, RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.LightGray)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Flipkart GOAT SALE",
-                        color = AccentGold,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                    Text(
-                        text = "Earn up to 200 Coins per transaction",
-                        color = White,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                Button(
-                    onClick = {},
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentGold),
-                    shape = RoundedCornerShape(16.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
-                    modifier = Modifier.height(28.dp)
-                ) {
-                    Text(text = "Shop Now", color = Color.Black, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                }
+            Crossfade(
+                targetState = currentSlide,
+                animationSpec = tween(durationMillis = 600)
+            ) { slideIndex ->
+                Image(
+                    painter = painterResource(id = banners[slideIndex]),
+                    contentDescription = "Offer Banner",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
             }
-
-            // Carousel dots
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                (0..3).forEach { index ->
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 2.dp)
-                            .size(5.dp)
-                            .clip(CircleShape)
-                            .background(if (index == 0) AccentGold else White.copy(alpha = 0.5f))
-                    )
-                }
+        }
+        
+        Spacer(modifier = Modifier.height(10.dp))
+        
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            banners.forEachIndexed { index, _ ->
+                val size by animateDpAsState(
+                    targetValue = if (index == currentSlide) 14.dp else 6.dp,
+                    label = "dotWidth"
+                )
+                Box(
+                    modifier = Modifier
+                        .size(height = 6.dp, width = size)
+                        .clip(CircleShape)
+                        .background(
+                            if (index == currentSlide) DarkGreen else Color.LightGray
+                        )
+                )
             }
         }
     }
