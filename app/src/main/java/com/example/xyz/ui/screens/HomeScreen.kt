@@ -299,8 +299,16 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(DarkGreen)
-            .padding(horizontal = 8.dp, vertical = 8.dp) // adjusted for IconButton touch targets
+            .background(
+                Brush.horizontalGradient(
+                    colors = listOf(
+                        Color(0xFF004D2C),
+                        Color(0xFF006B3F),
+                        Color(0xFF008B52)
+                    )
+                )
+            )
+            .padding(horizontal = 4.dp, vertical = 6.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -309,73 +317,68 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                // Hamburger icon
                 IconButton(onClick = onHamburgerClick) {
-                    Icon(
-                        imageVector = Icons.Default.Menu,
-                        contentDescription = "Menu",
-                        tint = White
+                    Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu", tint = White)
+                }
+                // Logo with gold ring
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .background(
+                            Brush.linearGradient(listOf(Color(0xFFE8A020), Color(0xFFFFD070))),
+                            CircleShape
+                        )
+                        .padding(2.dp)
+                        .background(Color.White, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.reward_club_logo),
+                        contentDescription = "Reward Club Logo",
+                        modifier = Modifier.size(24.dp).clip(CircleShape)
                     )
                 }
-
-                // Reward Club Logo
-                Image(
-                    painter = painterResource(id = R.drawable.reward_club_logo),
-                    contentDescription = "Reward Club Logo",
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .background(Color.White)
-                        .padding(2.dp)
-                )
-                
-                Spacer(modifier = Modifier.width(4.dp))
-                
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Reward Club",
                     color = White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 19.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 0.3.sp
                 )
             }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.padding(end = 8.dp)
             ) {
-                Text(
-                    text = "JOIN",
-                    color = White,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.clickable { onJoinClick() }
-                )
-
-                // Gold Hexagon/Badge "R+"
+                // Premium JOIN pill button
                 Box(
-                    contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(32.dp)
                         .background(
-                            brush = Brush.linearGradient(
-                                colors = listOf(Color(0xFFE5A93C), Color(0xFFF1D169))
-                            ),
-                            shape = RoundedCornerShape(8.dp)
+                            Brush.linearGradient(listOf(Color(0xFFE8A020), Color(0xFFFFD060))),
+                            RoundedCornerShape(50)
                         )
+                        .clickable { onJoinClick() }
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "R+",
-                        color = Color(0xFF5B3C00),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.ExtraBold
+                        text = "JOIN",
+                        color = Color(0xFF3D2200),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 1.sp
                     )
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun CoinBalanceSection(onRedeemClick: () -> Unit) {
@@ -384,66 +387,68 @@ fun CoinBalanceSection(onRedeemClick: () -> Unit) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable { onRedeemClick() },
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = White),
-        border = BorderStroke(1.dp, BorderColor)
+        elevation = CardDefaults.cardElevation(3.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            // Left green accent bar
+            Box(
+                modifier = Modifier
+                    .width(5.dp)
+                    .height(64.dp)
+                    .background(
+                        Brush.verticalGradient(listOf(Color(0xFF008B52), Color(0xFF004D2C))),
+                        RoundedCornerShape(topStart = 14.dp, bottomStart = 14.dp)
+                    )
+            )
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Gold Coin Circle
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .background(AccentGold, shape = CircleShape),
-                    contentAlignment = Alignment.Center
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Text(
-                        text = "🪙",
-                        fontSize = 14.sp
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(
+                                Brush.linearGradient(listOf(Color(0xFFFFD060), Color(0xFFE8A020))),
+                                CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "🪙", fontSize = 20.sp)
+                    }
+                    Column {
+                        Text(
+                            text = "Reward Club Coins",
+                            color = TextGray,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            text = "2,450 Coins",
+                            color = TextDark,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
                 }
-                
-                Column {
-                    Text(
-                        text = "Reward Club Coins",
-                        color = TextGray,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = "2,450 Coins",
-                        color = TextDark,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Text(text = "History", color = DarkGreen, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, tint = DarkGreen, modifier = Modifier.size(16.dp))
                 }
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = "Claim History",
-                    color = DarkGreen,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Icon(
-                    imageVector = Icons.Default.ChevronRight,
-                    contentDescription = null,
-                    tint = DarkGreen,
-                    modifier = Modifier.size(16.dp)
-                )
             }
         }
     }
@@ -501,16 +506,18 @@ fun BannerSliderSection() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             banners.forEachIndexed { index, _ ->
-                val size by animateDpAsState(
-                    targetValue = if (index == currentSlide) 14.dp else 6.dp,
+                val width by animateDpAsState(
+                    targetValue = if (index == currentSlide) 20.dp else 6.dp,
                     label = "dotWidth"
                 )
                 Box(
                     modifier = Modifier
-                        .size(height = 6.dp, width = size)
+                        .size(height = 6.dp, width = width)
                         .clip(CircleShape)
                         .background(
-                            if (index == currentSlide) DarkGreen else Color.LightGray
+                            if (index == currentSlide)
+                                Brush.horizontalGradient(listOf(Color(0xFFE8A020), Color(0xFF006B3F)))
+                            else Brush.horizontalGradient(listOf(Color(0xFFDDDDDD), Color(0xFFDDDDDD)))
                         )
                 )
             }
@@ -528,7 +535,7 @@ fun SectionHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -536,11 +543,22 @@ fun SectionHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Premium left accent bar
+            Box(
+                modifier = Modifier
+                    .width(4.dp)
+                    .height(20.dp)
+                    .background(
+                        Brush.verticalGradient(listOf(Color(0xFFE8A020), DarkGreen)),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
             Text(
                 text = title,
                 color = TextDark,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 17.sp,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 0.1.sp
             )
             if (hasNewBadge) {
                 Box(

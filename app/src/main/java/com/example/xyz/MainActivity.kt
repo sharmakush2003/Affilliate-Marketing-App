@@ -453,40 +453,54 @@ fun BottomNavigationBar(
     currentScreen: Screen,
     onTabSelected: (Screen) -> Unit
 ) {
-    NavigationBar(
-        containerColor = Color.White,
-        tonalElevation = 8.dp,
-        modifier = Modifier.height(57.dp),
-        windowInsets = WindowInsets(0.dp)
-    ) {
-        NavigationBarItem(
-            selected = currentScreen is Screen.Home,
-            onClick = { onTabSelected(Screen.Home) },
-            icon = { Icon(Icons.Default.Home, contentDescription = "Home", modifier = Modifier.size(22.dp)) },
-            label = { Text("Home", fontSize = 10.sp) },
-            alwaysShowLabel = true,
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = DarkGreen,
-                selectedTextColor = DarkGreen,
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
-                indicatorColor = Color(0xFFE8F5E9)
-            )
+    Column {
+        // Premium gradient top border
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.5.dp)
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(Color(0xFFE8A020), Color(0xFF006B3F), Color(0xFFE8A020))
+                    )
+                )
         )
-        NavigationBarItem(
-            selected = currentScreen is Screen.Profile,
-            onClick = { onTabSelected(Screen.Profile) },
-            icon = { Icon(Icons.Default.AccountCircle, contentDescription = "Profile", modifier = Modifier.size(22.dp)) },
-            label = { Text("Profile", fontSize = 10.sp) },
-            alwaysShowLabel = true,
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = DarkGreen,
-                selectedTextColor = DarkGreen,
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
-                indicatorColor = Color(0xFFE8F5E9)
+        NavigationBar(
+            containerColor = Color.White,
+            tonalElevation = 0.dp,
+            modifier = Modifier.height(57.dp),
+            windowInsets = WindowInsets(0.dp)
+        ) {
+            NavigationBarItem(
+                selected = currentScreen is Screen.Home,
+                onClick = { onTabSelected(Screen.Home) },
+                icon = { Icon(Icons.Default.Home, contentDescription = "Home", modifier = Modifier.size(22.dp)) },
+                label = { Text("Home", fontSize = 10.sp, fontWeight = if (currentScreen is Screen.Home) FontWeight.Bold else FontWeight.Normal) },
+                alwaysShowLabel = true,
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = DarkGreen,
+                    selectedTextColor = DarkGreen,
+                    unselectedIconColor = Color(0xFF9BB0A4),
+                    unselectedTextColor = Color(0xFF9BB0A4),
+                    indicatorColor = Color(0xFFE6F4EE)
+                )
             )
-        )
+            NavigationBarItem(
+                selected = currentScreen is Screen.Profile,
+                onClick = { onTabSelected(Screen.Profile) },
+                icon = { Icon(Icons.Default.AccountCircle, contentDescription = "Profile", modifier = Modifier.size(22.dp)) },
+                label = { Text("Profile", fontSize = 10.sp, fontWeight = if (currentScreen is Screen.Profile) FontWeight.Bold else FontWeight.Normal) },
+                alwaysShowLabel = true,
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = DarkGreen,
+                    selectedTextColor = DarkGreen,
+                    unselectedIconColor = Color(0xFF9BB0A4),
+                    unselectedTextColor = Color(0xFF9BB0A4),
+                    indicatorColor = Color(0xFFE6F4EE)
+                )
+            )
+        }
     }
 }
+
 

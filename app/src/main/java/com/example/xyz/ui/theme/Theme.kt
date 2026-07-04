@@ -12,27 +12,38 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-
 private val LightColorScheme = lightColorScheme(
-    primary = DarkGreen,
-    onPrimary = White,
-    secondary = LightGreen,
-    onSecondary = DarkGreen,
-    background = GrayBackground,
-    surface = White,
-    onBackground = TextDark,
-    onSurface = TextDark,
+    primary          = DarkGreen,
+    onPrimary        = White,
+    primaryContainer = LightGreen,
+    onPrimaryContainer = DarkGreen,
+    secondary        = AccentGold,
+    onSecondary      = TextDark,
+    secondaryContainer = AccentAmber,
+    onSecondaryContainer = GoldHex,
+    background       = GrayBackground,
+    surface          = CardSurface,
+    surfaceVariant   = SectionBg,
+    onBackground     = TextDark,
+    onSurface        = TextDark,
+    onSurfaceVariant = TextGray,
+    outline          = BorderColor,
+    error            = ErrorRed,
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = DarkGreen,
-    onPrimary = White,
-    secondary = LightGreen,
-    onSecondary = DarkGreen,
-    background = TextDark,
-    surface = Color(0xFF2C2C2C),
-    onBackground = White,
-    onSurface = White,
+    primary          = MidGreen,
+    onPrimary        = White,
+    primaryContainer = DarkGreen,
+    onPrimaryContainer = LightGreen,
+    secondary        = AccentGold,
+    onSecondary      = TextDark,
+    background       = Color(0xFF0D1A12),
+    surface          = Color(0xFF1A2D1E),
+    onBackground     = White,
+    onSurface        = White,
+    outline          = Color(0xFF3A5040),
+    error            = ErrorRed,
 )
 
 @Composable
@@ -45,7 +56,7 @@ fun XYZTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
+            window.statusBarColor = DarkGreen.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
         }
     }
