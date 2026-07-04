@@ -221,53 +221,7 @@ fun HomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
 
-        // Coupons
-        SectionHeader(
-            title = "Coupons",
-            hasNewBadge = true,
-            onViewAllClick = onViewAllCouponsClick
-        )
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(coupons) { coupon ->
-                CouponCard(coupon = coupon, onClick = { onCouponClick(coupon.title) })
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Popular Vouchers
-        SectionHeader(title = "Popular Vouchers", onViewAllClick = { onCategoryClick("Vouchers") })
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(vouchers) { voucher ->
-                VoucherCard(voucher = voucher, onClick = { onCategoryClick("Vouchers") })
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Top Products to Redeem
-        SectionHeader(title = "Top Products to Redeem", onViewAllClick = { onCategoryClick("Products") })
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(topProducts) { product ->
-                TopProductCard(product = product, onClick = { onCategoryClick("Products") })
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         // Zillion-Style Slogans Footer
         Card(
