@@ -22,6 +22,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import com.example.xyz.R
 import com.example.xyz.ui.theme.*
 
 data class CouponGridItem(
@@ -33,7 +36,8 @@ data class CouponGridItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CouponsScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onCouponClick: (String) -> Unit
 ) {
     val coupons = listOf(
         CouponGridItem("Bloom by Bold Care", "15% Discount", "🌸"),
@@ -87,7 +91,7 @@ fun CouponsScreen(
                     modifier = Modifier.weight(1f)
                 ) {
                     items(coupons) { coupon ->
-                        CouponGridCard(coupon = coupon)
+                        CouponGridCard(coupon = coupon, onClick = { onCouponClick(coupon.name) })
                     }
                 }
             }
@@ -134,7 +138,17 @@ fun CouponsScreen(
 }
 
 @Composable
-fun CouponGridCard(coupon: CouponGridItem) {
+fun CouponGridCard(coupon: CouponGridItem, onClick: () -> Unit) {
+    val logoRes = when {
+        coupon.name.contains("Bloom", ignoreCase = true) -> R.drawable.bloom_logo
+        coupon.name.contains("Bombay", ignoreCase = true) -> R.drawable.bombay_shaving_logo
+        coupon.name.contains("Assembly", ignoreCase = true) -> R.drawable.assembly_travel_logo
+        coupon.name.contains("Deyga", ignoreCase = true) -> R.drawable.deyga_logo
+        coupon.name.contains("Earth", ignoreCase = true) -> R.drawable.earth_rhythm_logo
+        coupon.name.contains("Mokobara", ignoreCase = true) -> R.drawable.mokobara_logo
+        else -> null
+    }
+
     Card(
         colors = CardDefaults.cardColors(containerColor = White),
         shape = RoundedCornerShape(12.dp),
@@ -142,6 +156,7 @@ fun CouponGridCard(coupon: CouponGridItem) {
         modifier = Modifier
             .fillMaxWidth()
             .height(160.dp)
+            .clickable { onClick() }
     ) {
         Column(
             modifier = Modifier
@@ -157,10 +172,19 @@ fun CouponGridCard(coupon: CouponGridItem) {
                     .background(Color(0xFFE8F5E9)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = coupon.iconText,
-                    fontSize = 24.sp
-                )
+                if (logoRes != null) {
+                    Image(
+                        painter = painterResource(id = logoRes),
+                        contentDescription = coupon.name,
+                        modifier = Modifier.fillMaxSize().padding(8.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    Text(
+                        text = coupon.iconText,
+                        fontSize = 24.sp
+                    )
+                }
             }
 
             Column(

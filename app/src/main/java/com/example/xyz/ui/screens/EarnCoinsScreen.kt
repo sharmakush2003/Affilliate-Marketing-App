@@ -17,6 +17,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import com.example.xyz.R
 import com.example.xyz.ui.theme.*
 
 data class RateRow(
@@ -37,39 +40,69 @@ fun EarnCoinsScreen(
 ) {
     val scrollState = rememberScrollState()
 
-    val rates = listOf(
-        RateRow("Apparel", "Earn 12 coins per Rs.100"),
-        RateRow("Beauty, Luxury Beauty", "Earn 12 coins per Rs.100"),
-        RateRow("Grocery", "Earn 6 coins per Rs.100"),
-        RateRow("Luggage", "Earn 10 coins per Rs.100"),
-        RateRow("Shoes, handbags & Accessories", "Earn 10 coins per Rs.100"),
-        RateRow("Watches", "Earn 9 coins per Rs.100"),
-        RateRow("Sports", "Earn 8 coins per Rs.100"),
-        RateRow("Lawn and Garden", "Earn 8 coins per Rs.100"),
-        RateRow("Personal care appliances", "Earn 10 coins per Rs.100"),
-        RateRow("Books", "Earn 6 coins per Rs.100"),
-        RateRow("Toys", "Earn 5 coins per Rs.100"),
-        RateRow("Cell Phones & Accessories", "Earn upto 1 coin per Rs.100")
-    )
+    val rates = when (brandName) {
+        "Amazon" -> listOf(
+            RateRow("Apparel", "Upto 12 coins per ₹100"),
+            RateRow("Beauty & Luxury Beauty", "Upto 12 coins per ₹100"),
+            RateRow("Grocery", "Upto 6 coins per ₹100"),
+            RateRow("Luggage", "Upto 10 coins per ₹100"),
+            RateRow("Shoes, Handbags & Accessories", "Upto 10 coins per ₹100"),
+            RateRow("Watches", "Upto 9 coins per ₹100"),
+            RateRow("Sports", "Upto 8 coins per ₹100"),
+            RateRow("Lawn and Garden", "Upto 8 coins per ₹100"),
+            RateRow("BISS (Industrial)", "Upto 6 coins per ₹100"),
+            RateRow("Furniture", "Upto 8 coins per ₹100"),
+            RateRow("Home & Home Improvement", "Upto 6 coins per ₹100"),
+            RateRow("Kitchen", "Upto 7 coins per ₹100"),
+            RateRow("Automotive", "Upto 7 coins per ₹100"),
+            RateRow("Pet", "Upto 6 coins per ₹100"),
+            RateRow("Baby", "Upto 6 coins per ₹100"),
+            RateRow("Health & Personal Care", "Upto 6 coins per ₹100"),
+            RateRow("Jewelry", "Upto 8 coins per ₹100"),
+            RateRow("Appliances", "Upto 4 coins per ₹100"),
+            RateRow("Books", "Upto 6 coins per ₹100"),
+            RateRow("Toys", "Upto 5 coins per ₹100"),
+            RateRow("Cell Phones & Accessories", "Upto 1 coin per ₹100")
+        )
+        "Flipkart" -> listOf(
+            RateRow("Grocery", "Upto 3 coins per ₹100"),
+            RateRow("Books & General Merch", "Upto 5 coins per ₹100"),
+            RateRow("Home, Furniture & Fashion", "Upto 2 coins per ₹100"),
+            RateRow("Large/Core/Emerging Electronics", "Upto 200 coins/txn"),
+            RateRow("Kid's Footwear", "Upto 10 coins per ₹100"),
+            RateRow("Mobile Tiers (Tiers 1-4)", "Upto 200 coins/txn")
+        )
+        else -> listOf(
+            RateRow("General Purchases", "Upto 10 coins per ₹100")
+        )
+    }
 
-    val trackings = List(12) {
-        TrackRow("Within 3 days of Shipping", "Within 60 days of Shipping")
+    val trackings = when (brandName) {
+        "Amazon" -> List(rates.size) {
+            TrackRow("Within 3 days of shipping", "Within 60 days of shipping")
+        }
+        "Flipkart" -> List(rates.size) {
+            TrackRow("Within 3-5 days of shipping", "Within 100 days of shipping")
+        }
+        else -> List(rates.size) {
+            TrackRow("Within 3 days of shipping", "Within 60 days of shipping")
+        }
     }
 
     val instructions = listOf(
         Triple("🛒", "START with\nan empty cart", "1"),
-        Triple("🏷️", "Use XYZ\nspecific coupon codes\nonly", "2"),
+        Triple("🏷️", "Use Reward Club\nspecific coupon codes\nonly", "2"),
         Triple("📝", "COMPLETE\ntransaction in\none session", "3")
     )
 
     val quickTips = listOf(
-        "Always use your OWN account registered with the merchant and NEVER share your XYZ Card details with anyone. Sharing of XYZ Card details will disqualify all transactions tagged to your card during the month.",
-        "If a Product or Category is excluded from coins earning, XYZ credits 1 Coin for that transaction, to acknowledge the same. Please refer detailed T&Cs",
+        "Always use your OWN account registered with the merchant and NEVER share your Card details with anyone. Sharing of Card details will disqualify all transactions tagged to your card during the month.",
+        "If a Product or Category is excluded from coins earning, Reward Club credits 1 Coin for that transaction, to acknowledge the same. Please refer detailed T&Cs",
         "The right to validate your transaction remains with the respective online Shopping Partner you transact on, and their validation is final",
-        "XYZ coins will be credited in the active state based on Partner validation and recognition of your transaction as payable",
+        "Coins will be credited in the active state based on Partner validation and recognition of your transaction as payable",
         "Any dispute / complaints raised beyond 20 Days from the date of the transaction will not be entertained",
-        "Do not use any Coupon code/offer which is not listed/shared on XYZ. Use XYZ's coupon code only for the specific brands if shared / hosted by XYZ",
-        "* All Rewards are in the form of XYZ Coins *"
+        "Do not use any Coupon code/offer which is not listed/shared on Reward Club. Use Reward Club's coupon code only for the specific brands if shared / hosted by Reward Club",
+        "* All Rewards are in the form of Reward Club Coins *"
     )
 
     Scaffold(
@@ -153,6 +186,14 @@ fun EarnCoinsScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     // Logo Header
+                    val logoRes = when (brandName) {
+                        "Amazon" -> R.drawable.amazon_logo
+                        "Flipkart" -> R.drawable.flipkart_logo
+                        "HP Pay" -> R.drawable.hp_pay_logo
+                        "Myntra" -> R.drawable.myntra_logo
+                        else -> null
+                    }
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -162,15 +203,25 @@ fun EarnCoinsScreen(
                             modifier = Modifier
                                 .width(90.dp)
                                 .height(36.dp)
-                                .background(Color(0xFFF0F4F8), shape = RoundedCornerShape(6.dp)),
+                                .background(Color(0xFFF0F4F8), shape = RoundedCornerShape(6.dp))
+                                .padding(4.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = brandName,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                color = Color.Black
-                            )
+                            if (logoRes != null) {
+                                Image(
+                                    painter = painterResource(id = logoRes),
+                                    contentDescription = brandName,
+                                    modifier = Modifier.fillMaxHeight(),
+                                    contentScale = ContentScale.Fit
+                                )
+                            } else {
+                                Text(
+                                    text = brandName,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp,
+                                    color = Color.Black
+                                )
+                            }
                         }
                     }
 
@@ -185,14 +236,14 @@ fun EarnCoinsScreen(
                                 .background(AccentGold, shape = RoundedCornerShape(6.dp)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("XYZ", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                            Text("RC", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                         }
 
                         Text(
                             text = if (brandName == "Amazon") {
-                                "Get Upto 12 XYZ Coins per Rs.100 on your purchase from Amazon via XYZ"
+                                "Get Upto 12 Coins per Rs.100 on your purchase from Amazon via Reward Club"
                             } else {
-                                "Get Upto 200 XYZ Coins per transaction on your purchase from Flipkart via XYZ"
+                                "Get Upto 200 Coins per transaction on your purchase from Flipkart via Reward Club"
                             },
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
@@ -203,7 +254,7 @@ fun EarnCoinsScreen(
                     Divider(color = BorderColor)
 
                     Text(
-                        text = "Kindly Note: To earn XYZ coins on your $brandName transaction, do ensure as depicted below",
+                        text = "Kindly Note: To earn Coins on your $brandName transaction, do ensure as depicted below",
                         fontSize = 12.sp,
                         color = TextGray
                     )
@@ -253,26 +304,49 @@ fun EarnCoinsScreen(
             var showTrackingTab by remember { mutableStateOf(false) }
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp)
+                    .background(Color(0xFFEFEFEF), shape = RoundedCornerShape(22.dp))
+                    .padding(4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(
-                    onClick = { showTrackingTab = false },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (!showTrackingTab) DarkGreen else Color.LightGray
-                    ),
-                    modifier = Modifier.weight(1f)
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .background(
+                            if (!showTrackingTab) DarkGreen else Color.Transparent,
+                            shape = RoundedCornerShape(18.dp)
+                        )
+                        .clickable { showTrackingTab = false },
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Earn Rates")
+                    Text(
+                        text = "Earn Rates",
+                        color = if (!showTrackingTab) White else TextDark,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
-                Button(
-                    onClick = { showTrackingTab = true },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (showTrackingTab) DarkGreen else Color.LightGray
-                    ),
-                    modifier = Modifier.weight(1f)
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .background(
+                            if (showTrackingTab) DarkGreen else Color.Transparent,
+                            shape = RoundedCornerShape(18.dp)
+                        )
+                        .clickable { showTrackingTab = true },
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Tracking/Confirmation")
+                    Text(
+                        text = "Tracking & Confirmation",
+                        color = if (showTrackingTab) White else TextDark,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
@@ -288,25 +362,26 @@ fun EarnCoinsScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(DarkGreen)
+                            .background(Color(0xFFF5F7FA))
                             .padding(vertical = 12.dp, horizontal = 16.dp)
                     ) {
                         Text(
                             text = if (!showTrackingTab) "Category" else "Coins Tracking",
-                            color = White,
+                            color = TextGray,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
+                            fontSize = 13.sp,
                             modifier = Modifier.weight(1.5f)
                         )
                         Text(
                             text = if (!showTrackingTab) "Earn Rate" else "Coins Confirmation",
-                            color = White,
+                            color = TextGray,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
+                            fontSize = 13.sp,
                             modifier = Modifier.weight(1f),
                             textAlign = TextAlign.End
                         )
                     }
+                    HorizontalDivider(color = BorderColor)
 
                     // Table rows
                     if (!showTrackingTab) {

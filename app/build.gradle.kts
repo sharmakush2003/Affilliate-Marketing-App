@@ -29,6 +29,15 @@ android {
     buildFeatures {
         compose = true
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/NOTICE.md"
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/LICENSE.txt"
+            excludes += "META-INF/NOTICE.txt"
+        }
+    }
 }
 
 kotlin {
@@ -53,6 +62,9 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("com.sun.mail:android-mail:1.6.7")
+    implementation("com.sun.mail:android-activation:1.6.7")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

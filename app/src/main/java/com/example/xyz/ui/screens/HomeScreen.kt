@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -55,18 +56,45 @@ data class VoucherMock(
     val logoResId: Int? = null
 )
 
+data class CreditCardMock(
+    val name: String,
+    val logoText: String,
+    val offerText: String,
+    val subText: String,
+    val logoBg: Color = Color(0xFF1E1E1E),
+    val logoResId: Int? = null
+)
+
+data class InsuranceMock(
+    val name: String,
+    val logoText: String,
+    val offerText: String,
+    val subText: String,
+    val logoBg: Color = Color(0xFFE8F5E9),
+    val logoResId: Int? = null
+)
+
+data class TopProductMock(
+    val name: String,
+    val cost: String,
+    val emoji: String
+)
+
 @Composable
 fun HomeScreen(
+    onHamburgerClick: () -> Unit,
     onBrandClick: (String) -> Unit,
     onCategoryClick: (String) -> Unit,
-    onViewAllCouponsClick: () -> Unit
+    onViewAllCouponsClick: () -> Unit,
+    onCouponClick: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
 
     val brands = listOf(
         BrandEarn("Amazon", "amazon", "Upto 12", "per ₹100", Color(0xFFFF9900), R.drawable.amazon_logo),
         BrandEarn("Flipkart", "Flipkart", "Upto 200", "per transaction", Color(0xFF2874F0), R.drawable.flipkart_logo),
-        BrandEarn("Myntra", "Myntra", "Upto 10", "per ₹100", Color(0xFFE63956), R.drawable.myntra_logo)
+        BrandEarn("Myntra", "Myntra", "Upto 10", "per ₹100", Color(0xFFE63956), R.drawable.myntra_logo),
+        BrandEarn("HP Pay", "HP Pay", "Upto 10", "per ₹100", Color(0xFF0033A0))
     )
 
     val categories = listOf(
@@ -75,14 +103,37 @@ fun HomeScreen(
         RedeemCategory("Utilities", "🧾", true, "NEW")
     )
 
+    val creditCards = listOf(
+        CreditCardMock("SBI SimplyCLICK Card", "SBI Card", "5,000 Coins", "On card approval", Color(0xFF0F3E5F)),
+        CreditCardMock("HDFC Regalia Gold", "HDFC Bank", "8,000 Coins", "On card approval", Color(0xFF1A1A1A)),
+        CreditCardMock("ICICI Amazon Pay", "ICICI Bank", "3,500 Coins", "On card approval", Color(0xFFB85D06))
+    )
+
+    val insurances = listOf(
+        InsuranceMock("Car Insurance", "🚗", "Upto 2,000 Coins", "Get instant policy online", Color(0xFFE3F2FD)),
+        InsuranceMock("Health Insurance", "🛡️", "Upto 5,000 Coins", "Cashless claims network", Color(0xFFE8F5E9)),
+        InsuranceMock("Term Life Insurance", "👥", "Upto 8,000 Coins", "Secure your family's future", Color(0xFFFFF3E0))
+    )
+
     val coupons = listOf(
-        CouponMock("Bloom by Bold Care"),
-        CouponMock("Bombay Shaving Company")
+        CouponMock("Bloom by Bold Care", "15% Discount"),
+        CouponMock("Bombay Shaving Company", "0% Discount"),
+        CouponMock("Assembly Travel", "0% Discount"),
+        CouponMock("Deyga", "10% Discount")
     )
 
     val vouchers = listOf(
         VoucherMock("Amazon Pay gift card", "Amazon", "2% OFF", R.drawable.amazon_logo),
-        VoucherMock("Amazon shopping voucher", "Amazon Shopping..", "2.25% OFF", R.drawable.amazon_logo)
+        VoucherMock("Amazon shopping voucher", "Amazon Shopping..", "2.25% OFF", R.drawable.amazon_logo),
+        VoucherMock("Flipkart gift card", "Flipkart", "3% OFF", R.drawable.flipkart_logo),
+        VoucherMock("HP Pay voucher", "HPCL", "1.5% OFF")
+    )
+
+    val topProducts = listOf(
+        TopProductMock("Usha EI 2801 LT Electric Dry Iron", "3,798 Coins", "🔌"),
+        TopProductMock("High Speed Hand Mixer with 7 Speed", "9,321 Coins", "🥣"),
+        TopProductMock("Element 1010 Stainless Steel Bottle", "2,144 Coins", "🧴"),
+        TopProductMock("Philips HR1855/70 Viva Juicer", "51,232 Coins", "🍹")
     )
 
     Column(
@@ -92,29 +143,15 @@ fun HomeScreen(
             .verticalScroll(scrollState)
     ) {
         // Green Header
-        HeaderSection()
+        HeaderSection(onHamburgerClick = onHamburgerClick)
 
-        // Login Card
-        LoginCardSection()
+        // Coin Balance (Google Pay style, replacing Login card)
+        CoinBalanceSection(onRedeemClick = { onCategoryClick("Products") })
 
         // Banner Slider
         BannerSliderSection()
 
-        // Shop & Earn Coins
-        SectionHeader(title = "Shop & Earn Coins", onViewAllClick = { onBrandClick("Amazon") })
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(brands) { brand ->
-                BrandCard(brand = brand, onClick = { onBrandClick(brand.name) })
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Redeem coins on
+        // Redeem coins on (moved up)
         SectionHeader(title = "Redeem coins on", showViewAll = false)
         Row(
             modifier = Modifier
@@ -133,6 +170,48 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Shop & Earn Coins (moved down)
+        SectionHeader(title = "Shop & Earn Coins", onViewAllClick = { onBrandClick("Amazon") })
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(brands) { brand ->
+                BrandCard(brand = brand, onClick = { onBrandClick(brand.name) })
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Credit Cards [NEW]
+        SectionHeader(title = "Credit Cards", showViewAll = false)
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(creditCards) { card ->
+                CreditCardItem(card = card, onClick = { onBrandClick("Flipkart") })
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Insurance [NEW]
+        SectionHeader(title = "Insurance", showViewAll = false)
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(insurances) { insurance ->
+                InsuranceItem(insurance = insurance, onClick = { onBrandClick("Flipkart") })
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Coupons
         SectionHeader(
             title = "Coupons",
@@ -145,7 +224,7 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(coupons) { coupon ->
-                CouponCard(coupon = coupon, onClick = onViewAllCouponsClick)
+                CouponCard(coupon = coupon, onClick = { onCouponClick(coupon.title) })
             }
         }
 
@@ -160,6 +239,61 @@ fun HomeScreen(
         ) {
             items(vouchers) { voucher ->
                 VoucherCard(voucher = voucher, onClick = { onCategoryClick("Vouchers") })
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Top Products to Redeem
+        SectionHeader(title = "Top Products to Redeem", onViewAllClick = { onCategoryClick("Products") })
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(topProducts) { product ->
+                TopProductCard(product = product, onClick = { onCategoryClick("Products") })
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Zillion-Style Slogans Footer
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
+            border = BorderStroke(1.dp, BorderColor)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "that makes you go",
+                    color = TextGray,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = "ahaaaaaaa!",
+                    color = DarkGreen,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 1.sp
+                )
+                Text(
+                    text = "Everyday 1 Lakh+ Users Earn & Spend Coins",
+                    color = TextDark,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center
+                )
             }
         }
 
@@ -190,12 +324,12 @@ fun XYZIcon(modifier: Modifier = Modifier, color: Color = Color.White) {
 }
 
 @Composable
-fun HeaderSection() {
+fun HeaderSection(onHamburgerClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(DarkGreen)
-            .padding(horizontal = 16.dp, vertical = 14.dp)
+            .padding(horizontal = 8.dp, vertical = 8.dp) // adjusted for IconButton touch targets
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -204,15 +338,34 @@ fun HeaderSection() {
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                // Diamond Leaf Icon
-                XYZIcon(modifier = Modifier.size(24.dp))
+                // Hamburger icon
+                IconButton(onClick = onHamburgerClick) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Menu",
+                        tint = White
+                    )
+                }
+
+                // Reward Club Logo
+                Image(
+                    painter = painterResource(id = R.drawable.reward_club_logo),
+                    contentDescription = "Reward Club Logo",
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .padding(2.dp)
+                )
+                
+                Spacer(modifier = Modifier.width(4.dp))
                 
                 Text(
-                    text = "XYZ",
+                    text = "Reward Club",
                     color = White,
-                    fontSize = 22.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -229,7 +382,7 @@ fun HeaderSection() {
                     modifier = Modifier.clickable { }
                 )
 
-                // Gold Hexagon/Badge "X+"
+                // Gold Hexagon/Badge "R+"
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -242,7 +395,7 @@ fun HeaderSection() {
                         )
                 ) {
                     Text(
-                        text = "X+",
+                        text = "R+",
                         color = Color(0xFF5B3C00),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.ExtraBold
@@ -254,60 +407,72 @@ fun HeaderSection() {
 }
 
 @Composable
-fun LoginCardSection() {
-    Box(
+fun CoinBalanceSection(onRedeemClick: () -> Unit) {
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(White)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable { onRedeemClick() },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
+        border = BorderStroke(1.dp, BorderColor)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(60.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Box(
-                modifier = Modifier
-                    .weight(1.3f)
-                    .fillMaxHeight(),
-                contentAlignment = Alignment.CenterStart
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "New user?",
-                    color = TextDark,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(start = 20.dp)
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .background(Color(0xFFE8F5E9))
-                    .clickable { },
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                // Gold Coin Circle
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .background(AccentGold, shape = CircleShape),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Log In?",
-                        color = DarkGreen,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = null,
-                        tint = DarkGreen,
-                        modifier = Modifier.size(20.dp)
+                        text = "🪙",
+                        fontSize = 14.sp
                     )
                 }
+                
+                Column {
+                    Text(
+                        text = "Reward Club Coins",
+                        color = TextGray,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "2,450 Coins",
+                        color = TextDark,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "Claim History",
+                    color = DarkGreen,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = DarkGreen,
+                    modifier = Modifier.size(16.dp)
+                )
             }
         }
     }
@@ -318,48 +483,52 @@ fun BannerSliderSection() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(
                 brush = Brush.linearGradient(
                     colors = listOf(Color(0xFF7A1FA2), Color(0xFF3F51B5))
                 )
             )
-            .padding(16.dp)
+            .padding(horizontal = 14.dp, vertical = 10.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                text = "Shop the Flipkart",
-                color = White,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Light
-            )
-            Text(
-                text = "GOAT SALE",
-                color = AccentGold,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
-            Text(
-                text = "Earn up to 200 Coins per transaction",
-                color = White,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-            Button(
-                onClick = {},
-                colors = ButtonDefaults.buttonColors(containerColor = AccentGold),
-                shape = RoundedCornerShape(20.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
-                modifier = Modifier.height(30.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Shop Now", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = "Flipkart GOAT SALE",
+                        color = AccentGold,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    Text(
+                        text = "Earn up to 200 Coins per transaction",
+                        color = White,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentGold),
+                    shape = RoundedCornerShape(16.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
+                    modifier = Modifier.height(28.dp)
+                ) {
+                    Text(text = "Shop Now", color = Color.Black, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
 
             // Carousel dots
             Row(
@@ -367,13 +536,13 @@ fun BannerSliderSection() {
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                (0..5).forEach { index ->
+                (0..3).forEach { index ->
                     Box(
                         modifier = Modifier
-                            .padding(horizontal = 3.dp)
-                            .size(6.dp)
+                            .padding(horizontal = 2.dp)
+                            .size(5.dp)
                             .clip(CircleShape)
-                            .background(if (index == 0) DarkGreen else White.copy(alpha = 0.5f))
+                            .background(if (index == 0) AccentGold else White.copy(alpha = 0.5f))
                     )
                 }
             }
@@ -523,40 +692,42 @@ fun CategoryGridItem(
 ) {
     Box(
         modifier = modifier
+            .height(100.dp)
             .clip(RoundedCornerShape(12.dp))
             .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
             .background(White)
             .clickable { onClick() }
-            .padding(14.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Badge at top right if present
-            if (category.hasBadge) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.End)
-                        .offset(y = (-6).dp)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(AccentGold)
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
-                ) {
-                    Text(
-                        text = category.badgeText,
-                        color = Color.Black,
-                        fontSize = 8.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+        if (category.hasBadge) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 6.dp, end = 6.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(AccentGold)
+                    .padding(horizontal = 4.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    text = category.badgeText,
+                    color = Color.Black,
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
+        }
 
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             Text(
                 text = category.iconText,
                 fontSize = 24.sp
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = category.title,
                 color = TextDark,
@@ -570,43 +741,78 @@ fun CategoryGridItem(
 
 @Composable
 fun CouponCard(coupon: CouponMock, onClick: () -> Unit) {
-    Box(
+    val logoRes = when (coupon.title) {
+        "Bloom by Bold Care" -> R.drawable.bloom_logo
+        "Bombay Shaving Company" -> R.drawable.bombay_shaving_logo
+        "Assembly Travel" -> R.drawable.assembly_travel_logo
+        "Deyga" -> R.drawable.deyga_logo
+        else -> null
+    }
+
+    val emoji = when (coupon.title) {
+        "Bloom by Bold Care" -> "🌸"
+        "Bombay Shaving Company" -> "🪒"
+        "Assembly Travel" -> "🧳"
+        "Deyga" -> "🌿"
+        else -> "🎟️"
+    }
+
+    Card(
+        colors = CardDefaults.cardColors(containerColor = White),
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, BorderColor),
         modifier = Modifier
-            .width(180.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
-            .background(White)
+            .width(150.dp)
+            .height(160.dp)
             .clickable { onClick() }
-            .padding(14.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             Box(
                 modifier = Modifier
-                    .size(60.dp)
+                    .size(48.dp)
                     .clip(CircleShape)
                     .background(Color(0xFFE8F5E9)),
                 contentAlignment = Alignment.Center
             ) {
+                if (logoRes != null) {
+                    Image(
+                        painter = painterResource(id = logoRes),
+                        contentDescription = coupon.title,
+                        modifier = Modifier.fillMaxSize().padding(8.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    Text(
+                        text = emoji,
+                        fontSize = 20.sp
+                    )
+                }
+            }
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
                 Text(
-                    text = coupon.title.take(1),
-                    fontSize = 24.sp,
-                    color = DarkGreen,
+                    text = coupon.title,
+                    color = TextDark,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = coupon.discount,
+                    color = OrangeDiscount,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = coupon.title,
-                color = TextDark,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
         }
     }
 }
@@ -663,6 +869,216 @@ fun VoucherCard(voucher: VoucherMock, onClick: () -> Unit) {
                 color = TextGray,
                 fontSize = 11.sp
             )
+        }
+    }
+}
+
+@Composable
+fun CreditCardItem(card: CreditCardMock, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .width(180.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+            .background(White)
+            .clickable { onClick() }
+            .padding(14.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // A mini credit card visual design
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(90.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(card.logoBg)
+                    .padding(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = card.logoText,
+                            color = White,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "💳",
+                            color = White,
+                            fontSize = 14.sp
+                        )
+                    }
+                    Text(
+                        text = "•••• ••••",
+                        color = White.copy(alpha = 0.7f),
+                        fontSize = 14.sp,
+                        letterSpacing = 2.sp
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = card.name,
+                color = TextDark,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Diamond coin shape
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .background(AccentGold, shape = RoundedCornerShape(2.dp))
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = card.offerText,
+                    color = DarkGreen,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Text(
+                text = card.subText,
+                color = TextGray,
+                fontSize = 10.sp
+            )
+        }
+    }
+}
+
+@Composable
+fun InsuranceItem(insurance: InsuranceMock, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .width(150.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+            .background(White)
+            .clickable { onClick() }
+            .padding(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(insurance.logoBg),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = insurance.logoText,
+                    fontSize = 28.sp
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = insurance.name,
+                color = TextDark,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Diamond coin shape
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .background(AccentGold, shape = RoundedCornerShape(2.dp))
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = insurance.offerText,
+                    color = DarkGreen,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Text(
+                text = insurance.subText,
+                color = TextGray,
+                fontSize = 10.sp
+            )
+        }
+    }
+}
+
+@Composable
+fun TopProductCard(product: TopProductMock, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .width(160.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+            .background(White)
+            .clickable { onClick() }
+            .padding(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(GrayBackground),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = product.emoji,
+                    fontSize = 36.sp
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = product.name,
+                color = TextDark,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.height(36.dp)
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Diamond coin shape
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .background(AccentGold, shape = RoundedCornerShape(2.dp))
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = product.cost,
+                    color = DarkGreen,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
