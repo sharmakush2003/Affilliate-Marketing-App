@@ -6,8 +6,8 @@ import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 
 object EmailSender {
-    private const val SENDER_EMAIL = "chittortech@gmail.com"
-    private const val APP_PASSWORD = "yigvsszkozhvydma"
+    private const val SENDER_EMAIL = "rewardclub.team@gmail.com"
+    private const val APP_PASSWORD = "trwqwwxttewvvuoi"
 
     fun sendOtpEmail(recipientEmail: String, otpCode: String): Boolean {
         val properties = Properties().apply {
@@ -33,14 +33,24 @@ object EmailSender {
                     """
                     Hello,
                     
-                    Your One Time Password (OTP) for verifying your login to the Reward Club app is:
+                    You have requested a secure One-Time Password (OTP) to verify your account session on Reward Club.
+                    
+                    Please use the security code detailed inside this email to authorize your access.
+                    
+                    ------------------------------------------------------------
+                    SECURITY WARNING: For security reasons, please do NOT share this code with anyone. Reward Club support representatives or agents will never ask for this code.
+                    ------------------------------------------------------------
+                    
+                    Your authorization code is:
                     
                     $otpCode
                     
-                    This OTP is valid for 5 minutes. Please do not share this OTP with anyone.
+                    This code is valid for 5 minutes. If you did not request this verification, please secure your account immediately.
+                    
                     
                     Best regards,
                     Reward Club Team
+                    Developed by ChittorTech
                     """.trimIndent()
                 )
             }
