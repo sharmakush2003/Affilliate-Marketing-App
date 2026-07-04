@@ -37,16 +37,15 @@ object EmailSender {
                     
                     Please use the security code detailed inside this email to authorize your access.
                     
-                    ------------------------------------------------------------
-                    SECURITY WARNING: For security reasons, please do NOT share this code with anyone. Reward Club support representatives or agents will never ask for this code.
-                    ------------------------------------------------------------
-                    
                     Your authorization code is:
                     
                     $otpCode
                     
                     This code is valid for 5 minutes. If you did not request this verification, please secure your account immediately.
                     
+                    ------------------------------------------------------------
+                    SECURITY WARNING: For security reasons, please do NOT share this code with anyone. Reward Club support representatives or agents will never ask for this code.
+                    ------------------------------------------------------------
                     
                     Best regards,
                     Reward Club Team
