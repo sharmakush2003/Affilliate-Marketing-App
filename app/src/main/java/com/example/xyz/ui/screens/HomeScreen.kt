@@ -167,7 +167,21 @@ fun HomeScreen(
         // Banner Slider
         BannerSliderSection()
 
-        // Insurance [NEW] (placed at the very top)
+        // Shop & Earn Coins (placed at the very top)
+        SectionHeader(title = "Shop & Earn Coins", onViewAllClick = { onBrandClick("Amazon") })
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(brands) { brand ->
+                BrandCard(brand = brand, onClick = { onBrandClick(brand.name) })
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Insurance [NEW]
         SectionHeader(title = "Insurance", showViewAll = false)
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
@@ -195,20 +209,6 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Shop & Earn Coins (moved down)
-        SectionHeader(title = "Shop & Earn Coins", onViewAllClick = { onBrandClick("Amazon") })
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(brands) { brand ->
-                BrandCard(brand = brand, onClick = { onBrandClick(brand.name) })
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Credit Cards [NEW]
         SectionHeader(title = "Credit Cards", showViewAll = false)
         LazyRow(
@@ -221,7 +221,7 @@ fun HomeScreen(
             }
         }
 
-
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Zillion-Style Slogans Footer
         Card(
