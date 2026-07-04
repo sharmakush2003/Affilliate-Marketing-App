@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -454,13 +455,16 @@ fun BottomNavigationBar(
 ) {
     NavigationBar(
         containerColor = Color.White,
-        tonalElevation = 8.dp
+        tonalElevation = 8.dp,
+        modifier = Modifier.height(52.dp),
+        windowInsets = WindowInsets(0.dp)
     ) {
         NavigationBarItem(
             selected = currentScreen is Screen.Home,
             onClick = { onTabSelected(Screen.Home) },
-            icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-            label = { Text("Home") },
+            icon = { Icon(Icons.Default.Home, contentDescription = "Home", modifier = Modifier.size(22.dp)) },
+            label = { Text("Home", fontSize = 10.sp) },
+            alwaysShowLabel = true,
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = DarkGreen,
                 selectedTextColor = DarkGreen,
@@ -472,8 +476,9 @@ fun BottomNavigationBar(
         NavigationBarItem(
             selected = currentScreen is Screen.Profile,
             onClick = { onTabSelected(Screen.Profile) },
-            icon = { Icon(Icons.Default.AccountCircle, contentDescription = "Profile") },
-            label = { Text("Profile") },
+            icon = { Icon(Icons.Default.AccountCircle, contentDescription = "Profile", modifier = Modifier.size(22.dp)) },
+            label = { Text("Profile", fontSize = 10.sp) },
+            alwaysShowLabel = true,
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = DarkGreen,
                 selectedTextColor = DarkGreen,
@@ -484,3 +489,4 @@ fun BottomNavigationBar(
         )
     }
 }
+
