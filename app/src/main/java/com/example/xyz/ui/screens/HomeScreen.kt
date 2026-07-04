@@ -97,6 +97,7 @@ data class TopProductMock(
 @Composable
 fun HomeScreen(
     onHamburgerClick: () -> Unit,
+    onJoinClick: () -> Unit = {},
     onBrandClick: (String) -> Unit,
     onCategoryClick: (String) -> Unit,
     onViewAllCouponsClick: () -> Unit,
@@ -164,7 +165,7 @@ fun HomeScreen(
             .verticalScroll(scrollState)
     ) {
         // Green Header
-        HeaderSection(onHamburgerClick = onHamburgerClick)
+        HeaderSection(onHamburgerClick = onHamburgerClick, onJoinClick = onJoinClick)
 
         // Coin Balance (Google Pay style, replacing Login card)
         CoinBalanceSection(onRedeemClick = { onCategoryClick("Products") })
@@ -294,7 +295,7 @@ fun XYZIcon(modifier: Modifier = Modifier, color: Color = Color.White) {
 }
 
 @Composable
-fun HeaderSection(onHamburgerClick: () -> Unit) {
+fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -349,7 +350,7 @@ fun HeaderSection(onHamburgerClick: () -> Unit) {
                     color = White,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.clickable { }
+                    modifier = Modifier.clickable { onJoinClick() }
                 )
 
                 // Gold Hexagon/Badge "R+"

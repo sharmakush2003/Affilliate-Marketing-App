@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Help
@@ -59,6 +60,8 @@ sealed class Screen {
     object HelpSupport : Screen()
     object Login : Screen()
     object AccountDetails : Screen()
+    object AboutCompany : Screen()
+    object Profile : Screen()
 }
 
 class MainActivity : ComponentActivity() {
@@ -319,7 +322,6 @@ data class DrawerItemData(val title: String, val icon: ImageVector)
 @Composable
 fun AppMainContainer() {
     val context = LocalContext.current
-    var showAboutDialog by remember { mutableStateOf(false) }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -346,23 +348,6 @@ fun AppMainContainer() {
         navigateBack()
     }
 
-    if (showAboutDialog) {
-        AlertDialog(
-            onDismissRequest = { showAboutDialog = false },
-            title = { Text("About Company", fontWeight = FontWeight.Bold) },
-            text = {
-                Text(
-                    "Reward Club is India's leading Affiliate Marketing platform that rewards you with Coins on every transaction. Earning and spending coins made easy, giving you the best deals across Amazon, Flipkart, Myntra, and more!\n\naha, everywhere!",
-                    fontSize = 14.sp
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = { showAboutDialog = false }) {
-                    Text("OK", color = DarkGreen, fontWeight = FontWeight.Bold)
-                }
-            }
-        )
-    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -380,7 +365,7 @@ fun AppMainContainer() {
                         navigateTo(Screen.Products)
                     }
                     "About Company" -> {
-                        showAboutDialog = true
+                        navigateTo(Screen.AboutCompany)
                     }
                     "Help & Support" -> {
                         navigateTo(Screen.HelpSupport)
@@ -391,7 +376,7 @@ fun AppMainContainer() {
     ) {
         Scaffold(
             bottomBar = {
-                if (currentScreen is Screen.Home || currentScreen is Screen.Coupons) {
+                if (currentScreen is Screen.Home || currentScreen is Screen.Coupons || currentScreen is Screen.Profile) {
                     BottomNavigationBar(
                         currentScreen = currentScreen,
                         onTabSelected = { screen ->
@@ -409,6 +394,7 @@ fun AppMainContainer() {
                 when (currentScreen) {
                     is Screen.Home -> HomeScreen(
                         onHamburgerClick = { scope.launch { drawerState.open() } },
+                        onJoinClick = { navigateTo(Screen.Login) },
                         onBrandClick = { brand -> navigateTo(Screen.EarnCoins(brand)) },
                         onCategoryClick = { category ->
                             when (category) {
@@ -448,6 +434,13 @@ fun AppMainContainer() {
                     is Screen.AccountDetails -> AccountDetailsScreen(
                         onBackClick = { navigateBack() }
                     )
+                    is Screen.AboutCompany -> AboutCompanyScreen(
+                        onBackClick = { navigateBack() }
+                    )
+                    is Screen.Profile -> AccountDetailsScreen(
+                        onBackClick = { navigateTo(Screen.Home) }
+                    )
+                    else -> {}
                 }
             }
         }
@@ -507,6 +500,19 @@ fun BottomNavigationBar(
             onClick = { onTabSelected(Screen.Coupons) },
             icon = { Icon(Icons.Default.LocalActivity, contentDescription = "Coupons") },
             label = { Text("Coupons") },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = DarkGreen,
+                selectedTextColor = DarkGreen,
+                unselectedIconColor = Color.Gray,
+                unselectedTextColor = Color.Gray,
+                indicatorColor = Color(0xFFE8F5E9)
+            )
+        )
+        NavigationBarItem(
+            selected = currentScreen is Screen.Profile,
+            onClick = { onTabSelected(Screen.Profile) },
+            icon = { Icon(Icons.Default.AccountCircle, contentDescription = "Profile") },
+            label = { Text("Profile") },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = DarkGreen,
                 selectedTextColor = DarkGreen,
