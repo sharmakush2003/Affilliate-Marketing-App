@@ -151,24 +151,7 @@ fun HomeScreen(
         // Banner Slider
         BannerSliderSection()
 
-        // Redeem coins on (moved up)
-        SectionHeader(title = "Redeem coins on", showViewAll = false)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            categories.forEach { category ->
-                CategoryGridItem(
-                    category = category,
-                    modifier = Modifier.weight(1f),
-                    onClick = { onCategoryClick(category.title) }
-                )
-            }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
 
         // Shop & Earn Coins (moved down)
         SectionHeader(title = "Shop & Earn Coins", onViewAllClick = { onBrandClick("Amazon") })
