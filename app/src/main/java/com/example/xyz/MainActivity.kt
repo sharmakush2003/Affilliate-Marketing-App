@@ -49,6 +49,9 @@ import android.view.animation.OvershootInterpolator
 import androidx.compose.ui.unit.sp
 import com.example.xyz.ui.screens.*
 import com.example.xyz.ui.theme.DarkGreen
+import com.example.xyz.ui.theme.NavyDark
+import com.example.xyz.ui.theme.TextGray
+import com.example.xyz.ui.theme.BorderColor
 import com.example.xyz.ui.theme.XYZTheme
 
 sealed class Screen {
@@ -454,17 +457,7 @@ fun BottomNavigationBar(
     onTabSelected: (Screen) -> Unit
 ) {
     Column {
-        // Premium gradient top border
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.5.dp)
-                .background(
-                    Brush.horizontalGradient(
-                        listOf(Color(0xFFE8A020), Color(0xFF006B3F), Color(0xFFE8A020))
-                    )
-                )
-        )
+        HorizontalDivider(color = BorderColor, thickness = 0.8.dp)
         NavigationBar(
             containerColor = Color.White,
             tonalElevation = 0.dp,
@@ -478,11 +471,11 @@ fun BottomNavigationBar(
                 label = { Text("Home", fontSize = 10.sp, fontWeight = if (currentScreen is Screen.Home) FontWeight.Bold else FontWeight.Normal) },
                 alwaysShowLabel = true,
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = DarkGreen,
-                    selectedTextColor = DarkGreen,
-                    unselectedIconColor = Color(0xFF9BB0A4),
-                    unselectedTextColor = Color(0xFF9BB0A4),
-                    indicatorColor = Color(0xFFE6F4EE)
+                    selectedIconColor = NavyDark,
+                    selectedTextColor = NavyDark,
+                    unselectedIconColor = TextGray,
+                    unselectedTextColor = TextGray,
+                    indicatorColor = Color(0xFFFFF3E0)
                 )
             )
             NavigationBarItem(
@@ -492,11 +485,11 @@ fun BottomNavigationBar(
                 label = { Text("Profile", fontSize = 10.sp, fontWeight = if (currentScreen is Screen.Profile) FontWeight.Bold else FontWeight.Normal) },
                 alwaysShowLabel = true,
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = DarkGreen,
-                    selectedTextColor = DarkGreen,
-                    unselectedIconColor = Color(0xFF9BB0A4),
-                    unselectedTextColor = Color(0xFF9BB0A4),
-                    indicatorColor = Color(0xFFE6F4EE)
+                    selectedIconColor = NavyDark,
+                    selectedTextColor = NavyDark,
+                    unselectedIconColor = TextGray,
+                    unselectedTextColor = TextGray,
+                    indicatorColor = Color(0xFFFFF3E0)
                 )
             )
         }

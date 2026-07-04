@@ -13,37 +13,35 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val LightColorScheme = lightColorScheme(
-    primary          = DarkGreen,
-    onPrimary        = White,
-    primaryContainer = LightGreen,
-    onPrimaryContainer = DarkGreen,
-    secondary        = AccentGold,
-    onSecondary      = TextDark,
-    secondaryContainer = AccentAmber,
-    onSecondaryContainer = GoldHex,
-    background       = GrayBackground,
-    surface          = CardSurface,
-    surfaceVariant   = SectionBg,
-    onBackground     = TextDark,
-    onSurface        = TextDark,
-    onSurfaceVariant = TextGray,
-    outline          = BorderColor,
-    error            = ErrorRed,
+    primary             = AmazonOrange,
+    onPrimary           = NavyDark,
+    primaryContainer    = OrangeLight,
+    onPrimaryContainer  = GoldHex,
+    secondary           = DarkGreen,
+    onSecondary         = White,
+    secondaryContainer  = LightGreen,
+    onSecondaryContainer = DarkGreen,
+    background          = GrayBackground,
+    surface             = CardSurface,
+    surfaceVariant      = SectionBg,
+    onBackground        = TextDark,
+    onSurface           = TextDark,
+    onSurfaceVariant    = TextGray,
+    outline             = BorderColor,
+    error               = ErrorRed,
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary          = MidGreen,
-    onPrimary        = White,
-    primaryContainer = DarkGreen,
-    onPrimaryContainer = LightGreen,
-    secondary        = AccentGold,
-    onSecondary      = TextDark,
-    background       = Color(0xFF0D1A12),
-    surface          = Color(0xFF1A2D1E),
-    onBackground     = White,
-    onSurface        = White,
-    outline          = Color(0xFF3A5040),
-    error            = ErrorRed,
+    primary             = AmazonOrange,
+    onPrimary           = NavyDark,
+    secondary           = DarkGreen,
+    onSecondary         = White,
+    background          = Color(0xFF0F1111),
+    surface             = Color(0xFF1A1D1D),
+    onBackground        = White,
+    onSurface           = White,
+    outline             = Color(0xFF3D4343),
+    error               = ErrorRed,
 )
 
 @Composable
@@ -56,13 +54,9 @@ fun XYZTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = DarkGreen.toArgb()
+            window.statusBarColor = NavyDark.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
         }
     }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        content = content
-    )
+    MaterialTheme(colorScheme = colorScheme, content = content)
 }

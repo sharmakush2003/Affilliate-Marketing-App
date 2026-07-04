@@ -2,34 +2,42 @@ package com.example.xyz.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// ── Primary Brand ─────────────────────────────────────────────
-val DarkGreen   = Color(0xFF006B3F)   // Rich Emerald
-val MidGreen    = Color(0xFF00844C)   // Vibrant Emerald
-val LightGreen  = Color(0xFFE6F4EE)   // Soft Mint
+// ── Amazon-Inspired Brand ──────────────────────────────────────
+val NavyDark    = Color(0xFF131921)   // Amazon header dark navy
+val NavyMid     = Color(0xFF1D2939)   // Slightly lighter nav
+val AmazonOrange = Color(0xFFFF9900)  // Amazon signature orange
+val OrangeLight  = Color(0xFFFFF3E0)  // Soft orange background
 
-// ── Accent ───────────────────────────────────────────────────
-val AccentGold  = Color(0xFFE8A020)   // Warm Amber Gold
-val GoldHex     = Color(0xFFD4940A)   // Deep Gold
-val AccentAmber = Color(0xFFFFF0D0)   // Soft amber bg
+// ── Keep brand green for CTAs & coins ─────────────────────────
+val DarkGreen   = Color(0xFF007600)   // Amazon's green for "In stock"
+val LightGreen  = Color(0xFFE8F5E9)
 
-// ── Backgrounds ──────────────────────────────────────────────
-val GrayBackground = Color(0xFFF5F7F5) // Subtle warm-green tint
+// ── Surfaces & Backgrounds ────────────────────────────────────
+val GrayBackground = Color(0xFFF3F3F3) // Amazon page bg
 val CardSurface    = Color(0xFFFFFFFF)
-val SectionBg      = Color(0xFFF0F5F1) // Section divider bg
+val SectionBg      = Color(0xFFFAFAFA)
 
 // ── Text ──────────────────────────────────────────────────────
-val TextDark   = Color(0xFF111A14)    // Near black with green tint
-val TextGray   = Color(0xFF5A7065)    // Warm gray
-val TextLight  = Color(0xFF9BB0A4)    // Light hint text
+val TextDark   = Color(0xFF0F1111)    // Amazon near-black
+val TextGray   = Color(0xFF565959)    // Amazon secondary text
+val TextLight  = Color(0xFF8D9191)    // Hint text
 
 // ── UI Elements ───────────────────────────────────────────────
 val White        = Color(0xFFFFFFFF)
-val BorderColor  = Color(0xFFDFEAE3)   // Subtle green-tinted border
-val OrangeDiscount = Color(0xFFE85D04) // Vivid orange for discounts
-val DividerColor   = Color(0xFFF0F4F1)
+val BorderColor  = Color(0xFFD5D9D9)  // Amazon border gray
+val OrangeDiscount = Color(0xFFCC0C39) // Amazon red for discounts/sale
+val DividerColor   = Color(0xFFE3E6E6)
+val AccentGold     = AmazonOrange     // reuse orange as accent
+val GoldHex        = Color(0xFFE07B00)
 
-// ── Semantic Colors ───────────────────────────────────────────
-val SuccessGreen = Color(0xFF2ECC71)
-val ErrorRed     = Color(0xFFE53935)
-val InfoBlue     = Color(0xFF1565C0)
-val WarningAmber = Color(0xFFF57C00)
+// ── Semantic ──────────────────────────────────────────────────
+val SuccessGreen = Color(0xFF007600)
+val ErrorRed     = Color(0xFFCC0C39)
+val InfoBlue     = Color(0xFF0066C0)  // Amazon link blue
+val WarningAmber = AmazonOrange
+val AccentAmber  = OrangeLight
+val GrayBackground2 = GrayBackground
+val TextLight2   = TextLight
+val MidGreen     = DarkGreen
+val SectionBg2   = SectionBg
+val CardSurface2 = CardSurface

@@ -9,6 +9,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.foundation.border
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -296,88 +299,82 @@ fun XYZIcon(modifier: Modifier = Modifier, color: Color = Color.White) {
 
 @Composable
 fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                Brush.horizontalGradient(
-                    colors = listOf(
-                        Color(0xFF004D2C),
-                        Color(0xFF006B3F),
-                        Color(0xFF008B52)
-                    )
-                )
-            )
-            .padding(horizontal = 4.dp, vertical = 6.dp)
+            .background(NavyDark)
     ) {
+        // ── Top row: hamburger | logo + name | JOIN ──────────────────
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onHamburgerClick) {
-                    Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu", tint = White)
+                    Icon(Icons.Default.Menu, contentDescription = "Menu", tint = White)
                 }
-                // Logo with gold ring
-                Box(
+                Image(
+                    painter = painterResource(id = R.drawable.reward_club_logo),
+                    contentDescription = "Reward Club Logo",
                     modifier = Modifier
-                        .size(32.dp)
-                        .background(
-                            Brush.linearGradient(listOf(Color(0xFFE8A020), Color(0xFFFFD070))),
-                            CircleShape
-                        )
-                        .padding(2.dp)
-                        .background(Color.White, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.reward_club_logo),
-                        contentDescription = "Reward Club Logo",
-                        modifier = Modifier.size(24.dp).clip(CircleShape)
-                    )
-                }
+                        .size(26.dp)
+                        .clip(CircleShape)
+                        .background(Color.White)
+                )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Reward Club",
                     color = White,
                     fontSize = 19.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 0.3.sp
+                    letterSpacing = 0.2.sp
                 )
             }
 
+            // Orange JOIN pill — exactly Amazon's "Sign in" button feel
+            Box(
+                modifier = Modifier
+                    .padding(end = 10.dp)
+                    .background(AmazonOrange, RoundedCornerShape(4.dp))
+                    .clickable { onJoinClick() }
+                    .padding(horizontal = 14.dp, vertical = 7.dp)
+            ) {
+                Text(
+                    text = "Join Free",
+                    color = Color(0xFF0F1111),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        // ── Search bar row — Amazon's iconic search ───────────────────
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp, vertical = 6.dp)
+                .background(Color.White, RoundedCornerShape(6.dp))
+                .border(2.dp, AmazonOrange, RoundedCornerShape(6.dp))
+                .padding(horizontal = 12.dp, vertical = 9.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.padding(end = 8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.weight(1f)
             ) {
-                // Premium JOIN pill button
-                Box(
-                    modifier = Modifier
-                        .background(
-                            Brush.linearGradient(listOf(Color(0xFFE8A020), Color(0xFFFFD060))),
-                            RoundedCornerShape(50)
-                        )
-                        .clickable { onJoinClick() }
-                        .padding(horizontal = 16.dp, vertical = 6.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "JOIN",
-                        color = Color(0xFF3D2200),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 1.sp
-                    )
-                }
+                Icon(Icons.Default.Search, contentDescription = null, tint = TextGray, modifier = Modifier.size(18.dp))
+                Text("Search deals, brands & more", color = TextGray, fontSize = 13.sp)
             }
+            Icon(Icons.Default.Mic, contentDescription = null, tint = TextDark, modifier = Modifier.size(20.dp))
         }
     }
 }
+
 
 
 @Composable
