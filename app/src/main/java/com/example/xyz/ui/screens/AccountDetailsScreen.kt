@@ -34,8 +34,12 @@ fun AccountDetailsScreen(
     var mobile by remember { mutableStateOf("+91 98765 43210") }
     var receiveEmails by remember { mutableStateOf(true) }
 
-    // Delete account dropdown
+    // Accordion state
+    var settingsExpanded by remember { mutableStateOf(false) }
     var deleteExpanded by remember { mutableStateOf(false) }
+
+    // Delete account dropdown
+    var deleteDropdownExpanded by remember { mutableStateOf(false) }
     var selectedDeleteReason by remember { mutableStateOf("") }
     var otherReason by remember { mutableStateOf("") }
 
@@ -190,7 +194,7 @@ fun AccountDetailsScreen(
                 }
             }
 
-            // ── Account Settings ─────────────────────────────────────────────
+            // ── Account Settings (Accordion) ──────────────────────────────────
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -199,108 +203,139 @@ fun AccountDetailsScreen(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(3.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
+                Column {
+                    // Header row — clickable to expand/collapse
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(Icons.Default.Settings, contentDescription = null, tint = DarkGreen, modifier = Modifier.size(20.dp))
-                        Text("Account Settings", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
-                    }
-
-                    HorizontalDivider(color = Color(0xFFF0F0F0))
-
-                    // Full Name
-                    OutlinedTextField(
-                        value = fullName,
-                        onValueChange = { fullName = it },
-                        label = { Text("Full Name") },
-                        leadingIcon = {
-                            Icon(Icons.Default.Person, contentDescription = null, tint = DarkGreen)
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = DarkGreen,
-                            focusedLabelColor = DarkGreen,
-                            cursorColor = DarkGreen
-                        ),
-                        singleLine = true
-                    )
-
-                    // Email Address
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        label = { Text("Email Address") },
-                        leadingIcon = {
-                            Icon(Icons.Default.Email, contentDescription = null, tint = DarkGreen)
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = DarkGreen,
-                            focusedLabelColor = DarkGreen,
-                            cursorColor = DarkGreen
-                        ),
-                        singleLine = true
-                    )
-
-                    // Mobile Number
-                    OutlinedTextField(
-                        value = mobile,
-                        onValueChange = { mobile = it },
-                        label = { Text("Mobile Number") },
-                        leadingIcon = {
-                            Icon(Icons.Default.Phone, contentDescription = null, tint = DarkGreen)
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = DarkGreen,
-                            focusedLabelColor = DarkGreen,
-                            cursorColor = DarkGreen
-                        ),
-                        singleLine = true
-                    )
-
-                    HorizontalDivider(color = Color(0xFFF0F0F0))
-
-                    // Receive Emails toggle
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { settingsExpanded = !settingsExpanded }
+                            .padding(horizontal = 20.dp, vertical = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier.weight(1f)
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            Icon(Icons.Default.Email, contentDescription = null, tint = Color(0xFF555555), modifier = Modifier.size(20.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .background(Color(0xFFE8F5E9), RoundedCornerShape(10.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.Settings, contentDescription = null, tint = DarkGreen, modifier = Modifier.size(20.dp))
+                            }
                             Column {
-                                Text("Receive Emails", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1A1A1A))
-                                Text("Get offers, coin alerts & updates", fontSize = 11.sp, color = Color.Gray)
+                                Text("Account Settings", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
+                                Text(
+                                    if (settingsExpanded) "Tap to collapse" else "Full name, email, phone & more",
+                                    fontSize = 11.sp, color = Color.Gray
+                                )
                             }
                         }
-                        Switch(
-                            checked = receiveEmails,
-                            onCheckedChange = { receiveEmails = it },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Color.White,
-                                checkedTrackColor = DarkGreen,
-                                uncheckedThumbColor = Color.Gray,
-                                uncheckedTrackColor = Color.LightGray
-                            )
+                        Icon(
+                            if (settingsExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = null, tint = Color.Gray
                         )
+                    }
+
+                    // Expanded content
+                    if (settingsExpanded) {
+                        HorizontalDivider(color = Color(0xFFF0F0F0), modifier = Modifier.padding(horizontal = 16.dp))
+                        Column(
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // Full Name
+                            OutlinedTextField(
+                                value = fullName,
+                                onValueChange = { fullName = it },
+                                label = { Text("Full Name") },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Person, contentDescription = null, tint = DarkGreen)
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = DarkGreen,
+                                    focusedLabelColor = DarkGreen,
+                                    cursorColor = DarkGreen
+                                ),
+                                singleLine = true
+                            )
+
+                            // Email Address
+                            OutlinedTextField(
+                                value = email,
+                                onValueChange = { email = it },
+                                label = { Text("Email Address") },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Email, contentDescription = null, tint = DarkGreen)
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = DarkGreen,
+                                    focusedLabelColor = DarkGreen,
+                                    cursorColor = DarkGreen
+                                ),
+                                singleLine = true
+                            )
+
+                            // Mobile Number
+                            OutlinedTextField(
+                                value = mobile,
+                                onValueChange = { mobile = it },
+                                label = { Text("Mobile Number") },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Phone, contentDescription = null, tint = DarkGreen)
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = DarkGreen,
+                                    focusedLabelColor = DarkGreen,
+                                    cursorColor = DarkGreen
+                                ),
+                                singleLine = true
+                            )
+
+                            HorizontalDivider(color = Color(0xFFF0F0F0))
+
+                            // Receive Emails toggle
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Icon(Icons.Default.Email, contentDescription = null, tint = Color(0xFF555555), modifier = Modifier.size(20.dp))
+                                    Column {
+                                        Text("Receive Emails", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1A1A1A))
+                                        Text("Get offers, coin alerts & updates", fontSize = 11.sp, color = Color.Gray)
+                                    }
+                                }
+                                Switch(
+                                    checked = receiveEmails,
+                                    onCheckedChange = { receiveEmails = it },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = Color.White,
+                                        checkedTrackColor = DarkGreen,
+                                        uncheckedThumbColor = Color.Gray,
+                                        uncheckedTrackColor = Color.LightGray
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
             }
 
-            // ── Request Delete Account ────────────────────────────────────────
+            // ── Request Delete Account (Accordion) ───────────────────────────
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -309,105 +344,136 @@ fun AccountDetailsScreen(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(3.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
+                Column {
+                    // Header row — clickable to expand/collapse
                     Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { deleteExpanded = !deleteExpanded }
+                            .padding(horizontal = 20.dp, vertical = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Icon(Icons.Default.DeleteForever, contentDescription = null, tint = Color(0xFFD32F2F), modifier = Modifier.size(20.dp))
-                        Text("Request Account Deletion", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFFD32F2F))
-                    }
-
-                    Text(
-                        text = "Please let us know why you want to delete your account. This action is permanent and all your coins will be forfeited.",
-                        fontSize = 12.sp,
-                        color = Color(0xFF777777),
-                        lineHeight = 18.sp
-                    )
-
-                    HorizontalDivider(color = Color(0xFFF0F0F0))
-
-                    // Dropdown for reason
-                    ExposedDropdownMenuBox(
-                        expanded = deleteExpanded,
-                        onExpandedChange = { deleteExpanded = !deleteExpanded }
-                    ) {
-                        OutlinedTextField(
-                            value = selectedDeleteReason.ifEmpty { "Select a reason..." },
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Reason for deletion") },
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = deleteExpanded)
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .menuAnchor(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color(0xFFD32F2F),
-                                focusedLabelColor = Color(0xFFD32F2F),
-                                unfocusedTextColor = if (selectedDeleteReason.isEmpty()) Color.Gray else Color(0xFF1A1A1A)
-                            )
-                        )
-                        ExposedDropdownMenu(
-                            expanded = deleteExpanded,
-                            onDismissRequest = { deleteExpanded = false }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            deleteReasons.forEach { reason ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            reason,
-                                            fontSize = 14.sp,
-                                            color = if (reason == selectedDeleteReason) DarkGreen else Color(0xFF1A1A1A),
-                                            fontWeight = if (reason == selectedDeleteReason) FontWeight.SemiBold else FontWeight.Normal
-                                        )
-                                    },
-                                    onClick = {
-                                        selectedDeleteReason = reason
-                                        deleteExpanded = false
-                                    }
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .background(Color(0xFFFFEBEE), RoundedCornerShape(10.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.DeleteForever, contentDescription = null, tint = Color(0xFFD32F2F), modifier = Modifier.size(20.dp))
+                            }
+                            Column {
+                                Text("Request Account Deletion", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color(0xFFD32F2F))
+                                Text(
+                                    if (deleteExpanded) "Tap to collapse" else "Permanently delete your account",
+                                    fontSize = 11.sp, color = Color.Gray
                                 )
                             }
                         }
-                    }
-
-                    // Show text field if "Others" selected
-                    if (selectedDeleteReason == "Others") {
-                        OutlinedTextField(
-                            value = otherReason,
-                            onValueChange = { otherReason = it },
-                            label = { Text("Please specify your reason") },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            minLines = 3,
-                            maxLines = 5,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color(0xFFD32F2F),
-                                focusedLabelColor = Color(0xFFD32F2F),
-                                cursorColor = Color(0xFFD32F2F)
-                            )
+                        Icon(
+                            if (deleteExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = null, tint = Color.Gray
                         )
                     }
 
-                    // Delete Account button (only active when reason selected)
-                    if (selectedDeleteReason.isNotEmpty()) {
-                        OutlinedButton(
-                            onClick = {
-                                Toast.makeText(context, "Delete request submitted. Our team will contact you.", Toast.LENGTH_LONG).show()
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.5.dp, Color(0xFFD32F2F)),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFD32F2F))
+                    // Expanded content
+                    if (deleteExpanded) {
+                        HorizontalDivider(color = Color(0xFFF0F0F0), modifier = Modifier.padding(horizontal = 16.dp))
+                        Column(
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
-                            Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Submit Deletion Request", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                            Text(
+                                text = "Please let us know why you want to delete your account. This action is permanent and all your coins will be forfeited.",
+                                fontSize = 12.sp,
+                                color = Color(0xFF777777),
+                                lineHeight = 18.sp
+                            )
+
+                            // Dropdown for reason
+                            ExposedDropdownMenuBox(
+                                expanded = deleteDropdownExpanded,
+                                onExpandedChange = { deleteDropdownExpanded = !deleteDropdownExpanded }
+                            ) {
+                                OutlinedTextField(
+                                    value = selectedDeleteReason.ifEmpty { "Select a reason..." },
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    label = { Text("Reason for deletion") },
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = deleteDropdownExpanded)
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .menuAnchor(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = Color(0xFFD32F2F),
+                                        focusedLabelColor = Color(0xFFD32F2F),
+                                        unfocusedTextColor = if (selectedDeleteReason.isEmpty()) Color.Gray else Color(0xFF1A1A1A)
+                                    )
+                                )
+                                ExposedDropdownMenu(
+                                    expanded = deleteDropdownExpanded,
+                                    onDismissRequest = { deleteDropdownExpanded = false }
+                                ) {
+                                    deleteReasons.forEach { reason ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    reason,
+                                                    fontSize = 14.sp,
+                                                    color = if (reason == selectedDeleteReason) DarkGreen else Color(0xFF1A1A1A),
+                                                    fontWeight = if (reason == selectedDeleteReason) FontWeight.SemiBold else FontWeight.Normal
+                                                )
+                                            },
+                                            onClick = {
+                                                selectedDeleteReason = reason
+                                                deleteDropdownExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Show text field if "Others" selected
+                            if (selectedDeleteReason == "Others") {
+                                OutlinedTextField(
+                                    value = otherReason,
+                                    onValueChange = { otherReason = it },
+                                    label = { Text("Please specify your reason") },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    minLines = 3,
+                                    maxLines = 5,
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = Color(0xFFD32F2F),
+                                        focusedLabelColor = Color(0xFFD32F2F),
+                                        cursorColor = Color(0xFFD32F2F)
+                                    )
+                                )
+                            }
+
+                            // Delete Account button (only active when reason selected)
+                            if (selectedDeleteReason.isNotEmpty()) {
+                                OutlinedButton(
+                                    onClick = {
+                                        Toast.makeText(context, "Delete request submitted. Our team will contact you.", Toast.LENGTH_LONG).show()
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    border = BorderStroke(1.5.dp, Color(0xFFD32F2F)),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFD32F2F))
+                                ) {
+                                    Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Submit Deletion Request", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                }
+                            }
                         }
                     }
                 }
@@ -434,3 +500,4 @@ fun AccountDetailsScreen(
         }
     }
 }
+
