@@ -475,10 +475,10 @@ fun BannerSliderSection() {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(160.dp)
+                .aspectRatio(16f / 9f)
                 .shadow(4.dp, RoundedCornerShape(12.dp))
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color.LightGray)
+                .background(Color.Black)
         ) {
             Crossfade(
                 targetState = currentSlide,
@@ -488,7 +488,7 @@ fun BannerSliderSection() {
                     painter = painterResource(id = banners[slideIndex]),
                     contentDescription = "Offer Banner",
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.FillBounds
                 )
             }
         }
