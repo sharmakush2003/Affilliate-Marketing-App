@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +19,7 @@ import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.History
@@ -204,50 +206,94 @@ fun DrawerContent(
     )
 
     ModalDrawerSheet(
-        drawerContainerColor = Color.White,
-        modifier = Modifier.width(300.dp)
+        drawerContainerColor = Color(0xFFFAFAFA),
+        modifier = Modifier.width(310.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Profile Header Section (Zillion premium green)
+            // Profile Header Section (Premium Dark Green Gradient)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(DarkGreen)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color(0xFF005C38), Color(0xFF003820))
+                        )
+                    )
                     .clickable { onItemClick("Header") }
-                    .padding(horizontal = 20.dp, vertical = 32.dp)
+                    .padding(horizontal = 20.dp, vertical = 28.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Profile Avatar Circle
-                    Box(
-                        modifier = Modifier
-                            .size(56.dp)
-                            .background(Color(0xFFE8F5E9), shape = CircleShape),
-                        contentAlignment = Alignment.Center
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Text(
-                            text = userName.take(1),
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = DarkGreen
-                        )
+                        // Profile Avatar Circle with Gold border
+                        Box(
+                            modifier = Modifier
+                                .size(60.dp)
+                                .background(Color.White, shape = CircleShape)
+                                .border(2.dp, Color(0xFFFF9900), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = userName.take(1),
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF005C38)
+                            )
+                        }
+                        Column {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = userName,
+                                    color = Color.White,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.ExtraBold
+                                )
+                                Text("👑", fontSize = 14.sp)
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = userPhone,
+                                color = Color.White.copy(alpha = 0.75f),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
-                    Column {
+
+                    // Floating Mini Wallet Card in Drawer
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.White.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
+                            .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(10.dp))
+                            .padding(horizontal = 14.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text("🪙", fontSize = 16.sp)
+                            Text(
+                                text = "Wallet Balance",
+                                color = Color.White,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                         Text(
-                            text = userName,
-                            color = Color.White,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = userPhone,
-                            color = Color.White.copy(alpha = 0.7f),
-                            fontSize = 12.sp
+                            text = "2,450 Coins",
+                            color = Color(0xFFFF9900),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Black
                         )
                     }
                 }
@@ -255,31 +301,48 @@ fun DrawerContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Navigation Items List
+            // Navigation Items List - Premium Custom Rows
             items.forEach { item ->
-                NavigationDrawerItem(
-                    label = { 
-                        Text(
-                            text = item.title, 
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 14.sp
-                        ) 
-                    },
-                    icon = { 
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 2.dp)
+                        .clickable { onItemClick(item.title) }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = item.title,
+                                tint = Color(0xFF005C38),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = item.title,
+                                color = Color(0xFF0F1111),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
                         Icon(
-                            imageVector = item.icon, 
-                            contentDescription = item.title,
-                            tint = DarkGreen
-                        ) 
-                    },
-                    selected = false,
-                    onClick = { onItemClick(item.title) },
-                    colors = NavigationDrawerItemDefaults.colors(
-                        unselectedContainerColor = Color.Transparent
-                    ),
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
-                Spacer(modifier = Modifier.height(4.dp))
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = Color.Gray,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(2.dp))
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -291,7 +354,7 @@ fun DrawerContent(
                     .padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                HorizontalDivider(color = Color(0xFFEEEEEE))
+                HorizontalDivider(color = Color(0xFFE5E5E5))
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -301,21 +364,22 @@ fun DrawerContent(
                         painter = painterResource(id = R.drawable.reward_club_logo),
                         contentDescription = "Reward Club Logo",
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(26.dp)
                             .clip(CircleShape)
                             .background(Color.White)
                             .padding(2.dp)
                     )
                     Text(
                         text = "Reward Club",
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Black,
                         fontSize = 15.sp,
                         color = Color.Black
                     )
                     Text(
                         text = "•  v3.2.1",
                         color = Color.Gray,
-                        fontSize = 12.sp
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }

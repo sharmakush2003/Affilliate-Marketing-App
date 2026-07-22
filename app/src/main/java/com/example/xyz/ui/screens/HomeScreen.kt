@@ -112,7 +112,7 @@ fun HomeScreen(
         BrandEarn("Amazon", "amazon", "Upto 12", "per ₹100", Color(0xFFFF9900), R.drawable.amazon_logo),
         BrandEarn("Flipkart", "Flipkart", "Upto 200", "per transaction", Color(0xFF2874F0), R.drawable.flipkart_logo),
         BrandEarn("Myntra", "Myntra", "Upto 10", "per ₹100", Color(0xFFE63956), R.drawable.myntra_logo),
-        BrandEarn("HP Pay", "HP Pay", "Upto 10", "per ₹100", Color(0xFF0033A0))
+        BrandEarn("HP Pay", "HP Pay", "Upto 10", "per ₹100", Color(0xFF0033A0), R.drawable.hp_pay_logo)
     )
 
     val categories = listOf(
@@ -173,9 +173,6 @@ fun HomeScreen(
 
         // Coin Balance (Google Pay style, replacing Login card)
         CoinBalanceSection(onRedeemClick = { onCategoryClick("Products") })
-
-        // Banner Slider
-        BannerSliderSection()
 
         // Shop & Earn Coins (placed at the very top)
         SectionHeader(title = "Shop & Earn Coins", onViewAllClick = { onBrandClick("Amazon") })
@@ -304,16 +301,17 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                Brush.horizontalGradient(
-                    colors = listOf(Color(0xFF007600), Color(0xFF004D2C))
+                Brush.verticalGradient(
+                    colors = listOf(Color(0xFF005C38), Color(0xFF003820))
                 )
             )
+            .padding(bottom = 12.dp)
     ) {
         // ── Top row: hamburger | logo + name | JOIN ──────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 4.dp, vertical = 4.dp),
+                .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -325,109 +323,117 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
                     painter = painterResource(id = R.drawable.reward_club_logo),
                     contentDescription = "Reward Club Logo",
                     modifier = Modifier
-                        .size(26.dp)
+                        .size(28.dp)
                         .clip(CircleShape)
                         .background(Color.White)
+                        .padding(2.dp)
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Reward Club",
                     color = White,
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Black,
                     letterSpacing = 0.2.sp
                 )
             }
 
-            // Orange JOIN pill — exactly Amazon's "Sign in" button feel
+            // Premium Join pill
             Box(
                 modifier = Modifier
-                    .padding(end = 10.dp)
-                    .background(AmazonOrange, RoundedCornerShape(4.dp))
+                    .padding(end = 8.dp)
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFFFF9900), Color(0xFFFFB74D))
+                        ),
+                        RoundedCornerShape(20.dp)
+                    )
                     .clickable { onJoinClick() }
-                    .padding(horizontal = 14.dp, vertical = 7.dp)
+                    .padding(horizontal = 16.dp, vertical = 7.dp)
             ) {
                 Text(
                     text = "Join Free",
                     color = Color(0xFF0F1111),
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Black
                 )
             }
         }
     }
 }
 
-
-
 @Composable
 fun CoinBalanceSection(onRedeemClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .shadow(6.dp, RoundedCornerShape(16.dp))
             .clickable { onRedeemClick() },
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(3.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = BorderStroke(1.dp, Color(0xFF007600).copy(alpha = 0.15f))
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Left green accent bar
-            Box(
-                modifier = Modifier
-                    .width(5.dp)
-                    .height(64.dp)
-                    .background(
-                        Brush.verticalGradient(listOf(Color(0xFF008B52), Color(0xFF004D2C))),
-                        RoundedCornerShape(topStart = 14.dp, bottomStart = 14.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(Color(0xFF005C38), Color(0xFF003820))
                     )
-            )
+                )
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+        ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(46.dp)
                             .background(
                                 Brush.linearGradient(listOf(Color(0xFFFFD060), Color(0xFFE8A020))),
                                 CircleShape
-                            ),
+                            )
+                            .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "🪙", fontSize = 20.sp)
+                        Text(text = "🪙", fontSize = 24.sp)
                     }
                     Column {
                         Text(
-                            text = "Reward Club Coins",
-                            color = TextGray,
+                            text = "Total Balance",
+                            color = Color.White.copy(alpha = 0.75f),
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = "2,450 Coins",
-                            color = TextDark,
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.ExtraBold
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Black
                         )
                     }
                 }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    modifier = Modifier
+                        .background(Color.White.copy(alpha = 0.12f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
-                    Text(text = "History", color = DarkGreen, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, tint = DarkGreen, modifier = Modifier.size(16.dp))
+                    Text(text = "History", color = Color(0xFFFF9900), fontSize = 12.sp, fontWeight = FontWeight.Black)
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = Color(0xFFFF9900),
+                        modifier = Modifier.size(14.dp)
+                    )
                 }
             }
         }
@@ -581,17 +587,19 @@ fun SectionHeader(
 
 @Composable
 fun BrandCard(brand: BrandEarn, onClick: () -> Unit) {
-    Box(
+    Card(
+        colors = CardDefaults.cardColors(containerColor = White),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier
             .width(160.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
-            .background(White)
             .clickable { onClick() }
-            .padding(12.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Brand Logo container
@@ -599,8 +607,9 @@ fun BrandCard(brand: BrandEarn, onClick: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(72.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(brand.logoBg),
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFFAFAFA))
+                    .border(1.dp, BorderColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 if (brand.logoResId != null) {
@@ -624,24 +633,28 @@ fun BrandCard(brand: BrandEarn, onClick: () -> Unit) {
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+            // Premium tag badge for rate
+            Box(
+                modifier = Modifier
+                    .background(Color(0xFFE8F5E9), shape = RoundedCornerShape(6.dp))
+                    .padding(horizontal = 8.dp, vertical = 3.dp)
             ) {
-                Text(
-                    text = brand.earnRate,
-                    color = TextDark,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                // Diamond coin shape
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .background(AccentGold, shape = RoundedCornerShape(2.dp))
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(text = "🪙", fontSize = 10.sp)
+                    Text(
+                        text = "${brand.earnRate} Coins",
+                        color = DarkGreen,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
                 text = brand.rateDetail,
                 color = TextGray,
@@ -660,51 +673,54 @@ fun CategoryGridItem(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    Box(
+    Card(
+        colors = CardDefaults.cardColors(containerColor = White),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(2.dp),
         modifier = modifier
             .height(100.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
-            .background(White)
             .clickable { onClick() }
     ) {
-        if (category.hasBadge) {
-            Box(
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (category.hasBadge) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 8.dp, end = 8.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(AccentGold)
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = category.badgeText,
+                        color = Color.Black,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Column(
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 6.dp, end = 6.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(AccentGold)
-                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                    .fillMaxSize()
+                    .padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = category.badgeText,
-                    color = Color.Black,
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.Bold
+                    text = category.iconText,
+                    fontSize = 26.sp
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = category.title,
+                    color = TextDark,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
                 )
             }
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = category.iconText,
-                fontSize = 24.sp
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = category.title,
-                color = TextDark,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center
-            )
         }
     }
 }
@@ -729,11 +745,12 @@ fun CouponCard(coupon: CouponMock, onClick: () -> Unit) {
 
     Card(
         colors = CardDefaults.cardColors(containerColor = White),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, BorderColor),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier
             .width(160.dp)
-            .height(160.dp)
+            .height(170.dp)
             .clickable { onClick() }
     ) {
         Column(
@@ -747,8 +764,9 @@ fun CouponCard(coupon: CouponMock, onClick: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(72.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFFE8F5E9)),
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFFAFAFA))
+                    .border(1.dp, BorderColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 if (logoRes != null) {
@@ -781,7 +799,7 @@ fun CouponCard(coupon: CouponMock, onClick: () -> Unit) {
                     text = coupon.discount,
                     color = OrangeDiscount,
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Black
                 )
             }
         }
@@ -790,24 +808,27 @@ fun CouponCard(coupon: CouponMock, onClick: () -> Unit) {
 
 @Composable
 fun VoucherCard(voucher: VoucherMock, onClick: () -> Unit) {
-    Box(
+    Card(
+        colors = CardDefaults.cardColors(containerColor = White),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier
             .width(160.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
-            .background(White)
             .clickable { onClick() }
-            .padding(12.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(72.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFFF0F4F8)),
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFFAFAFA))
+                    .border(1.dp, BorderColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 if (voucher.logoResId != null) {
@@ -826,7 +847,7 @@ fun VoucherCard(voucher: VoucherMock, onClick: () -> Unit) {
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(6.dp)
-                            .clip(RoundedCornerShape(4.dp))
+                            .clip(RoundedCornerShape(6.dp))
                             .background(AccentGold)
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
@@ -834,7 +855,7 @@ fun VoucherCard(voucher: VoucherMock, onClick: () -> Unit) {
                             text = voucher.discount,
                             color = Color.Black,
                             fontSize = 9.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Black
                         )
                     }
                 }
@@ -863,24 +884,26 @@ fun VoucherCard(voucher: VoucherMock, onClick: () -> Unit) {
 
 @Composable
 fun CreditCardItem(card: CreditCardMock, onClick: () -> Unit) {
-    Box(
+    Card(
+        colors = CardDefaults.cardColors(containerColor = White),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier
             .width(160.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
-            .background(White)
             .clickable { onClick() }
-            .padding(12.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
         ) {
             // A mini credit card visual design
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(72.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(10.dp))
                     .background(card.logoBg)
                     .padding(8.dp)
             ) {
@@ -897,7 +920,7 @@ fun CreditCardItem(card: CreditCardMock, onClick: () -> Unit) {
                             text = card.logoText,
                             color = White,
                             fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Black,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -925,25 +948,25 @@ fun CreditCardItem(card: CreditCardMock, onClick: () -> Unit) {
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier
+                    .background(Color(0xFFE8F5E9), shape = RoundedCornerShape(6.dp))
+                    .padding(horizontal = 8.dp, vertical = 3.dp)
             ) {
-                // Diamond coin shape
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .background(AccentGold, shape = RoundedCornerShape(2.dp))
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = card.offerText,
-                    color = DarkGreen,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(text = "🪙", fontSize = 10.sp)
+                    Text(
+                        text = card.offerText,
+                        color = DarkGreen,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                }
             }
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = card.subText,
                 color = TextGray,
@@ -957,24 +980,27 @@ fun CreditCardItem(card: CreditCardMock, onClick: () -> Unit) {
 
 @Composable
 fun InsuranceItem(insurance: InsuranceMock, onClick: () -> Unit) {
-    Box(
+    Card(
+        colors = CardDefaults.cardColors(containerColor = White),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier
             .width(160.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
-            .background(White)
             .clickable { onClick() }
-            .padding(12.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(72.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(insurance.logoBg),
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFFAFAFA))
+                    .border(1.dp, BorderColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 if (insurance.logoResId != null) {
@@ -983,7 +1009,7 @@ fun InsuranceItem(insurance: InsuranceMock, onClick: () -> Unit) {
                         contentDescription = insurance.name,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(4.dp),
+                            .padding(8.dp),
                         contentScale = ContentScale.Fit
                     )
                 } else {
@@ -1003,25 +1029,25 @@ fun InsuranceItem(insurance: InsuranceMock, onClick: () -> Unit) {
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier
+                    .background(Color(0xFFE8F5E9), shape = RoundedCornerShape(6.dp))
+                    .padding(horizontal = 8.dp, vertical = 3.dp)
             ) {
-                // Diamond coin shape
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .background(AccentGold, shape = RoundedCornerShape(2.dp))
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = insurance.offerText,
-                    color = DarkGreen,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(text = "🪙", fontSize = 10.sp)
+                    Text(
+                        text = insurance.offerText,
+                        color = DarkGreen,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                }
             }
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = insurance.subText,
                 color = TextGray,
@@ -1035,24 +1061,27 @@ fun InsuranceItem(insurance: InsuranceMock, onClick: () -> Unit) {
 
 @Composable
 fun TopProductCard(product: TopProductMock, onClick: () -> Unit) {
-    Box(
+    Card(
+        colors = CardDefaults.cardColors(containerColor = White),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier
             .width(160.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
-            .background(White)
             .clickable { onClick() }
-            .padding(12.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(72.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(GrayBackground),
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFFAFAFA))
+                    .border(1.dp, BorderColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -1065,27 +1094,28 @@ fun TopProductCard(product: TopProductMock, onClick: () -> Unit) {
                 text = product.name,
                 color = TextDark,
                 fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier
+                    .background(Color(0xFFFFECEF), shape = RoundedCornerShape(6.dp))
+                    .padding(horizontal = 8.dp, vertical = 3.dp)
             ) {
-                // Diamond coin shape
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .background(AccentGold, shape = RoundedCornerShape(2.dp))
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = product.cost,
-                    color = DarkGreen,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(text = "🪙", fontSize = 10.sp)
+                    Text(
+                        text = product.cost,
+                        color = OrangeDiscount,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                }
             }
         }
     }
@@ -1093,24 +1123,27 @@ fun TopProductCard(product: TopProductMock, onClick: () -> Unit) {
 
 @Composable
 fun LoanItem(loan: LoanMock, onClick: () -> Unit) {
-    Box(
+    Card(
+        colors = CardDefaults.cardColors(containerColor = White),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier
             .width(160.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
-            .background(White)
             .clickable { onClick() }
-            .padding(12.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(72.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(loan.logoBg),
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFFAFAFA))
+                    .border(1.dp, BorderColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 if (loan.logoResId != null) {
@@ -1119,7 +1152,7 @@ fun LoanItem(loan: LoanMock, onClick: () -> Unit) {
                         contentDescription = loan.name,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(4.dp),
+                            .padding(8.dp),
                         contentScale = ContentScale.Fit
                     )
                 } else {
@@ -1139,24 +1172,25 @@ fun LoanItem(loan: LoanMock, onClick: () -> Unit) {
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier
+                    .background(Color(0xFFE8F5E9), shape = RoundedCornerShape(6.dp))
+                    .padding(horizontal = 8.dp, vertical = 3.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .background(AccentGold, shape = RoundedCornerShape(2.dp))
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = loan.offerText,
-                    color = DarkGreen,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(text = "🪙", fontSize = 10.sp)
+                    Text(
+                        text = loan.offerText,
+                        color = DarkGreen,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                }
             }
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = loan.subText,
                 color = TextGray,

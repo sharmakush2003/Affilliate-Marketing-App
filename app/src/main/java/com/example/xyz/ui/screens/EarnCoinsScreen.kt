@@ -127,22 +127,33 @@ fun EarnCoinsScreen(
         bottomBar = {
             // Proceed button
             Card(
-                colors = CardDefaults.cardColors(containerColor = White),
-                elevation = CardDefaults.cardElevation(8.dp),
-                shape = RoundedCornerShape(0.dp)
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFAFAFA)),
+                elevation = CardDefaults.cardElevation(16.dp),
+                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.5f))
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "You will divert to third party website $brandName",
-                        fontSize = 11.sp,
-                        color = TextGray,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    ) {
+                        Text(
+                            text = "🔒",
+                            fontSize = 14.sp
+                        )
+                        Text(
+                            text = "Secure redirection to $brandName (Coins tracking active)",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = DarkGreen
+                        )
+                    }
                     val context = androidx.compose.ui.platform.LocalContext.current
                     val cuelinksApi = remember { com.example.xyz.api.CuelinksApiService() }
                     val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
@@ -187,18 +198,18 @@ fun EarnCoinsScreen(
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp)
+                            .height(50.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = "PROCEED TO EARN COINS",
-                                fontSize = 15.sp,
+                                text = "ACTIVATE COINS & SHOP",
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = White
                             )
@@ -218,16 +229,17 @@ fun EarnCoinsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Brand detail header card
+            // Brand detail header card - redesigned for premium visual pop
             Card(
                 colors = CardDefaults.cardColors(containerColor = White),
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, BorderColor),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.6f)),
+                elevation = CardDefaults.cardElevation(2.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                    modifier = Modifier.padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     // Logo Header
                     val logoRes = when (brandName) {
@@ -235,101 +247,157 @@ fun EarnCoinsScreen(
                         "Flipkart" -> R.drawable.flipkart_logo
                         "HP Pay" -> R.drawable.hp_pay_logo
                         "Myntra" -> R.drawable.myntra_logo
+                        "Car Insurance" -> R.drawable.car_insurance_icon
+                        "Health Insurance" -> R.drawable.health_insurance_icon
+                        "Term Life Insurance" -> R.drawable.term_life_insurance_icon
+                        "HDFC ERGO Insurance" -> R.drawable.hdfc_ergo_icon
+                        "Personal Loan" -> R.drawable.personal_loan_icon
+                        "Home Loan" -> R.drawable.home_loan_icon
+                        "Car Loan" -> R.drawable.car_loan_icon
+                        "Business Loan" -> R.drawable.business_loan_icon
                         else -> null
+                    }
+
+                    val rewardSubtitle = when (brandName) {
+                        "Amazon" -> "Earn Upto 12 Coins per ₹100 on qualifying Amazon orders"
+                        "Flipkart" -> "Earn Upto 200 Coins per transaction on Flipkart orders"
+                        "Myntra" -> "Earn Upto 10 Coins per ₹100 on Myntra lifestyle orders"
+                        "HP Pay" -> "Earn Upto 10 Coins per ₹100 on HP Pay digital fuel payments"
+                        "Car Insurance" -> "Earn Upto 2,000 Coins on verified policy issuance"
+                        "Health Insurance" -> "Earn Upto 5,000 Coins on verified policy issuance"
+                        "Term Life Insurance" -> "Earn Upto 8,000 Coins on verified policy issuance"
+                        "HDFC ERGO Insurance" -> "Earn Upto 6,000 Coins on verified policy issuance"
+                        "Personal Loan" -> "Earn Upto 10,000 Coins on verified loan disbursement"
+                        "Home Loan" -> "Earn Upto 25,000 Coins on verified loan disbursement"
+                        "Car Loan" -> "Earn Upto 15,000 Coins on verified loan disbursement"
+                        "Business Loan" -> "Earn Upto 30,000 Coins on verified loan disbursement"
+                        else -> "Earn Coins on your successful transactions via Reward Club"
                     }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
-                                .width(90.dp)
-                                .height(36.dp)
-                                .background(Color(0xFFF0F4F8), shape = RoundedCornerShape(6.dp))
-                                .padding(4.dp),
+                                .size(64.dp)
+                                .background(Color(0xFFF7F9FB), shape = RoundedCornerShape(12.dp))
+                                .border(1.dp, BorderColor.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                                .padding(6.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             if (logoRes != null) {
                                 Image(
                                     painter = painterResource(id = logoRes),
                                     contentDescription = brandName,
-                                    modifier = Modifier.fillMaxHeight(),
+                                    modifier = Modifier.fillMaxSize(),
                                     contentScale = ContentScale.Fit
                                 )
                             } else {
                                 Text(
-                                    text = brandName,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = Color.Black
+                                    text = brandName.take(2).uppercase(),
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 20.sp,
+                                    color = DarkGreen
                                 )
+                            }
+                        }
+
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = brandName,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = TextDark
+                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .background(Color(0xFFE8F5E9), shape = RoundedCornerShape(6.dp))
+                                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = "Active Tracking",
+                                        color = DarkGreen,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         }
                     }
 
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFFFF3E0), shape = RoundedCornerShape(8.dp))
+                            .border(1.dp, AmazonOrange.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Diamond Coin Icon
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .background(AccentGold, shape = RoundedCornerShape(6.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("RC", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                        }
-
+                        Text("🪙", fontSize = 20.sp)
                         Text(
-                            text = if (brandName == "Amazon") {
-                                "Get Upto 12 Coins per Rs.100 on your purchase from Amazon via Reward Club"
-                            } else {
-                                "Get Upto 200 Coins per transaction on your purchase from Flipkart via Reward Club"
-                            },
-                            fontSize = 14.sp,
+                            text = rewardSubtitle,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = TextDark
+                            color = TextDark,
+                            lineHeight = 16.sp
                         )
                     }
 
-                    Divider(color = BorderColor)
+                    HorizontalDivider(color = BorderColor.copy(alpha = 0.5f))
 
                     Text(
-                        text = "Kindly Note: To earn Coins on your $brandName transaction, do ensure as depicted below",
+                        text = "To ensure successful coin tracking, please check guide below:",
                         fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
                         color = TextGray
                     )
 
-                    // 3 Steps
+                    // 3 steps cards with numbers
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         instructions.forEach { (iconText, desc, index) ->
-                            Column(
-                                modifier = Modifier.weight(1f),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            Card(
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9FBF9)),
+                                border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.4f)),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.weight(1f)
                             ) {
-                                Box(
+                                Column(
                                     modifier = Modifier
-                                        .size(40.dp)
-                                        .background(Color(0xFFE8F5E9), shape = CircleShape),
-                                    contentAlignment = Alignment.Center
+                                        .fillMaxWidth()
+                                        .padding(10.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
-                                    Text(iconText, fontSize = 18.sp)
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .background(LightGreen, shape = CircleShape),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(iconText, fontSize = 16.sp)
+                                    }
+                                    Text(
+                                        text = desc,
+                                        fontSize = 10.sp,
+                                        textAlign = TextAlign.Center,
+                                        color = TextDark,
+                                        fontWeight = FontWeight.Bold,
+                                        lineHeight = 12.sp
+                                    )
                                 }
-                                Text(
-                                    text = desc,
-                                    fontSize = 10.sp,
-                                    textAlign = TextAlign.Center,
-                                    color = TextDark,
-                                    fontWeight = FontWeight.SemiBold,
-                                    lineHeight = 12.sp
-                                )
                             }
                         }
                     }
@@ -338,10 +406,11 @@ fun EarnCoinsScreen(
 
             // Coin Table title
             Text(
-                text = "When will you see your coins in your account?",
-                fontWeight = FontWeight.Bold,
-                fontSize = 15.sp,
-                color = TextDark
+                text = "Earning Rates & Confirmation Details",
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 16.sp,
+                color = TextDark,
+                modifier = Modifier.padding(top = 4.dp)
             )
 
             // Dynamic Coin Table tab selectors
@@ -350,8 +419,8 @@ fun EarnCoinsScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(44.dp)
-                    .background(Color(0xFFEFEFEF), shape = RoundedCornerShape(22.dp))
+                    .height(46.dp)
+                    .background(Color(0xFFEFEFEF), shape = RoundedCornerShape(23.dp))
                     .padding(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -361,7 +430,7 @@ fun EarnCoinsScreen(
                         .fillMaxHeight()
                         .background(
                             if (!showTrackingTab) DarkGreen else Color.Transparent,
-                            shape = RoundedCornerShape(18.dp)
+                            shape = RoundedCornerShape(19.dp)
                         )
                         .clickable { showTrackingTab = false },
                     contentAlignment = Alignment.Center
@@ -380,7 +449,7 @@ fun EarnCoinsScreen(
                         .fillMaxHeight()
                         .background(
                             if (showTrackingTab) DarkGreen else Color.Transparent,
-                            shape = RoundedCornerShape(18.dp)
+                            shape = RoundedCornerShape(19.dp)
                         )
                         .clickable { showTrackingTab = true },
                     contentAlignment = Alignment.Center
@@ -394,127 +463,166 @@ fun EarnCoinsScreen(
                 }
             }
 
-            // Custom table layout
-            Card(
-                colors = CardDefaults.cardColors(containerColor = White),
-                shape = RoundedCornerShape(8.dp),
-                border = BorderStroke(1.dp, BorderColor),
+            // Redesigned premium cards rows (No legacy database tables)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column {
-                    // Table Header
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFF5F7FA))
-                            .padding(vertical = 12.dp, horizontal = 16.dp)
-                    ) {
-                        Text(
-                            text = if (!showTrackingTab) "Category" else "Coins Tracking",
-                            color = TextGray,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp,
-                            modifier = Modifier.weight(1.5f)
-                        )
-                        Text(
-                            text = if (!showTrackingTab) "Earn Rate" else "Coins Confirmation",
-                            color = TextGray,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp,
-                            modifier = Modifier.weight(1f),
-                            textAlign = TextAlign.End
-                        )
-                    }
-                    HorizontalDivider(color = BorderColor)
-
-                    // Table rows
-                    if (!showTrackingTab) {
-                        rates.forEachIndexed { index, row ->
+                if (!showTrackingTab) {
+                    rates.forEachIndexed { index, row ->
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = White),
+                            border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.5f)),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(if (index % 2 == 0) White else Color(0xFFF9F9F9))
-                                    .padding(vertical = 12.dp, horizontal = 16.dp)
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(
-                                    text = row.category,
-                                    color = TextDark,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier.weight(1.5f)
-                                )
-                                Text(
-                                    text = row.earnRate,
-                                    color = TextDark,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.weight(1f),
-                                    textAlign = TextAlign.End
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    modifier = Modifier.weight(1.2f)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .background(DarkGreen, shape = CircleShape)
+                                    )
+                                    Text(
+                                        text = row.category,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 13.sp,
+                                        color = TextDark
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .background(Color(0xFFE8F5E9), shape = RoundedCornerShape(8.dp))
+                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                ) {
+                                    Text(
+                                        text = row.earnRate,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 12.sp,
+                                        color = DarkGreen
+                                    )
+                                }
                             }
-                            Divider(color = BorderColor.copy(alpha = 0.5f))
                         }
-                    } else {
-                        trackings.forEachIndexed { index, row ->
-                            Row(
+                    }
+                } else {
+                    trackings.forEachIndexed { index, row ->
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = White),
+                            border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.5f)),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(if (index % 2 == 0) White else Color(0xFFF9F9F9))
-                                    .padding(vertical = 12.dp, horizontal = 16.dp)
+                                    .padding(14.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text(
-                                    text = row.tracking,
-                                    color = TextDark,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier.weight(1.5f)
-                                )
-                                Text(
-                                    text = row.confirmation,
-                                    color = TextDark,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.weight(1f),
-                                    textAlign = TextAlign.End
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = "⏱️ Coins Tracking",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp,
+                                        color = TextGray
+                                    )
+                                    Text(
+                                        text = row.tracking,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp,
+                                        color = TextDark
+                                    )
+                                }
+                                HorizontalDivider(color = BorderColor.copy(alpha = 0.3f))
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = "✔️ Coins Confirmation",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp,
+                                        color = TextGray
+                                    )
+                                    Text(
+                                        text = row.confirmation,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp,
+                                        color = DarkGreen
+                                    )
+                                }
                             }
-                            Divider(color = BorderColor.copy(alpha = 0.5f))
                         }
                     }
                 }
             }
 
-            // Quick Tips Card
+            // Quick Tips Card - redesigned with warning alerts
             Card(
                 colors = CardDefaults.cardColors(containerColor = White),
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, BorderColor),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.6f)),
+                elevation = CardDefaults.cardElevation(2.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    modifier = Modifier.padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(
-                        text = "Quick Tips",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = TextDark
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text("💡", fontSize = 18.sp)
+                        Text(
+                            text = "Quick Tips & Guidelines",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 15.sp,
+                            color = TextDark
+                        )
+                    }
+
+                    HorizontalDivider(color = BorderColor.copy(alpha = 0.5f))
 
                     quickTips.forEachIndexed { index, tip ->
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(
-                                text = "${index + 1}.",
-                                fontSize = 12.sp,
-                                color = TextDark,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .background(Color(0xFFFFF3E0), shape = CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "${index + 1}",
+                                    fontSize = 10.sp,
+                                    color = GoldHex,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                             Text(
                                 text = tip,
                                 fontSize = 12.sp,
-                                color = TextDark,
-                                lineHeight = 16.sp
+                                color = TextGray,
+                                lineHeight = 16.sp,
+                                modifier = Modifier.weight(1f)
                             )
                         }
                     }
