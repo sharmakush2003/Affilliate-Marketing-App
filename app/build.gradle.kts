@@ -1,3 +1,15 @@
+import java.util.Properties
+
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use { load(it) }
+    }
+}
+
+val cuelinksApiKey: String = localProperties.getProperty("CUELINKS_API_KEY") ?: ""
+val cuelinksChannelId: String = localProperties.getProperty("CUELINKS_CHANNEL_ID") ?: "301603"
+
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.compose.compiler)
@@ -14,6 +26,9 @@ android {
         versionCode = 1
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "CUELINKS_API_KEY", "\"$cuelinksApiKey\"")
+        buildConfigField("String", "CUELINKS_CHANNEL_ID", "\"$cuelinksChannelId\"")
     }
 
     buildTypes {
@@ -27,6 +42,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     packaging {

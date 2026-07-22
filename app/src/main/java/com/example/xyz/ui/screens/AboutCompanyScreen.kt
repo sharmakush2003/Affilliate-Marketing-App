@@ -18,13 +18,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.xyz.R
-import com.example.xyz.ui.theme.AccentGold
-import com.example.xyz.ui.theme.DarkGreen
+import com.example.xyz.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

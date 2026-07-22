@@ -5,11 +5,17 @@
 
     <application
         android:allowBackup="true"
+        android:usesCleartextTraffic="true"
         android:icon="@drawable/reward_club_logo"
         android:label="@string/app_name"
         android:roundIcon="@drawable/reward_club_logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.RewardClub">
+
+        <!-- Cuelinks SDK Channel ID Configuration -->
+        <meta-data
+            android:name="com.cuelinks.channelId"
+            android:value="301603" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

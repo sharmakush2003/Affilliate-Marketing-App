@@ -2,10 +2,10 @@ package com.example.xyz.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// ── Amazon-Inspired Brand ──────────────────────────────────────
-val NavyDark    = Color(0xFF131921)   // Amazon header dark navy
-val NavyMid     = Color(0xFF1D2939)   // Slightly lighter nav
-val AmazonOrange = Color(0xFFFF9900)  // Amazon signature orange
+// ── Brand Header Colors ─────────────────────────────────────────
+val NavyDark    = Color(0xFF005C38)   // Rich vibrant green header (replaced dark black)
+val NavyMid     = Color(0xFF004D2C)   // Deep header accent
+val AmazonOrange = Color(0xFFFF9900)  // Signature orange
 val OrangeLight  = Color(0xFFFFF3E0)  // Soft orange background
 
 // ── Keep brand green for CTAs & coins ─────────────────────────

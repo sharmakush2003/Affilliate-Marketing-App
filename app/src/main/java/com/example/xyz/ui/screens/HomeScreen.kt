@@ -75,7 +75,7 @@ data class CreditCardMock(
 
 data class InsuranceMock(
     val name: String,
-    val logoText: String,
+    val logoText: String = "",
     val offerText: String,
     val subText: String,
     val logoBg: Color = Color(0xFFE8F5E9),
@@ -84,7 +84,7 @@ data class InsuranceMock(
 
 data class LoanMock(
     val name: String,
-    val logoText: String,
+    val logoText: String = "",
     val offerText: String,
     val subText: String,
     val logoBg: Color = Color(0xFFECEFF1),
@@ -128,16 +128,17 @@ fun HomeScreen(
     )
 
     val insurances = listOf(
-        InsuranceMock("Car Insurance", "🚗", "Upto 2,000 Coins", "Get instant policy online", Color(0xFFE3F2FD)),
-        InsuranceMock("Health Insurance", "🛡️", "Upto 5,000 Coins", "Cashless claims network", Color(0xFFE8F5E9)),
-        InsuranceMock("Term Life Insurance", "👥", "Upto 8,000 Coins", "Secure your family's future", Color(0xFFFFF3E0))
+        InsuranceMock("Car Insurance", "🚗", "Upto 2,000 Coins", "Get instant policy online", Color(0xFFE3F2FD), R.drawable.car_insurance_icon),
+        InsuranceMock("Health Insurance", "🛡️", "Upto 5,000 Coins", "Cashless claims network", Color(0xFFE8F5E9), R.drawable.health_insurance_icon),
+        InsuranceMock("Term Life Insurance", "👥", "Upto 8,000 Coins", "Secure family's future", Color(0xFFFFF3E0), R.drawable.term_life_insurance_icon),
+        InsuranceMock("HDFC ERGO Insurance", "🏥", "Upto 6,000 Coins", "Complete motor & health", Color(0xFFFFEBEE), R.drawable.hdfc_ergo_icon)
     )
 
     val loans = listOf(
-        LoanMock("Personal Loan", "💰", "Upto 10,000 Coins", "Get instant loan approvals", Color(0xFFF1F8E9)),
-        LoanMock("Home Loan", "🏠", "Upto 25,000 Coins", "Lowest interest rates on loans", Color(0xFFE8F5E9)),
-        LoanMock("Car Loan", "🚗", "Upto 15,000 Coins", "Quick processing & payouts", Color(0xFFE3F2FD)),
-        LoanMock("Business Loan", "📈", "Upto 30,000 Coins", "Fund your business growth", Color(0xFFFFF3E0))
+        LoanMock("Personal Loan", "💰", "Upto 10,000 Coins", "Instant loan approvals", Color(0xFFF1F8E9), R.drawable.personal_loan_icon),
+        LoanMock("Home Loan", "🏠", "Upto 25,000 Coins", "Lowest interest rates", Color(0xFFE8F5E9), R.drawable.home_loan_icon),
+        LoanMock("Car Loan", "🚗", "Upto 15,000 Coins", "Quick processing payouts", Color(0xFFE3F2FD), R.drawable.car_loan_icon),
+        LoanMock("Business Loan", "📈", "Upto 30,000 Coins", "Fund business growth", Color(0xFFFFF3E0), R.drawable.business_loan_icon)
     )
 
     val coupons = listOf(
@@ -198,7 +199,7 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(loans) { loan ->
-                LoanItem(loan = loan, onClick = { onBrandClick("Flipkart") })
+                LoanItem(loan = loan, onClick = { onBrandClick(loan.name) })
             }
         }
 
@@ -212,7 +213,7 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(insurances) { insurance ->
-                InsuranceItem(insurance = insurance, onClick = { onBrandClick("Flipkart") })
+                InsuranceItem(insurance = insurance, onClick = { onBrandClick(insurance.name) })
             }
         }
 
@@ -226,7 +227,7 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(creditCards) { card ->
-                CreditCardItem(card = card, onClick = { onBrandClick("Flipkart") })
+                CreditCardItem(card = card, onClick = { onBrandClick(card.name) })
             }
         }
 
@@ -302,7 +303,11 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(NavyDark)
+            .background(
+                Brush.horizontalGradient(
+                    colors = listOf(Color(0xFF007600), Color(0xFF004D2C))
+                )
+            )
     ) {
         // ── Top row: hamburger | logo + name | JOIN ──────────────────
         Row(
@@ -349,28 +354,6 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
                     fontWeight = FontWeight.Bold
                 )
             }
-        }
-
-        // ── Search bar row — Amazon's iconic search ───────────────────
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 6.dp)
-                .background(Color.White, RoundedCornerShape(6.dp))
-                .border(2.dp, AmazonOrange, RoundedCornerShape(6.dp))
-                .padding(horizontal = 12.dp, vertical = 9.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(Icons.Default.Search, contentDescription = null, tint = TextGray, modifier = Modifier.size(18.dp))
-                Text("Search deals, brands & more", color = TextGray, fontSize = 13.sp)
-            }
-            Icon(Icons.Default.Mic, contentDescription = null, tint = TextDark, modifier = Modifier.size(20.dp))
         }
     }
 }
@@ -600,7 +583,7 @@ fun SectionHeader(
 fun BrandCard(brand: BrandEarn, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .width(130.dp)
+            .width(160.dp)
             .clip(RoundedCornerShape(12.dp))
             .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
             .background(White)
@@ -615,7 +598,7 @@ fun BrandCard(brand: BrandEarn, onClick: () -> Unit) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(40.dp)
+                    .height(72.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(brand.logoBg),
                 contentAlignment = Alignment.Center
@@ -624,7 +607,9 @@ fun BrandCard(brand: BrandEarn, onClick: () -> Unit) {
                     Image(
                         painter = painterResource(id = brand.logoResId),
                         contentDescription = brand.name,
-                        modifier = Modifier.fillMaxHeight().padding(4.dp),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
                         contentScale = ContentScale.Fit
                     )
                 } else {
@@ -646,7 +631,7 @@ fun BrandCard(brand: BrandEarn, onClick: () -> Unit) {
                 Text(
                     text = brand.earnRate,
                     color = TextDark,
-                    fontSize = 14.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.width(4.dp))
@@ -661,7 +646,9 @@ fun BrandCard(brand: BrandEarn, onClick: () -> Unit) {
                 text = brand.rateDetail,
                 color = TextGray,
                 fontSize = 10.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -745,7 +732,7 @@ fun CouponCard(coupon: CouponMock, onClick: () -> Unit) {
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, BorderColor),
         modifier = Modifier
-            .width(150.dp)
+            .width(160.dp)
             .height(160.dp)
             .clickable { onClick() }
     ) {
@@ -758,8 +745,9 @@ fun CouponCard(coupon: CouponMock, onClick: () -> Unit) {
         ) {
             Box(
                 modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
+                    .fillMaxWidth()
+                    .height(72.dp)
+                    .clip(RoundedCornerShape(8.dp))
                     .background(Color(0xFFE8F5E9)),
                 contentAlignment = Alignment.Center
             ) {
@@ -773,7 +761,7 @@ fun CouponCard(coupon: CouponMock, onClick: () -> Unit) {
                 } else {
                     Text(
                         text = emoji,
-                        fontSize = 20.sp
+                        fontSize = 28.sp
                     )
                 }
             }
@@ -804,53 +792,70 @@ fun CouponCard(coupon: CouponMock, onClick: () -> Unit) {
 fun VoucherCard(voucher: VoucherMock, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .width(180.dp)
+            .width(160.dp)
             .clip(RoundedCornerShape(12.dp))
             .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
             .background(White)
             .clickable { onClick() }
-            .padding(14.dp)
+            .padding(12.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            if (voucher.discount.isNotEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(AccentGold)
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                ) {
-                    Text(
-                        text = voucher.discount,
-                        color = Color.Black,
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(72.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0xFFF0F4F8)),
+                contentAlignment = Alignment.Center
+            ) {
+                if (voucher.logoResId != null) {
+                    Image(
+                        painter = painterResource(id = voucher.logoResId),
+                        contentDescription = voucher.name,
+                        modifier = Modifier.fillMaxSize().padding(8.dp),
+                        contentScale = ContentScale.Fit
                     )
+                } else {
+                    Text("🎟️", fontSize = 28.sp)
+                }
+
+                if (voucher.discount.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(6.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(AccentGold)
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = voucher.discount,
+                            color = Color.Black,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
+
             Spacer(modifier = Modifier.height(10.dp))
-            if (voucher.logoResId != null) {
-                Image(
-                    painter = painterResource(id = voucher.logoResId),
-                    contentDescription = voucher.name,
-                    modifier = Modifier.size(36.dp).align(Alignment.CenterHorizontally),
-                    contentScale = ContentScale.Fit
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
             Text(
                 text = voucher.name,
                 color = TextDark,
                 fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = voucher.subText,
                 color = TextGray,
-                fontSize = 11.sp
+                fontSize = 10.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -860,12 +865,12 @@ fun VoucherCard(voucher: VoucherMock, onClick: () -> Unit) {
 fun CreditCardItem(card: CreditCardMock, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .width(180.dp)
+            .width(160.dp)
             .clip(RoundedCornerShape(12.dp))
             .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
             .background(White)
             .clickable { onClick() }
-            .padding(14.dp)
+            .padding(12.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -874,7 +879,7 @@ fun CreditCardItem(card: CreditCardMock, onClick: () -> Unit) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(90.dp)
+                    .height(72.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(card.logoBg)
                     .padding(8.dp)
@@ -891,19 +896,21 @@ fun CreditCardItem(card: CreditCardMock, onClick: () -> Unit) {
                         Text(
                             text = card.logoText,
                             color = White,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                         Text(
                             text = "💳",
                             color = White,
-                            fontSize = 14.sp
+                            fontSize = 12.sp
                         )
                     }
                     Text(
                         text = "•••• ••••",
                         color = White.copy(alpha = 0.7f),
-                        fontSize = 14.sp,
+                        fontSize = 12.sp,
                         letterSpacing = 2.sp
                     )
                 }
@@ -932,13 +939,17 @@ fun CreditCardItem(card: CreditCardMock, onClick: () -> Unit) {
                     text = card.offerText,
                     color = DarkGreen,
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
             Text(
                 text = card.subText,
                 color = TextGray,
-                fontSize = 10.sp
+                fontSize = 10.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -948,7 +959,7 @@ fun CreditCardItem(card: CreditCardMock, onClick: () -> Unit) {
 fun InsuranceItem(insurance: InsuranceMock, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .width(150.dp)
+            .width(160.dp)
             .clip(RoundedCornerShape(12.dp))
             .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
             .background(White)
@@ -961,15 +972,26 @@ fun InsuranceItem(insurance: InsuranceMock, onClick: () -> Unit) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp)
+                    .height(72.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(insurance.logoBg),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = insurance.logoText,
-                    fontSize = 28.sp
-                )
+                if (insurance.logoResId != null) {
+                    Image(
+                        painter = painterResource(id = insurance.logoResId),
+                        contentDescription = insurance.name,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    Text(
+                        text = insurance.logoText,
+                        fontSize = 28.sp
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(10.dp))
             Text(
@@ -995,13 +1017,17 @@ fun InsuranceItem(insurance: InsuranceMock, onClick: () -> Unit) {
                     text = insurance.offerText,
                     color = DarkGreen,
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
             Text(
                 text = insurance.subText,
                 color = TextGray,
-                fontSize = 10.sp
+                fontSize = 10.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -1024,27 +1050,26 @@ fun TopProductCard(product: TopProductMock, onClick: () -> Unit) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(80.dp)
+                    .height(72.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(GrayBackground),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = product.emoji,
-                    fontSize = 36.sp
+                    fontSize = 32.sp
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = product.name,
                 color = TextDark,
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.height(36.dp)
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -1058,7 +1083,7 @@ fun TopProductCard(product: TopProductMock, onClick: () -> Unit) {
                 Text(
                     text = product.cost,
                     color = DarkGreen,
-                    fontSize = 12.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -1070,7 +1095,7 @@ fun TopProductCard(product: TopProductMock, onClick: () -> Unit) {
 fun LoanItem(loan: LoanMock, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .width(150.dp)
+            .width(160.dp)
             .clip(RoundedCornerShape(12.dp))
             .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
             .background(White)
@@ -1083,15 +1108,26 @@ fun LoanItem(loan: LoanMock, onClick: () -> Unit) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp)
+                    .height(72.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(loan.logoBg),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = loan.logoText,
-                    fontSize = 28.sp
-                )
+                if (loan.logoResId != null) {
+                    Image(
+                        painter = painterResource(id = loan.logoResId),
+                        contentDescription = loan.name,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    Text(
+                        text = loan.logoText,
+                        fontSize = 28.sp
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(10.dp))
             Text(
@@ -1116,13 +1152,17 @@ fun LoanItem(loan: LoanMock, onClick: () -> Unit) {
                     text = loan.offerText,
                     color = DarkGreen,
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
             Text(
                 text = loan.subText,
                 color = TextGray,
-                fontSize = 10.sp
+                fontSize = 10.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

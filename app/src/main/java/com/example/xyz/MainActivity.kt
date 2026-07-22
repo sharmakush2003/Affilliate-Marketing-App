@@ -71,6 +71,9 @@ sealed class Screen {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Step 3: Initialize Cuelinks SDK (reads Channel ID 301603 from AndroidManifest)
+        com.cuelinks.sdk.Cuelinks.initialize(this)
+
         setContent {
             XYZTheme {
                 var showSplash by remember { mutableStateOf(true) }

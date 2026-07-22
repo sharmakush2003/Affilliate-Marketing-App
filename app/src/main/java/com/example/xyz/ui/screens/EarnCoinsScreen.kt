@@ -6,7 +6,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Launch
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
 import com.example.xyz.R
 import com.example.xyz.ui.theme.*
+import kotlinx.coroutines.launch
 
 data class RateRow(
     val category: String,
@@ -140,8 +143,49 @@ fun EarnCoinsScreen(
                         color = TextGray,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    val cuelinksApi = remember { com.example.xyz.api.CuelinksApiService() }
+                    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
+
                     Button(
-                        onClick = { },
+                        onClick = {
+                            val rawUrl = when (brandName) {
+                                "Amazon" -> "https://www.amazon.in"
+                                "Flipkart" -> "https://www.flipkart.com"
+                                "Myntra" -> "https://www.myntra.com"
+                                "HP Pay" -> "https://www.hppay.in"
+                                "Car Insurance" -> "https://www.policybazaar.com/motor-insurance/car-insurance/"
+                                "Health Insurance" -> "https://www.policybazaar.com/health-insurance/"
+                                "Term Life Insurance" -> "https://www.policybazaar.com/life-insurance/term-insurance/"
+                                "HDFC ERGO Insurance" -> "https://www.hdfcergo.com"
+                                "Personal Loan" -> "https://www.bankbazaar.com/personal-loan.html"
+                                "Home Loan" -> "https://www.bankbazaar.com/home-loan.html"
+                                "Car Loan" -> "https://www.bankbazaar.com/car-loan.html"
+                                "Business Loan" -> "https://www.bankbazaar.com/business-loan.html"
+                                else -> "https://www.flipkart.com"
+                            }
+                            // Generate the Cuelinks tracking URL
+                            val trackingUrl = cuelinksApi.createAffiliateLink(rawUrl)
+
+                            // 🔥 Background ping to register click even if Chrome blocks redirect
+                            coroutineScope.launch {
+                                cuelinksApi.fireAndForgetClick(rawUrl)
+                            }
+
+                            // 🚀 Open Cuelinks tracking URL in Chrome
+                            // Chrome follows redirect: linksredirect.com → merchant site
+                            val intent = android.content.Intent(
+                                android.content.Intent.ACTION_VIEW,
+                                android.net.Uri.parse(trackingUrl)
+                            )
+                            intent.setPackage("com.android.chrome")
+                            try {
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                intent.setPackage(null)
+                                context.startActivity(intent)
+                            }
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
