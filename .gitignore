@@ -22,3 +22,5 @@ visitchittorgarh-keystore
 *.apk
 *.aar
 *.aab
+check_git_status.bat
+check_git_status.ps1
