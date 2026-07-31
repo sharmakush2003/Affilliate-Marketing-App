@@ -18,9 +18,19 @@ local.properties
 visitchittorgarh-keystore
 *.keystore
 *.jks
+keystore.properties
+KEYSTORE_INFO.md
 .kotlin
 *.apk
 *.aar
 *.aab
+
+# Sensitive config files — NEVER commit these
+google-services.json
+.env
+*.env.*
+
+# Debug/utility scripts — not for production
 check_git_status.bat
 check_git_status.ps1
+ping_clicks.ps1

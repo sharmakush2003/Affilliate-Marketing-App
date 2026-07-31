@@ -1,4 +1,5 @@
-package com.example.xyz.ui.screens
+// 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
+package com.rewardclub.app.ui.screens
 
 import android.widget.Toast
 import androidx.compose.animation.*
@@ -26,8 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
-import com.example.xyz.R
-import com.example.xyz.ui.theme.*
+import com.rewardclub.app.R
+import com.rewardclub.app.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

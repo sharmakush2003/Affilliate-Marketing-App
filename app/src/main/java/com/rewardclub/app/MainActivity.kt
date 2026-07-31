@@ -1,4 +1,5 @@
-package com.example.xyz
+// © 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
+package com.rewardclub.app
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -49,12 +50,12 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Easing
 import android.view.animation.OvershootInterpolator
 import androidx.compose.ui.unit.sp
-import com.example.xyz.ui.screens.*
-import com.example.xyz.ui.theme.DarkGreen
-import com.example.xyz.ui.theme.NavyDark
-import com.example.xyz.ui.theme.TextGray
-import com.example.xyz.ui.theme.BorderColor
-import com.example.xyz.ui.theme.XYZTheme
+import com.rewardclub.app.ui.screens.*
+import com.rewardclub.app.ui.theme.DarkGreen
+import com.rewardclub.app.ui.theme.NavyDark
+import com.rewardclub.app.ui.theme.TextGray
+import com.rewardclub.app.ui.theme.BorderColor
+import com.rewardclub.app.ui.theme.XYZTheme
 
 sealed class Screen {
     object Home : Screen()
@@ -194,8 +195,9 @@ fun SplashScreen(onTimeout: () -> Unit) {
 
 @Composable
 fun DrawerContent(
-    userName: String = "Kush Sharma",
-    userPhone: String = "+91 98765 43210",
+    userName: String = "",
+    userPhone: String = "",
+    walletCoins: String = "0",
     onItemClick: (String) -> Unit
 ) {
     val items = listOf(
@@ -290,7 +292,7 @@ fun DrawerContent(
                             )
                         }
                         Text(
-                            text = "2,450 Coins",
+                            text = "$walletCoins Coins",
                             color = Color(0xFFFF9900),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Black

@@ -1,13 +1,16 @@
-package com.example.xyz.utils
+// © 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
+package com.rewardclub.app.utils
 
+import android.util.Log
 import java.util.Properties
 import javax.mail.*
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 
 object EmailSender {
-    private const val SENDER_EMAIL = "rewardclub.team@gmail.com"
-    private const val APP_PASSWORD = "trwqwwxttewvvuoi"
+    // 🔒 Credentials loaded from BuildConfig (sourced from local.properties — git-ignored, NEVER hardcoded)
+    private val SENDER_EMAIL: String get() = com.rewardclub.app.BuildConfig.SMTP_EMAIL
+    private val APP_PASSWORD: String get() = com.rewardclub.app.BuildConfig.SMTP_PASSWORD
 
     fun sendOtpEmail(recipientEmail: String, otpCode: String): Boolean {
         val properties = Properties().apply {
@@ -44,19 +47,21 @@ object EmailSender {
                     This code is valid for 5 minutes. If you did not request this verification, please secure your account immediately.
                     
                     ------------------------------------------------------------
-                    SECURITY WARNING: For security reasons, please do NOT share this code with anyone. Reward Club support representatives or agents will never ask for this code.
+                    SECURITY WARNING: For security reasons, please do NOT share this code with anyone. 
+                    Reward Club support representatives will never ask for this code.
                     ------------------------------------------------------------
                     
                     Best regards,
                     Reward Club Team
-                    Developed by ChittorTech
                     """.trimIndent()
                 )
             }
             Transport.send(message)
             true
         } catch (e: Exception) {
-            e.printStackTrace()
+            if (com.rewardclub.app.BuildConfig.DEBUG) {
+                Log.e("EmailSender", "Failed to send OTP email", e)
+            }
             false
         }
     }

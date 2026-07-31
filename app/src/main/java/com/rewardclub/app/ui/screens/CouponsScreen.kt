@@ -1,9 +1,11 @@
-package com.example.xyz.ui.screens
+// 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
+package com.rewardclub.app.ui.screens
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -17,34 +19,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.xyz.ui.theme.*
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import com.rewardclub.app.R
+import com.rewardclub.app.ui.theme.*
 
-data class ProductMock(
+data class CouponGridItem(
     val name: String,
-    val desc: String,
-    val price: String,
+    val discountText: String,
     val iconText: String
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductsScreen(
-    onBackClick: () -> Unit
+fun CouponsScreen(
+    onBackClick: () -> Unit,
+    onCouponClick: (String) -> Unit
 ) {
-    val products = listOf(
-        ProductMock("Usha EI 2801 LT...", "The ultra-lightweight...", "3,798 coins", "🔌"),
-        ProductMock("High Speed Hand...", "Hand mixers are powerf...", "9,321 coins", "🥣"),
-        ProductMock("Element 1010...", "Description Perfect for...", "2,144 coins", "🧴"),
-        ProductMock("Philips HR1855/70...", "Enjoy a fresh and...", "51,232 coins", "🍹")
+    val coupons = listOf(
+        CouponGridItem("Bloom by Bold Care", "15% Discount", "🌸"),
+        CouponGridItem("Bombay Shaving...", "0% Discount", "🪒"),
+        CouponGridItem("Assembly Travel", "0% Discount", "🧳"),
+        CouponGridItem("Deyga", "10% Discount", "🌿"),
+        CouponGridItem("Earth Rhythm", "0% Discount", "🌍"),
+        CouponGridItem("Mokobara", "0% Discount", "🎒")
     )
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Products", fontWeight = FontWeight.Bold, fontSize = 20.sp) },
+                title = { Text("Coupons", fontWeight = FontWeight.Bold, fontSize = 20.sp) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -76,34 +84,15 @@ fun ProductsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Spacer(modifier = Modifier.height(4.dp))
-                // Filter pill
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(DarkGreen)
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text("✓", color = White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                            Text("Top selling", color = White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-                }
-
-                // LazyColumn for Products
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                // Grid layout for Coupons
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.weight(1f)
                 ) {
-                    items(products) { product ->
-                        ProductItemCard(product = product)
+                    items(coupons) { coupon ->
+                        CouponGridCard(coupon = coupon, onClick = { onCouponClick(coupon.name) })
                     }
                 }
             }
@@ -150,67 +139,75 @@ fun ProductsScreen(
 }
 
 @Composable
-fun ProductItemCard(product: ProductMock) {
+fun CouponGridCard(coupon: CouponGridItem, onClick: () -> Unit) {
+    val logoRes = when {
+        coupon.name.contains("Bloom", ignoreCase = true) -> R.drawable.bloom_logo
+        coupon.name.contains("Bombay", ignoreCase = true) -> R.drawable.bombay_shaving_logo
+        coupon.name.contains("Assembly", ignoreCase = true) -> R.drawable.assembly_travel_logo
+        coupon.name.contains("Deyga", ignoreCase = true) -> R.drawable.deyga_logo
+        coupon.name.contains("Earth", ignoreCase = true) -> R.drawable.earth_rhythm_logo
+        coupon.name.contains("Mokobara", ignoreCase = true) -> R.drawable.mokobara_logo
+        else -> null
+    }
+
     Card(
         colors = CardDefaults.cardColors(containerColor = White),
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, BorderColor),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(160.dp)
+            .clickable { onClick() }
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Product image placeholder
             Box(
                 modifier = Modifier
-                    .size(90.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFFF9FAFC)),
+                    .size(54.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFE8F5E9)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(product.iconText, fontSize = 42.sp)
+                if (logoRes != null) {
+                    Image(
+                        painter = painterResource(id = logoRes),
+                        contentDescription = coupon.name,
+                        modifier = Modifier.fillMaxSize().padding(8.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    Text(
+                        text = coupon.iconText,
+                        fontSize = 24.sp
+                    )
+                }
             }
 
             Column(
-                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = product.name,
+                    text = coupon.name,
                     color = TextDark,
-                    fontSize = 15.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = product.desc,
-                    color = TextGray,
-                    fontSize = 12.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    text = coupon.discountText,
+                    color = OrangeDiscount,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(16.dp)
-                            .background(AccentGold, shape = RoundedCornerShape(3.dp))
-                    )
-                    Text(
-                        text = product.price,
-                        color = TextDark,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
             }
         }
     }

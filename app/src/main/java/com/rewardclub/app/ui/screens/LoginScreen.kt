@@ -1,4 +1,5 @@
-package com.example.xyz.ui.screens
+// © 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
+package com.rewardclub.app.ui.screens
 
 import android.widget.Toast
 import androidx.compose.animation.*
@@ -30,8 +31,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
-import com.example.xyz.ui.theme.*
-import com.example.xyz.utils.EmailSender
+import com.rewardclub.app.ui.theme.*
+import com.rewardclub.app.utils.EmailSender
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import android.app.Activity
@@ -56,6 +57,8 @@ fun LoginScreen(
     var otpCode by remember { mutableStateOf("") }
     var isOtpSent by remember { mutableStateOf(false) }
     var countdownTime by remember { mutableStateOf(30) }
+    var otpAttempts by remember { mutableStateOf(0) }
+    val maxOtpAttempts = 5
 
     var isEmailFocused by remember { mutableStateOf(false) }
 
@@ -87,10 +90,10 @@ fun LoginScreen(
                     onLoginSuccess()
                 }
             } catch (e: ApiException) {
-                e.printStackTrace()
-                // Development fallback: Bypass Google OAuth SHA-1 registration errors on local builds to allow testing the dashboard
-                Toast.makeText(context, "Welcome back (Google OAuth Sandbox Mode)!", Toast.LENGTH_SHORT).show()
-                onLoginSuccess()
+                if (com.rewardclub.app.BuildConfig.DEBUG) {
+                    android.util.Log.e("LoginScreen", "Google Sign-In failed: ${e.statusCode}", e)
+                }
+                Toast.makeText(context, "Google Sign-In failed. Please try again.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -195,7 +198,7 @@ fun LoginScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Image(
-                                    painter = painterResource(id = com.example.xyz.R.drawable.reward_club_logo),
+                                    painter = painterResource(id = com.rewardclub.app.R.drawable.reward_club_logo),
                                     contentDescription = "Reward Club Logo",
                                     modifier = Modifier.fillMaxSize()
                                 )
@@ -298,9 +301,13 @@ fun LoginScreen(
                         if (!isOtpSent) {
                             Button(
                                 onClick = {
-                                    if (emailAddress.contains("@") && emailAddress.contains(".")) {
-                                        val code = (1000..9999).random().toString()
+                                    val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+                                    if (emailRegex.matches(emailAddress.trim())) {
+                                        // 🔒 SecureRandom — cryptographically secure OTP generation
+                                        val secureRandom = java.security.SecureRandom()
+                                        val code = (1000 + secureRandom.nextInt(9000)).toString()
                                         generatedOtp = code
+                                        otpAttempts = 0
                                         isSendingEmail = true
                                         Toast.makeText(context, "Sending OTP to $emailAddress...", Toast.LENGTH_SHORT).show()
                                         scope.launch(kotlinx.coroutines.Dispatchers.IO) {
@@ -407,11 +414,25 @@ fun LoginScreen(
 
                                 Button(
                                     onClick = {
-                                        if (otpCode == generatedOtp) {
+                                        if (otpAttempts >= maxOtpAttempts) {
+                                            Toast.makeText(context, "Too many wrong attempts. Please request a new OTP.", Toast.LENGTH_LONG).show()
+                                            otpCode = ""
+                                            isOtpSent = false
+                                            otpAttempts = 0
+                                        } else if (otpCode == generatedOtp) {
                                             Toast.makeText(context, "Sign In Successful!", Toast.LENGTH_SHORT).show()
                                             onLoginSuccess()
                                         } else {
-                                            Toast.makeText(context, "Incorrect OTP code. Please check your email.", Toast.LENGTH_LONG).show()
+                                            otpAttempts++
+                                            val remaining = maxOtpAttempts - otpAttempts
+                                            if (remaining > 0) {
+                                                Toast.makeText(context, "Incorrect OTP. $remaining attempt(s) remaining.", Toast.LENGTH_LONG).show()
+                                            } else {
+                                                Toast.makeText(context, "Max attempts reached. Request a new OTP.", Toast.LENGTH_LONG).show()
+                                                otpCode = ""
+                                                isOtpSent = false
+                                                otpAttempts = 0
+                                            }
                                         }
                                     },
                                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),

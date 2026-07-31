@@ -1,4 +1,5 @@
-package com.example.xyz.ui.theme
+// 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
+package com.rewardclub.app.ui.theme
 
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme

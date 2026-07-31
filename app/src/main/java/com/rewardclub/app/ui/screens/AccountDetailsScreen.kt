@@ -1,4 +1,5 @@
-package com.example.xyz.ui.screens
+// © 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
+package com.rewardclub.app.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.*
@@ -21,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.xyz.ui.theme.*
+import com.rewardclub.app.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,9 +30,9 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
 
     // Form state
-    var fullName by remember { mutableStateOf("Kush Sharma") }
-    var email by remember { mutableStateOf("kush@example.com") }
-    var mobile by remember { mutableStateOf("+91 98765 43210") }
+    var fullName by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var mobile by remember { mutableStateOf("") }
     var receiveEmails by remember { mutableStateOf(true) }
 
     // Accordion state

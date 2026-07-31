@@ -1,4 +1,5 @@
-package com.example.xyz.api
+// © 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
+package com.rewardclub.app.api
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,8 +17,8 @@ import java.net.URLEncoder
  */
 object CuelinksConfig {
     // 🔒 Dynamically read from local.properties via BuildConfig (git-ignored, 100% safe)
-    var CUELINKS_API_KEY: String = com.example.xyz.BuildConfig.CUELINKS_API_KEY
-    var PUBLISHER_ID: String = com.example.xyz.BuildConfig.CUELINKS_CHANNEL_ID
+    var CUELINKS_API_KEY: String = com.rewardclub.app.BuildConfig.CUELINKS_API_KEY
+    var PUBLISHER_ID: String = com.rewardclub.app.BuildConfig.CUELINKS_CHANNEL_ID
     const val BASE_URL: String = "https://api.cuelinks.com/v2"
 }
 
@@ -78,11 +79,15 @@ class CuelinksApiService {
             conn.connect()
             val code = conn.responseCode
             conn.disconnect()
-            android.util.Log.d("Cuelinks", "Click ping → $trackingUrl | Response: $code")
+            if (com.rewardclub.app.BuildConfig.DEBUG) {
+                android.util.Log.d("Cuelinks", "Click ping response: $code")
+            }
             // 200 OK or 301/302 redirect = server received it = click REGISTERED!
             code in 200..399
         } catch (e: Exception) {
-            android.util.Log.w("Cuelinks", "Click ping failed: ${e.message}")
+            if (com.rewardclub.app.BuildConfig.DEBUG) {
+                android.util.Log.w("Cuelinks", "Click ping failed: ${e.message}")
+            }
             false
         }
     }

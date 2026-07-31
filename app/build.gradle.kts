@@ -9,6 +9,8 @@ val localProperties = Properties().apply {
 
 val cuelinksApiKey: String = localProperties.getProperty("CUELINKS_API_KEY") ?: ""
 val cuelinksChannelId: String = localProperties.getProperty("CUELINKS_CHANNEL_ID") ?: "301603"
+val smtpEmail: String = localProperties.getProperty("SMTP_EMAIL") ?: ""
+val smtpPassword: String = localProperties.getProperty("SMTP_PASSWORD") ?: ""
 
 plugins {
   alias(libs.plugins.android.application)
@@ -17,10 +19,10 @@ plugins {
 }
 
 android {
-    namespace = "com.example.xyz"
+    namespace = "com.rewardclub.app"
     compileSdk = 36
     defaultConfig {
-        applicationId = "com.example.xyz"
+        applicationId = "com.rewardclub.app"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -29,11 +31,14 @@ android {
 
         buildConfigField("String", "CUELINKS_API_KEY", "\"$cuelinksApiKey\"")
         buildConfigField("String", "CUELINKS_CHANNEL_ID", "\"$cuelinksChannelId\"")
+        buildConfigField("String", "SMTP_EMAIL", "\"$smtpEmail\"")
+        buildConfigField("String", "SMTP_PASSWORD", "\"$smtpPassword\"")
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
