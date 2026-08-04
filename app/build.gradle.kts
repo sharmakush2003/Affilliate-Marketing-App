@@ -9,8 +9,8 @@ val localProperties = Properties().apply {
 
 val cuelinksApiKey: String = localProperties.getProperty("CUELINKS_API_KEY") ?: ""
 val cuelinksChannelId: String = localProperties.getProperty("CUELINKS_CHANNEL_ID") ?: "301603"
-val smtpEmail: String = localProperties.getProperty("SMTP_EMAIL") ?: ""
-val smtpPassword: String = localProperties.getProperty("SMTP_PASSWORD") ?: ""
+val otpServerUrl: String = localProperties.getProperty("OTP_SERVER_URL") ?: ""
+val otpApiSecret: String = localProperties.getProperty("OTP_API_SECRET") ?: ""
 
 plugins {
   alias(libs.plugins.android.application)
@@ -31,8 +31,10 @@ android {
 
         buildConfigField("String", "CUELINKS_API_KEY", "\"$cuelinksApiKey\"")
         buildConfigField("String", "CUELINKS_CHANNEL_ID", "\"$cuelinksChannelId\"")
-        buildConfigField("String", "SMTP_EMAIL", "\"$smtpEmail\"")
-        buildConfigField("String", "SMTP_PASSWORD", "\"$smtpPassword\"")
+        // ✅ F-01 FIXED: SMTP credentials removed from APK. They live in otp-server/.env only.
+        // Android now calls the OTP server via HTTPS instead of doing SMTP directly.
+        buildConfigField("String", "OTP_SERVER_URL", "\"$otpServerUrl\"")
+        buildConfigField("String", "OTP_API_SECRET", "\"$otpApiSecret\"")
     }
 
     buildTypes {

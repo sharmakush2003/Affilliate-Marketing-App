@@ -8,9 +8,8 @@
 -keep public class * extends android.app.Application
 
 # ─── Protect sensitive classes from reverse engineering ──────────────────────
-# Obfuscate SMTP/Email logic class names
--keep class com.rewardclub.app.utils.EmailSender { *; }
-# Obfuscate API service internals (keep public methods, rename fields)
+# EmailSender is intentionally NOT kept here — let ProGuard obfuscate it fully.
+# Keeping it with {*;} would expose class/method names in the APK (opposite of intent).
 -keepclassmembers class com.rewardclub.app.api.** {
     public *;
 }

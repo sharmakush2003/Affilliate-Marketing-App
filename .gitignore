@@ -15,11 +15,11 @@ build/
 local.properties
 
 # Secrets & Keystores
-visitchittorgarh-keystore
+**/KEYSTORE_INFO.md
+*KEYSTORE_INFO*
 *.keystore
 *.jks
 keystore.properties
-KEYSTORE_INFO.md
 .kotlin
 *.apk
 *.aar
@@ -29,6 +29,7 @@ KEYSTORE_INFO.md
 google-services.json
 .env
 *.env.*
+otp-server/.env
 
 # Debug/utility scripts — not for production
 check_git_status.bat

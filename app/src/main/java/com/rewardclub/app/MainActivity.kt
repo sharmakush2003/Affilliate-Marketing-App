@@ -378,7 +378,7 @@ fun DrawerContent(
                         color = Color.Black
                     )
                     Text(
-                        text = "•  v3.2.1",
+                        text = "•  v${com.rewardclub.app.BuildConfig.VERSION_NAME}",
                         color = Color.Gray,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold

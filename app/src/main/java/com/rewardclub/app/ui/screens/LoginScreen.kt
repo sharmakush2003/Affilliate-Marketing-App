@@ -65,6 +65,7 @@ fun LoginScreen(
     // Configure Google Sign-In options
     val gso = remember {
         GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken("com.rewardclub.app") // TODO: replace with your actual Web Client ID from Firebase Console
             .requestEmail()
             .build()
     }
@@ -80,14 +81,17 @@ fun LoginScreen(
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
                 val account = task.getResult(ApiException::class.java)
+                // F-05 SECURITY FIX: Only proceed if account is non-null.
+                // The old 'else { onLoginSuccess() }' sandbox bypass has been removed.
+                // TODO: Pass account.idToken to your backend for server-side verification
+                // before calling onLoginSuccess().
                 if (account != null) {
-                    val email = account.email ?: ""
-                    val name = account.displayName ?: ""
-                    Toast.makeText(context, "Welcome back, $name!", Toast.LENGTH_SHORT).show()
+                    val name = account.displayName ?: "User"
+                    Toast.makeText(context, "Welcome, $name!", Toast.LENGTH_SHORT).show()
                     onLoginSuccess()
                 } else {
-                    Toast.makeText(context, "Welcome back (Google OAuth Sandbox Mode)!", Toast.LENGTH_SHORT).show()
-                    onLoginSuccess()
+                    // account is null → authentication failed, do NOT log in
+                    Toast.makeText(context, "Google Sign-In failed. Please try again.", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: ApiException) {
                 if (com.rewardclub.app.BuildConfig.DEBUG) {

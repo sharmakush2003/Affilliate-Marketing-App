@@ -30,7 +30,9 @@ object Cuelinks {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            if (com.rewardclub.app.BuildConfig.DEBUG) {
+                android.util.Log.e("CuelinksSDK", "Failed to initialize from manifest meta-data", e)
+            }
         }
     }
 
