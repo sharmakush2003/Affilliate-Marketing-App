@@ -182,8 +182,9 @@ fun CouponDetailScreen(
                     ) {
                         Text("🪙", fontSize = 10.sp)
                     }
+                    val isLoggedIn = com.rewardclub.app.utils.UserSession.currentUser != null
                     Text(
-                        text = "2,450",
+                        text = if (isLoggedIn) com.rewardclub.app.utils.UserSession.totalCoins.toString() else "0",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextDark

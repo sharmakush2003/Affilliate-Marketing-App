@@ -74,6 +74,8 @@ sealed class Screen {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Initialize UserSession
+        val temp = com.rewardclub.app.utils.UserSession.currentUser
         // Step 3: Initialize Cuelinks SDK (reads Channel ID 301603 from AndroidManifest)
         com.cuelinks.sdk.Cuelinks.initialize(this)
 
@@ -240,7 +242,7 @@ fun DrawerContent(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = userName.take(1),
+                                text = if (userName == "Join Reward Club") "👤" else userName.take(1).uppercase(),
                                 fontSize = 26.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF005C38)
@@ -422,29 +424,36 @@ fun AppMainContainer() {
     }
 
 
+    val userSession = com.rewardclub.app.utils.UserSession
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            DrawerContent(onItemClick = { itemTitle ->
-                scope.launch { drawerState.close() }
-                when (itemTitle) {
-                    "Header" -> {
-                        navigateTo(Screen.Login)
-                    }
-                    "Account Details" -> {
-                        navigateTo(Screen.AccountDetails)
-                    }
-                    "Order History" -> {
-                        navigateTo(Screen.Products)
-                    }
-                    "About Company" -> {
-                        navigateTo(Screen.AboutCompany)
-                    }
-                    "Help & Support" -> {
-                        navigateTo(Screen.HelpSupport)
+            val isLoggedIn = userSession.currentUser != null
+            DrawerContent(
+                userName = if (isLoggedIn) userSession.fullName.ifEmpty { "User" } else "Join Reward Club",
+                userPhone = if (isLoggedIn) userSession.mobile.ifEmpty { userSession.email } else "Tap to Sign In",
+                walletCoins = if (isLoggedIn) userSession.totalCoins.toString() else "0",
+                onItemClick = { itemTitle ->
+                    scope.launch { drawerState.close() }
+                    when (itemTitle) {
+                        "Header" -> {
+                            if (isLoggedIn) navigateTo(Screen.AccountDetails) else navigateTo(Screen.Login)
+                        }
+                        "Account Details" -> {
+                            if (isLoggedIn) navigateTo(Screen.AccountDetails) else navigateTo(Screen.Login)
+                        }
+                        "Order History" -> {
+                            if (isLoggedIn) navigateTo(Screen.Products) else navigateTo(Screen.Login)
+                        }
+                        "About Company" -> {
+                            navigateTo(Screen.AboutCompany)
+                        }
+                        "Help & Support" -> {
+                            navigateTo(Screen.HelpSupport)
+                        }
                     }
                 }
-            })
+            )
         }
     ) {
         Scaffold(

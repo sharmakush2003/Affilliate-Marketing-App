@@ -29,11 +29,18 @@ import com.rewardclub.app.ui.theme.*
 fun AccountDetailsScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
 
+    val userSession = com.rewardclub.app.utils.UserSession
     // Form state
-    var fullName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var mobile by remember { mutableStateOf("") }
+    var fullName by remember { mutableStateOf(userSession.fullName) }
+    var email by remember { mutableStateOf(userSession.email) }
+    var mobile by remember { mutableStateOf(userSession.mobile) }
     var receiveEmails by remember { mutableStateOf(true) }
+
+    LaunchedEffect(userSession.fullName, userSession.email, userSession.mobile) {
+        fullName = userSession.fullName
+        email = userSession.email
+        mobile = userSession.mobile
+    }
 
     // Accordion state
     var settingsExpanded by remember { mutableStateOf(false) }
@@ -151,11 +158,11 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
                 .padding(vertical = 16.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItem(value = "2,450", label = "Total\nCoins", emoji = "🪙", valueColor = DarkGreen)
+            StatItem(value = userSession.totalCoins.toString(), label = "Total\nCoins", emoji = "🪙", valueColor = DarkGreen)
             VerticalDividerLine()
-            StatItem(value = "800", label = "Redeemed\nCoins", emoji = "🎁", valueColor = Color(0xFFF57C00))
+            StatItem(value = userSession.redeemedCoins.toString(), label = "Redeemed\nCoins", emoji = "🎁", valueColor = Color(0xFFF57C00))
             VerticalDividerLine()
-            StatItem(value = "₹612", label = "Total\nSavings", emoji = "💰", valueColor = Color(0xFF1565C0))
+            StatItem(value = "₹${userSession.totalSavings}", label = "Total\nSavings", emoji = "💰", valueColor = Color(0xFF1565C0))
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -396,7 +403,15 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
 
         // ── Save Changes ──────────────────────────────────────────────────────
         Button(
-            onClick = { Toast.makeText(context, "✓ Changes saved successfully!", Toast.LENGTH_SHORT).show() },
+            onClick = {
+                userSession.updateProfile(fullName, mobile) { success ->
+                    if (success) {
+                        Toast.makeText(context, "✓ Changes saved successfully!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Failed to save changes. Please try again.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
@@ -410,6 +425,28 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
             Icon(Icons.Default.Save, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(10.dp))
             Text("Save Changes", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // ── Sign Out ─────────────────────────────────────────────────────────
+        OutlinedButton(
+            onClick = {
+                userSession.logout()
+                Toast.makeText(context, "Signed out successfully", Toast.LENGTH_SHORT).show()
+                onBackClick()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .height(54.dp),
+            shape = RoundedCornerShape(14.dp),
+            border = BorderStroke(1.5.dp, Color(0xFFD32F2F)),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFD32F2F))
+        ) {
+            Icon(Icons.Default.Logout, contentDescription = null, modifier = Modifier.size(20.dp))
+            Spacer(modifier = Modifier.width(10.dp))
+            Text("Sign Out", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
 
         Spacer(modifier = Modifier.height(28.dp))

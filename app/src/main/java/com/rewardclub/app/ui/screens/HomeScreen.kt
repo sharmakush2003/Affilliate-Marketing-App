@@ -413,8 +413,9 @@ fun CoinBalanceSection(onRedeemClick: () -> Unit) {
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
                         )
+                        val isLoggedIn = com.rewardclub.app.utils.UserSession.currentUser != null
                         Text(
-                            text = "2,450 Coins",
+                            text = if (isLoggedIn) "${com.rewardclub.app.utils.UserSession.totalCoins} Coins" else "Join to Earn",
                             color = Color.White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Black

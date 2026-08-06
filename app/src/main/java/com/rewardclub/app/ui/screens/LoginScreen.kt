@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
 import com.rewardclub.app.ui.theme.*
-import com.rewardclub.app.utils.EmailSender
+import com.rewardclub.app.utils.OtpApiClient
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import android.app.Activity
@@ -49,7 +49,6 @@ fun LoginScreen(
     onBackClick: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    var generatedOtp by remember { mutableStateOf("") }
     var isSendingEmail by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -81,16 +80,26 @@ fun LoginScreen(
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
                 val account = task.getResult(ApiException::class.java)
-                // F-05 SECURITY FIX: Only proceed if account is non-null.
-                // The old 'else { onLoginSuccess() }' sandbox bypass has been removed.
-                // TODO: Pass account.idToken to your backend for server-side verification
-                // before calling onLoginSuccess().
                 if (account != null) {
-                    val name = account.displayName ?: "User"
-                    Toast.makeText(context, "Welcome, $name!", Toast.LENGTH_SHORT).show()
-                    onLoginSuccess()
+                    val idToken = account.idToken
+                    if (idToken != null) {
+                        isSendingEmail = true
+                        val credential = com.google.firebase.auth.GoogleAuthProvider.getCredential(idToken, null)
+                        com.google.firebase.auth.FirebaseAuth.getInstance().signInWithCredential(credential)
+                            .addOnCompleteListener { authTask ->
+                                isSendingEmail = false
+                                if (authTask.isSuccessful) {
+                                    val name = account.displayName ?: "User"
+                                    Toast.makeText(context, "Welcome, $name!", Toast.LENGTH_SHORT).show()
+                                    onLoginSuccess()
+                                } else {
+                                    Toast.makeText(context, "Firebase Sign-In failed: ${authTask.exception?.message}", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                    } else {
+                        Toast.makeText(context, "Google Sign-In failed: Token is null.", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
-                    // account is null → authentication failed, do NOT log in
                     Toast.makeText(context, "Google Sign-In failed. Please try again.", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: ApiException) {
@@ -307,22 +316,18 @@ fun LoginScreen(
                                 onClick = {
                                     val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
                                     if (emailRegex.matches(emailAddress.trim())) {
-                                        // 🔒 SecureRandom — cryptographically secure OTP generation
-                                        val secureRandom = java.security.SecureRandom()
-                                        val code = (1000 + secureRandom.nextInt(9000)).toString()
-                                        generatedOtp = code
                                         otpAttempts = 0
                                         isSendingEmail = true
                                         Toast.makeText(context, "Sending OTP to $emailAddress...", Toast.LENGTH_SHORT).show()
                                         scope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                                            val success = EmailSender.sendOtpEmail(emailAddress, code)
+                                            val result = OtpApiClient.sendOtp(emailAddress.trim())
                                             scope.launch(kotlinx.coroutines.Dispatchers.Main) {
                                                 isSendingEmail = false
-                                                if (success) {
+                                                if (result.success) {
                                                     isOtpSent = true
                                                     Toast.makeText(context, "OTP Sent to $emailAddress!", Toast.LENGTH_LONG).show()
                                                 } else {
-                                                    Toast.makeText(context, "Failed to send email. Verify connection.", Toast.LENGTH_LONG).show()
+                                                    Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
                                                 }
                                             }
                                         }
@@ -418,24 +423,44 @@ fun LoginScreen(
 
                                 Button(
                                     onClick = {
-                                        if (otpAttempts >= maxOtpAttempts) {
-                                            Toast.makeText(context, "Too many wrong attempts. Please request a new OTP.", Toast.LENGTH_LONG).show()
-                                            otpCode = ""
-                                            isOtpSent = false
-                                            otpAttempts = 0
-                                        } else if (otpCode == generatedOtp) {
-                                            Toast.makeText(context, "Sign In Successful!", Toast.LENGTH_SHORT).show()
-                                            onLoginSuccess()
-                                        } else {
-                                            otpAttempts++
-                                            val remaining = maxOtpAttempts - otpAttempts
-                                            if (remaining > 0) {
-                                                Toast.makeText(context, "Incorrect OTP. $remaining attempt(s) remaining.", Toast.LENGTH_LONG).show()
-                                            } else {
-                                                Toast.makeText(context, "Max attempts reached. Request a new OTP.", Toast.LENGTH_LONG).show()
-                                                otpCode = ""
-                                                isOtpSent = false
-                                                otpAttempts = 0
+                                        isSendingEmail = true
+                                        scope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                            val result = OtpApiClient.verifyOtp(emailAddress.trim(), otpCode)
+                                            scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                                if (result.verified) {
+                                                    val firebaseEmail = emailAddress.trim().toLowerCase()
+                                                    val rawPassword = firebaseEmail + com.rewardclub.app.BuildConfig.OTP_API_SECRET
+                                                    val passwordBytes = java.security.MessageDigest.getInstance("SHA-256").digest(rawPassword.toByteArray())
+                                                    val password = passwordBytes.joinToString("") { "%02x".format(it) }
+
+                                                    val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+                                                    auth.signInWithEmailAndPassword(firebaseEmail, password)
+                                                        .addOnCompleteListener { loginTask ->
+                                                            isSendingEmail = false
+                                                            if (loginTask.isSuccessful) {
+                                                                Toast.makeText(context, "Sign In Successful!", Toast.LENGTH_SHORT).show()
+                                                                onLoginSuccess()
+                                                            } else {
+                                                                // User doesn't exist, register
+                                                                auth.createUserWithEmailAndPassword(firebaseEmail, password)
+                                                                    .addOnCompleteListener { createCtx ->
+                                                                        if (createCtx.isSuccessful) {
+                                                                            Toast.makeText(context, "Sign In Successful!", Toast.LENGTH_SHORT).show()
+                                                                            onLoginSuccess()
+                                                                        } else {
+                                                                            Toast.makeText(context, "Authentication failed: ${createCtx.exception?.message}", Toast.LENGTH_LONG).show()
+                                                                        }
+                                                                    }
+                                                            }
+                                                        }
+                                                } else {
+                                                    isSendingEmail = false
+                                                    Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+                                                    if (result.remaining == 0) {
+                                                        otpCode = ""
+                                                        isOtpSent = false
+                                                    }
+                                                }
                                             }
                                         }
                                     },
