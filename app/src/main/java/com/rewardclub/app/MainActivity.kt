@@ -52,11 +52,8 @@ import androidx.compose.animation.core.Easing
 import android.view.animation.OvershootInterpolator
 import androidx.compose.ui.unit.sp
 import com.rewardclub.app.ui.screens.*
-import com.rewardclub.app.ui.theme.DarkGreen
-import com.rewardclub.app.ui.theme.NavyDark
-import com.rewardclub.app.ui.theme.TextGray
-import com.rewardclub.app.ui.theme.BorderColor
-import com.rewardclub.app.ui.theme.XYZTheme
+import com.rewardclub.app.ui.theme.*
+import androidx.compose.foundation.BorderStroke
 
 sealed class Screen {
     object Home : Screen()
@@ -280,15 +277,12 @@ fun DrawerContent(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Profile Header Section (Premium Dark Green Gradient)
+            // Profile Header Section (Clean White)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color(0xFF005C38), Color(0xFF003820))
-                        )
-                    )
+                    .background(Color.White)
+                    .border(BorderStroke(0.5.dp, BorderColor.copy(alpha = 0.3f)))
                     .clickable { onItemClick("Header") }
                     .padding(horizontal = 20.dp, vertical = 28.dp)
             ) {
@@ -297,19 +291,19 @@ fun DrawerContent(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Profile Avatar Circle with Gold border
+                        // Profile Avatar Circle
                         Box(
                             modifier = Modifier
                                 .size(60.dp)
-                                .background(Color.White, shape = CircleShape)
-                                .border(2.dp, Color(0xFFFF9900), CircleShape),
+                                .background(Color(0xFFF5F7FA), shape = CircleShape)
+                                .border(1.5.dp, BorderColor.copy(alpha = 0.5f), CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = if (userName == "Join Reward Club") "👤" else userName.take(1).uppercase(),
                                 fontSize = 26.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF005C38)
+                                color = TextDark
                             )
                         }
                         Column {
@@ -319,16 +313,16 @@ fun DrawerContent(
                             ) {
                                 Text(
                                     text = userName,
-                                    color = Color.White,
+                                    color = TextDark,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.ExtraBold
                                 )
                                 Text("👑", fontSize = 14.sp)
                             }
                             Spacer(modifier = Modifier.height(2.dp))
-                            Text(
+                             Text(
                                 text = userPhone,
-                                color = Color.White.copy(alpha = 0.75f),
+                                color = TextGray,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium
                             )
@@ -339,8 +333,8 @@ fun DrawerContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.White.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
-                            .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(10.dp))
+                            .background(Color(0xFFF0F5FA), RoundedCornerShape(10.dp))
+                            .border(1.dp, BorderColor.copy(alpha = 0.2f), RoundedCornerShape(10.dp))
                             .padding(horizontal = 14.dp, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -350,9 +344,9 @@ fun DrawerContent(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text("🪙", fontSize = 16.sp)
-                            Text(
+                             Text(
                                 text = "Wallet Balance",
-                                color = Color.White,
+                                color = TextDark,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold
                             )

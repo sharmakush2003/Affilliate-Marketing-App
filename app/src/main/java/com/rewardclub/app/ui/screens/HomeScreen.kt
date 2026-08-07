@@ -316,11 +316,8 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(NavyDark, NavyMid)
-                )
-            )
+            .background(NavyDark)
+            .border(BorderStroke(0.5.dp, BorderColor.copy(alpha = 0.5f)))
             .padding(bottom = 12.dp)
     ) {
         // ── Top row: hamburger | logo + name | JOIN ──────────────────
@@ -333,7 +330,7 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onHamburgerClick) {
-                    Icon(Icons.Default.Menu, contentDescription = "Menu", tint = White)
+                    Icon(Icons.Default.Menu, contentDescription = "Menu", tint = TextDark)
                 }
                 Image(
                     painter = painterResource(id = R.drawable.reward_club_logo),
@@ -347,7 +344,7 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Reward Club",
-                    color = White,
+                    color = TextDark,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 0.2.sp
@@ -384,19 +381,16 @@ fun CoinBalanceSection(onRedeemClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 10.dp)
-            .shadow(4.dp, RoundedCornerShape(16.dp))
+            .shadow(2.dp, RoundedCornerShape(16.dp))
             .clickable { onRedeemClick() },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+        colors = CardDefaults.cardColors(containerColor = White),
+        border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.5f))
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(NavyDark, Color(0xFF1976D2))
-                    )
-                )
+                .background(White)
                 .padding(all = 20.dp)
         ) {
             Row(
@@ -417,7 +411,7 @@ fun CoinBalanceSection(onRedeemClick: () -> Unit) {
                                 ),
                                 shape = CircleShape
                             )
-                            .border(1.5.dp, Color.White, CircleShape),
+                            .border(1.5.dp, BorderColor.copy(alpha = 0.3f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(text = "🪙", fontSize = 24.sp)
@@ -425,7 +419,7 @@ fun CoinBalanceSection(onRedeemClick: () -> Unit) {
                     Column {
                         Text(
                             text = "Reward Club Coins",
-                            color = Color.White.copy(alpha = 0.8f),
+                            color = TextGray,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 0.5.sp
@@ -433,7 +427,7 @@ fun CoinBalanceSection(onRedeemClick: () -> Unit) {
                         val isLoggedIn = com.rewardclub.app.utils.UserSession.currentUser != null
                         Text(
                             text = if (isLoggedIn) "${com.rewardclub.app.utils.UserSession.totalCoins} Coins" else "Join to Earn",
-                            color = Color.White,
+                            color = TextDark,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Black
                         )
@@ -445,15 +439,15 @@ fun CoinBalanceSection(onRedeemClick: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier
-                        .background(Color.White.copy(alpha = 0.15f), RoundedCornerShape(20.dp))
-                        .border(1.dp, Color.White.copy(alpha = 0.25f), RoundedCornerShape(20.dp))
+                        .background(Color(0xFFF0F5FA), RoundedCornerShape(20.dp))
+                        .border(1.dp, Color(0xFF0066CC).copy(alpha = 0.15f), RoundedCornerShape(20.dp))
                         .padding(horizontal = 14.dp, vertical = 7.dp)
                 ) {
-                    Text(text = "Redeem", color = Color(0xFFFFB74D), fontSize = 12.sp, fontWeight = FontWeight.Black)
+                    Text(text = "Redeem", color = Color(0xFF0066CC), fontSize = 12.sp, fontWeight = FontWeight.Black)
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
                         contentDescription = "Redeem arrow",
-                        tint = Color(0xFFFFB74D),
+                        tint = Color(0xFF0066CC),
                         modifier = Modifier.size(14.dp)
                     )
                 }

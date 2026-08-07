@@ -256,6 +256,9 @@ fun EarnCoinsScreen(
                         "Home Loan" -> R.drawable.home_loan_icon
                         "Car Loan" -> R.drawable.car_loan_icon
                         "Business Loan" -> R.drawable.business_loan_icon
+                        "SBI SimplyCLICK Card", "SBI Card" -> R.drawable.sbi_logo
+                        "HDFC Regalia Gold", "HDFC Bank" -> R.drawable.hdfc_logo
+                        "ICICI Amazon Pay", "ICICI Bank" -> R.drawable.icici_logo
                         else -> null
                     }
 
