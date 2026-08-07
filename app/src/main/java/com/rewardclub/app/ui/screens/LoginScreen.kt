@@ -81,24 +81,11 @@ fun LoginScreen(
             try {
                 val account = task.getResult(ApiException::class.java)
                 if (account != null) {
-                    val idToken = account.idToken
-                    if (idToken != null) {
-                        isSendingEmail = true
-                        val credential = com.google.firebase.auth.GoogleAuthProvider.getCredential(idToken, null)
-                        com.google.firebase.auth.FirebaseAuth.getInstance().signInWithCredential(credential)
-                            .addOnCompleteListener { authTask ->
-                                isSendingEmail = false
-                                if (authTask.isSuccessful) {
-                                    val name = account.displayName ?: "User"
-                                    Toast.makeText(context, "Welcome, $name!", Toast.LENGTH_SHORT).show()
-                                    onLoginSuccess()
-                                } else {
-                                    Toast.makeText(context, "Firebase Sign-In failed: ${authTask.exception?.message}", Toast.LENGTH_LONG).show()
-                                }
-                            }
-                    } else {
-                        Toast.makeText(context, "Google Sign-In failed: Token is null.", Toast.LENGTH_SHORT).show()
-                    }
+                    val email = account.email ?: "google-user@rewardclub.com"
+                    val name = account.displayName ?: "Google User"
+                    com.rewardclub.app.utils.UserSession.login(email, name)
+                    Toast.makeText(context, "Welcome, $name!", Toast.LENGTH_SHORT).show()
+                    onLoginSuccess()
                 } else {
                     Toast.makeText(context, "Google Sign-In failed. Please try again.", Toast.LENGTH_SHORT).show()
                 }
@@ -428,31 +415,10 @@ fun LoginScreen(
                                             val result = OtpApiClient.verifyOtp(emailAddress.trim(), otpCode)
                                             scope.launch(kotlinx.coroutines.Dispatchers.Main) {
                                                 if (result.verified) {
-                                                    val firebaseEmail = emailAddress.trim().toLowerCase()
-                                                    val rawPassword = firebaseEmail + com.rewardclub.app.BuildConfig.OTP_API_SECRET
-                                                    val passwordBytes = java.security.MessageDigest.getInstance("SHA-256").digest(rawPassword.toByteArray())
-                                                    val password = passwordBytes.joinToString("") { "%02x".format(it) }
-
-                                                    val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
-                                                    auth.signInWithEmailAndPassword(firebaseEmail, password)
-                                                        .addOnCompleteListener { loginTask ->
-                                                            isSendingEmail = false
-                                                            if (loginTask.isSuccessful) {
-                                                                Toast.makeText(context, "Sign In Successful!", Toast.LENGTH_SHORT).show()
-                                                                onLoginSuccess()
-                                                            } else {
-                                                                // User doesn't exist, register
-                                                                auth.createUserWithEmailAndPassword(firebaseEmail, password)
-                                                                    .addOnCompleteListener { createCtx ->
-                                                                        if (createCtx.isSuccessful) {
-                                                                            Toast.makeText(context, "Sign In Successful!", Toast.LENGTH_SHORT).show()
-                                                                            onLoginSuccess()
-                                                                        } else {
-                                                                            Toast.makeText(context, "Authentication failed: ${createCtx.exception?.message}", Toast.LENGTH_LONG).show()
-                                                                        }
-                                                                    }
-                                                            }
-                                                        }
+                                                    isSendingEmail = false
+                                                    com.rewardclub.app.utils.UserSession.login(emailAddress.trim())
+                                                    Toast.makeText(context, "Sign In Successful!", Toast.LENGTH_SHORT).show()
+                                                    onLoginSuccess()
                                                 } else {
                                                     isSendingEmail = false
                                                     Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
