@@ -1,4 +1,4 @@
-// © 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
+﻿// Â© 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
 package com.rewardclub.app.ui.screens
 
 import android.widget.Toast
@@ -66,6 +66,9 @@ fun LoginScreen(
     val maxOtpAttempts = 5
 
     var isEmailFocused by remember { mutableStateOf(false) }
+    var isNameFocused by remember { mutableStateOf(false) }
+    var isSignInTab by remember { mutableStateOf(true) }
+    var fullName by remember { mutableStateOf("") }
 
     // Configure Google Sign-In options
     val gso = remember {
@@ -130,154 +133,154 @@ fun LoginScreen(
         }
     }
 
-    val density = LocalDensity.current.density
-
-    // 3D rotation infinite transition angle
-    val infiniteTransition = rememberInfiniteTransition(label = "3D_Transition")
-    val rotationY by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "rotationY"
-    )
-
-    // Countdown Timer logic
-    LaunchedEffect(isOtpSent) {
-        if (isOtpSent) {
-            countdownTime = 30
-            while (countdownTime > 0) {
-                delay(1000)
-                countdownTime--
-            }
-        }
-    }
-
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().background(Color(0xFFF8FAFC))) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Sign In / Sign Up", fontWeight = FontWeight.Bold, fontSize = 20.sp) },
+                    title = { },
                     navigationIcon = {
                         IconButton(onClick = onBackClick) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = White,
-                        titleContentColor = TextDark,
+                        containerColor = Color.Transparent,
                         navigationIconContentColor = TextDark
                     )
                 )
-            }
+            },
+            containerColor = Color.Transparent
         ) { paddingValues ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(GrayBackground)
                     .padding(paddingValues)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Elegant top gradient header box
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                // Aesthetic Logo Placeholder
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(DarkGreen, DarkGreen.copy(alpha = 0.8f))
-                            )
-                        ),
+                        .size(64.dp)
+                        .background(White, CircleShape)
+                        .border(1.dp, BorderColor, CircleShape)
+                        .shadow(4.dp, CircleShape, spotColor = Color(0x1A000000)),
                     contentAlignment = Alignment.Center
                 ) {
+                    Text("RC", fontSize = 24.sp, fontWeight = FontWeight.Black, color = DarkGreen)
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Text(
+                    text = "Welcome to Reward Club",
+                    color = TextDark,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Sign in to your account to continue",
+                    color = TextGray,
+                    fontSize = 15.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+                
+                Spacer(modifier = Modifier.height(40.dp))
+
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = White),
+                    shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f) // Fill remaining space
+                ) {
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp, vertical = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // Pulsing outer ring around Y-axis spinning golden 3D coin
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.size(90.dp)
+                        // Custom Segmented Control
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                                .background(Color(0xFFF5F7FA), shape = RoundedCornerShape(12.dp))
+                                .padding(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(80.dp)
-                                    .graphicsLayer {
-                                        this.rotationZ = -rotationY
-                                    }
-                                    .border(
-                                        width = 2.dp,
-                                        brush = Brush.sweepGradient(
-                                            colors = listOf(AccentGold, Color.Transparent, AccentGold, Color.Transparent)
-                                        ),
-                                        shape = CircleShape
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .background(
+                                        if (isSignInTab) White else Color.Transparent,
+                                        shape = RoundedCornerShape(8.dp)
                                     )
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .size(64.dp)
-                                    .graphicsLayer {
-                                        this.rotationY = rotationY
-                                        cameraDistance = 12f * density
-                                    }
-                                    .shadow(4.dp, CircleShape)
-                                    .clip(CircleShape)
-                                    .background(Color.White)
-                                    .padding(8.dp),
+                                    .then(if (isSignInTab) Modifier.shadow(2.dp, RoundedCornerShape(8.dp)) else Modifier)
+                                    .clickable { isSignInTab = true; isOtpSent = false },
                                 contentAlignment = Alignment.Center
                             ) {
-                                Image(
-                                    painter = painterResource(id = com.rewardclub.app.R.drawable.reward_club_logo),
-                                    contentDescription = "Reward Club Logo",
-                                    modifier = Modifier.fillMaxSize()
-                                )
+                                Text("Sign In", fontWeight = FontWeight.Bold, color = if (isSignInTab) TextDark else TextGray, fontSize = 14.sp)
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .background(
+                                        if (!isSignInTab) White else Color.Transparent,
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .then(if (!isSignInTab) Modifier.shadow(2.dp, RoundedCornerShape(8.dp)) else Modifier)
+                                    .clickable { isSignInTab = false; isOtpSent = false },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("Sign Up", fontWeight = FontWeight.Bold, color = if (!isSignInTab) TextDark else TextGray, fontSize = 14.sp)
                             }
                         }
-                        Text(
-                            text = "Reward Club",
-                            color = White,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            letterSpacing = 0.5.sp
-                        )
-                        Text(
-                            text = "aha, everywhere!",
-                            color = AccentGold,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
+                        Spacer(modifier = Modifier.height(24.dp))
 
-                Spacer(modifier = Modifier.height(24.dp))
+                        AnimatedVisibility(visible = !isSignInTab) {
+                            Column {
+                                Text("Full Name", color = TextDark, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                BasicTextField(
+                                    value = fullName,
+                                    onValueChange = { if (!isOtpSent) fullName = it },
+                                    enabled = !isOtpSent,
+                                    singleLine = true,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(52.dp)
+                                        .background(color = White, shape = RoundedCornerShape(8.dp))
+                                        .border(
+                                            width = if (isNameFocused && !isOtpSent) 2.dp else 1.dp,
+                                            color = if (isNameFocused && !isOtpSent) DarkGreen else BorderColor,
+                                            shape = RoundedCornerShape(8.dp)
+                                        )
+                                        .onFocusChanged { isNameFocused = it.isFocused },
+                                    decorationBox = { innerTextField ->
+                                        Row(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                                            Box(modifier = Modifier.weight(1f)) {
+                                                if (fullName.isEmpty()) Text("John Doe", color = TextGray.copy(alpha=0.6f), fontSize = 15.sp)
+                                                innerTextField()
+                                            }
+                                        }
+                                    }
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+                        }
 
-                // Main input card
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = White),
-                    shape = RoundedCornerShape(24.dp),
-                    border = BorderStroke(1.dp, BorderColor),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .shadow(8.dp, RoundedCornerShape(24.dp)),
-                    elevation = CardDefaults.cardElevation(4.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(20.dp)
-                    ) {
-                        Text(
-                            text = if (!isOtpSent) "Enter Email Address" else "Verify Email OTP",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextDark
-                        )
-
-                        // Custom Premium Email Field
+                        // Email Input
+                        Text("Email address", color = TextDark, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start)
+                        Spacer(modifier = Modifier.height(8.dp))
                         BasicTextField(
                             value = emailAddress,
                             onValueChange = { if (!isOtpSent) emailAddress = it },
@@ -286,297 +289,249 @@ fun LoginScreen(
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(56.dp)
-                                .background(
-                                    color = if (isOtpSent) Color(0xFFF5F7FA) else White,
-                                    shape = RoundedCornerShape(12.dp)
-                                )
+                                .height(52.dp)
+                                .background(color = White, shape = RoundedCornerShape(8.dp))
                                 .border(
                                     width = if (isEmailFocused && !isOtpSent) 2.dp else 1.dp,
                                     color = if (isEmailFocused && !isOtpSent) DarkGreen else BorderColor,
-                                    shape = RoundedCornerShape(12.dp)
+                                    shape = RoundedCornerShape(8.dp)
                                 )
                                 .onFocusChanged { isEmailFocused = it.isFocused },
                             decorationBox = { innerTextField ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(horizontal = 16.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Email,
-                                        contentDescription = null,
-                                        tint = if (isEmailFocused && !isOtpSent) DarkGreen else TextGray,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                    
-                                    Box(
-                                        modifier = Modifier
-                                            .width(1.dp)
-                                            .height(24.dp)
-                                            .background(BorderColor)
-                                    )
-                                    
+                                Row(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                                     Box(modifier = Modifier.weight(1f)) {
-                                        if (emailAddress.isEmpty()) {
-                                            Text("Enter your email address", color = TextGray, fontSize = 14.sp)
-                                        }
+                                        if (emailAddress.isEmpty()) Text("name@example.com", color = TextGray.copy(alpha=0.6f), fontSize = 15.sp)
                                         innerTextField()
                                     }
                                 }
                             }
                         )
+                        Spacer(modifier = Modifier.height(24.dp))
 
-                        // GET OTP Button
-                        if (!isOtpSent) {
-                            Button(
-                                onClick = {
-                                    val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
-                                    if (emailRegex.matches(emailAddress.trim())) {
-                                        otpAttempts = 0
-                                        isSendingEmail = true
-                                        Toast.makeText(context, "Sending OTP to $emailAddress...", Toast.LENGTH_SHORT).show()
-                                        scope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                                            try {
-                                                Supabase.client.auth.signInWith(OTP) {
-                                                    email = emailAddress.trim()
-                                                }
-                                                scope.launch(kotlinx.coroutines.Dispatchers.Main) {
-                                                    isSendingEmail = false
-                                                    isOtpSent = true
-                                                    Toast.makeText(context, "OTP Sent to $emailAddress!", Toast.LENGTH_LONG).show()
-                                                }
-                                            } catch (e: Exception) {
-                                                scope.launch(kotlinx.coroutines.Dispatchers.Main) {
-                                                    isSendingEmail = false
-                                                    Toast.makeText(context, "Failed: ${e.message}", Toast.LENGTH_LONG).show()
-                                                }
-                                            }
+                if (!isOtpSent) {
+                    Button(
+                        onClick = {
+                            val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+                            if (emailRegex.matches(emailAddress.trim())) {
+                                otpAttempts = 0
+                                isSendingEmail = true
+                                Toast.makeText(context, "Sending OTP...", Toast.LENGTH_SHORT).show()
+                                scope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                    try {
+                                        Supabase.client.auth.signInWith(OTP) {
+                                            email = emailAddress.trim()
                                         }
-                                    } else {
-                                        Toast.makeText(context, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
+                                        scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                            isSendingEmail = false
+                                            isOtpSent = true
+                                        }
+                                    } catch (e: Exception) {
+                                        scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                            isSendingEmail = false
+                                            Toast.makeText(context, "Failed: ${e.message}", Toast.LENGTH_LONG).show()
+                                        }
                                     }
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                                contentPadding = PaddingValues(),
-                                enabled = !isSendingEmail,
-                                shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(50.dp)
-                                    .shadow(4.dp, RoundedCornerShape(12.dp))
-                                    .background(
-                                        brush = Brush.horizontalGradient(
-                                            colors = listOf(DarkGreen, Color(0xFF2E7D32))
-                                        ),
-                                        shape = RoundedCornerShape(12.dp)
-                                    )
-                            ) {
-                                if (isSendingEmail) {
-                                    CircularProgressIndicator(
-                                        color = White,
-                                        strokeWidth = 2.dp,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                } else {
-                                    Text("GET OTP", fontWeight = FontWeight.Bold, color = White, fontSize = 15.sp)
+                                }
+                            } else {
+                                Toast.makeText(context, "Please enter a valid email", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
+                        shape = RoundedCornerShape(8.dp),
+                        enabled = !isSendingEmail,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                    ) {
+                        if (isSendingEmail) {
+                            CircularProgressIndicator(color = White, strokeWidth = 2.dp, modifier = Modifier.size(20.dp))
+                        } else {
+                            Text(if (isSignInTab) "Sign In" else "Create Account", color = White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        }
+                    }
+                }
+
+                // OTP verification section
+                AnimatedVisibility(
+                    visible = isOtpSent,
+                    enter = expandVertically(animationSpec = tween(300)) + fadeIn(),
+                    exit = shrinkVertically(animationSpec = tween(300)) + fadeOut()
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Enter the 6-digit code sent to your email",
+                            fontSize = 14.sp,
+                            color = TextGray
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Interactive OTP inputs
+                        BasicTextField(
+                            value = otpCode,
+                            onValueChange = {
+                                if (it.length <= 6 && it.all { char -> char.isDigit() }) {
+                                    otpCode = it
+                                }
+                            },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                            decorationBox = {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    repeat(6) { idx ->
+                                        val char = otpCode.getOrNull(idx)?.toString() ?: ""
+                                        val isFocused = otpCode.length == idx
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(56.dp)
+                                                .background(White, shape = RoundedCornerShape(8.dp))
+                                                .border(
+                                                    width = if (isFocused) 2.dp else 1.dp,
+                                                    color = if (isFocused) DarkGreen else BorderColor,
+                                                    shape = RoundedCornerShape(8.dp)
+                                                ),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = char,
+                                                fontSize = 22.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = TextDark
+                                            )
+                                        }
+                                    }
                                 }
                             }
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Button(
+                            onClick = {
+                                isSendingEmail = true
+                                scope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                    try {
+                                        Supabase.client.auth.verifyEmailOtp(
+                                            email = emailAddress.trim(),
+                                            token = otpCode.trim(),
+                                            type = OtpType.Email.MAGIC_LINK
+                                        )
+                                        val user = Supabase.client.auth.currentUserOrNull()
+                                        if (user != null) {
+                                            scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                                isSendingEmail = false
+                                                com.rewardclub.app.utils.UserSession.login(user.email ?: emailAddress.trim(), user.id, if (!isSignInTab && fullName.isNotBlank()) fullName.trim() else "User")
+                                                Toast.makeText(context, "Sign In Successful!", Toast.LENGTH_SHORT).show()
+                                                onLoginSuccess()
+                                            }
+                                        } else {
+                                            scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                                isSendingEmail = false
+                                                Toast.makeText(context, "Session retrieval failed.", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    } catch (e: Exception) {
+                                        scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                            isSendingEmail = false
+                                            Toast.makeText(context, "Verification failed: ${e.message}", Toast.LENGTH_LONG).show()
+                                        }
+                                    }
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth().height(52.dp)
+                        ) {
+                            Text("Verify Code", fontWeight = FontWeight.Bold, color = White, fontSize = 15.sp)
                         }
 
-                        // OTP verification section - Slides open directly below the email input
-                        AnimatedVisibility(
-                            visible = isOtpSent,
-                            enter = expandVertically(animationSpec = tween(300)) + fadeIn(),
-                            exit = shrinkVertically(animationSpec = tween(300)) + fadeOut()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
+                            Text(
+                                text = "Use different email",
+                                color = DarkGreen,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.clickable {
+                                    otpCode = ""
+                                    isOtpSent = false
+                                }
+                            )
+
+                            if (countdownTime > 0) {
                                 Text(
-                                    text = "OTP sent to email: $emailAddress",
-                                    fontSize = 12.sp,
+                                    text = "Resend in ${countdownTime}s",
+                                    fontSize = 13.sp,
                                     color = TextGray
                                 )
-
-                                // Interactive OTP inputs
-                                BasicTextField(
-                                    value = otpCode,
-                                    onValueChange = {
-                                        if (it.length <= 4 && it.all { char -> char.isDigit() }) {
-                                            otpCode = it
-                                        }
-                                    },
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                                    decorationBox = {
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            repeat(4) { idx ->
-                                                val char = otpCode.getOrNull(idx)?.toString() ?: ""
-                                                val isFocused = otpCode.length == idx
-                                                Box(
-                                                    modifier = Modifier
-                                                        .weight(1f)
-                                                        .height(56.dp)
-                                                        .background(Color(0xFFF5F7FA), shape = RoundedCornerShape(8.dp))
-                                                        .border(
-                                                            width = if (isFocused) 2.dp else 1.dp,
-                                                            color = if (isFocused) DarkGreen else BorderColor,
-                                                            shape = RoundedCornerShape(8.dp)
-                                                        ),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Text(
-                                                        text = char,
-                                                        fontSize = 20.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = TextDark
-                                                    )
-                                                }
-                                            }
-                                        }
+                            } else {
+                                Text(
+                                    text = "Resend Code",
+                                    fontSize = 13.sp,
+                                    color = DarkGreen,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier.clickable {
+                                        otpCode = ""
+                                        isOtpSent = false
+                                        countdownTime = 30
                                     }
                                 )
-
-                                Button(
-                                    onClick = {
-                                        isSendingEmail = true
-                                        scope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                                            try {
-                                                Supabase.client.auth.verifyEmailOtp(
-                                                    email = emailAddress.trim(),
-                                                    token = otpCode.trim(),
-                                                    type = OtpType.Email.MAGIC_LINK
-                                                )
-                                                val user = Supabase.client.auth.currentUserOrNull()
-                                                if (user != null) {
-                                                    scope.launch(kotlinx.coroutines.Dispatchers.Main) {
-                                                        isSendingEmail = false
-                                                        com.rewardclub.app.utils.UserSession.login(user.email ?: emailAddress.trim(), user.id)
-                                                        Toast.makeText(context, "Sign In Successful!", Toast.LENGTH_SHORT).show()
-                                                        onLoginSuccess()
-                                                    }
-                                                } else {
-                                                    scope.launch(kotlinx.coroutines.Dispatchers.Main) {
-                                                        isSendingEmail = false
-                                                        Toast.makeText(context, "Session retrieval failed.", Toast.LENGTH_SHORT).show()
-                                                    }
-                                                }
-                                            } catch (e: Exception) {
-                                                scope.launch(kotlinx.coroutines.Dispatchers.Main) {
-                                                    isSendingEmail = false
-                                                    Toast.makeText(context, "Verification failed: ${e.message}", Toast.LENGTH_LONG).show()
-                                                }
-                                            }
-                                        }
-                                    },
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                                    contentPadding = PaddingValues(),
-                                    shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(50.dp)
-                                        .shadow(4.dp, RoundedCornerShape(12.dp))
-                                        .background(
-                                            brush = Brush.horizontalGradient(
-                                                colors = listOf(DarkGreen, Color(0xFF2E7D32))
-                                            ),
-                                            shape = RoundedCornerShape(12.dp)
-                                        )
-                                ) {
-                                    Text("VERIFY & PROCEED", fontWeight = FontWeight.Bold, color = White, fontSize = 15.sp)
-                                }
-
-                                // Timer / Resend OTP Action
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "Wrong email?",
-                                        color = DarkGreen,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.clickable {
-                                            otpCode = ""
-                                            isOtpSent = false
-                                        }
-                                    )
-
-                                    if (countdownTime > 0) {
-                                        Text(
-                                            text = "Resend OTP in ${countdownTime}s",
-                                            fontSize = 12.sp,
-                                            color = TextGray
-                                        )
-                                    } else {
-                                        Text(
-                                            text = "Resend OTP",
-                                            fontSize = 12.sp,
-                                            color = DarkGreen,
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.clickable {
-                                                otpCode = ""
-                                                isOtpSent = false
-                                                countdownTime = 30
-                                            }
-                                        )
-                                    }
-                                }
                             }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(40.dp))
 
-                // Social Login layout
-                Text("Or continue with", color = TextGray, fontSize = 13.sp)
-                Spacer(modifier = Modifier.height(16.dp))
+                // Divider
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = BorderColor)
+                    Text("OR", color = TextGray, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 16.dp))
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = BorderColor)
+                }
 
-                // Premium Google Login Pill Button
-                Box(
-                    modifier = Modifier
-                        .width(240.dp)
-                        .height(48.dp)
-                        .background(White, shape = RoundedCornerShape(24.dp))
-                        .border(1.dp, BorderColor, RoundedCornerShape(24.dp))
-                        .shadow(2.dp, RoundedCornerShape(24.dp))
-                        .clickable {
-                            val signInIntent = googleSignInClient.signInIntent
-                            signInLauncher.launch(signInIntent)
-                        }
-                        .padding(horizontal = 16.dp),
-                    contentAlignment = Alignment.Center
+                Spacer(modifier = Modifier.height(40.dp))
+
+                // Standard Google Button
+                Button(
+                    onClick = {
+                        val signInIntent = googleSignInClient.signInIntent
+                        signInLauncher.launch(signInIntent)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = White),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, BorderColor),
+                    modifier = Modifier.fillMaxWidth().height(52.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
                             text = "G",
-                            fontSize = 18.sp,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFFEA4335)
                         )
+                        Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = "Continue with Google",
                             color = TextDark,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(32.dp))
+                    }
+                }
             }
         }
     }

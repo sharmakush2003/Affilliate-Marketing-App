@@ -3,11 +3,13 @@ package com.rewardclub.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// ── Brand Header Colors ─────────────────────────────────────────
-val NavyDark    = Color(0xFFFFFFFF)   // Pure White Header
-val NavyMid     = Color(0xFFFFFFFF)   // Pure White Header Accent
-val AmazonOrange = Color(0xFFFF9900)  // Signature orange
-val OrangeLight  = Color(0xFFFFF3E0)  // Soft orange background
+// ── Brand Header & Navigation Colors ─────────────────────────────
+val SkinColor      = Color(0xFFE8F5E9)  // Light green for navbar, drawer & footer
+val SkinColorLight = Color(0xFFF1F8E9)  // Soft light green
+val NavyDark       = SkinColor          // Header
+val NavyMid        = SkinColor          // Header accent
+val AmazonOrange   = Color(0xFFFF9900)  // Signature orange
+val OrangeLight    = Color(0xFFFFF3E0)  // Soft orange background
 
 // ── Replaced brand green with premium blue/black for CTAs ──
 val DarkGreen   = Color(0xFF0066CC)   // Link blue for highlights

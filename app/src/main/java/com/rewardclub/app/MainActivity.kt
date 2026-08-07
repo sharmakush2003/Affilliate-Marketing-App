@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalActivity
@@ -81,16 +84,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             XYZTheme {
-                var showSplash by remember { mutableStateOf(true) }
-                if (showSplash) {
-                    SplashScreen(onTimeout = { showSplash = false })
-                } else {
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
-                    ) {
-                        AppMainContainer()
-                    }
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    AppMainContainer()
                 }
             }
         }
@@ -98,160 +96,41 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SplashScreen(onTimeout: () -> Unit) {
-    val scale = remember { Animatable(0.5f) }
-    val offsetY = remember { Animatable(300f) }
-    val alpha = remember { Animatable(0f) }
-    val taglineAlpha = remember { Animatable(0f) }
-    val progressAlpha = remember { Animatable(0f) }
-    
-    val overshootEasing = remember {
-        Easing { fraction ->
-            OvershootInterpolator(1.2f).getInterpolation(fraction)
-        }
-    }
-    
-    LaunchedEffect(Unit) {
-        launch {
-            scale.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(
-                    durationMillis = 900,
-                    easing = overshootEasing
-                )
-            )
-        }
-        launch {
-            offsetY.animateTo(
-                targetValue = 0f,
-                animationSpec = tween(
-                    durationMillis = 900,
-                    easing = LinearOutSlowInEasing
-                )
-            )
-        }
-        launch {
-            alpha.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(
-                    durationMillis = 800
-                )
-            )
-        }
-        launch {
-            delay(400)
-            taglineAlpha.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(durationMillis = 800)
-            )
-        }
-        launch {
-            delay(800)
-            progressAlpha.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(durationMillis = 800)
-            )
-        }
-        
-        delay(2600) // Keep splash screen for 2.6s
-        onTimeout()
-    }
-    
+fun DrawerBubbleItem(
+    icon: @Composable () -> Unit,
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val backgroundColor by androidx.compose.animation.animateColorAsState(
+        targetValue = if (selected) Color(0xFFE8F5E9) else Color.Transparent,
+        animationSpec = androidx.compose.animation.core.tween(durationMillis = 300)
+    )
+    val textColor by androidx.compose.animation.animateColorAsState(
+        targetValue = if (selected) DarkGreen else TextDark.copy(alpha = 0.8f),
+        animationSpec = androidx.compose.animation.core.tween(durationMillis = 300)
+    )
+
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF0F172A), // Slate 900
-                        Color(0xFF020617)  // Slate 950 (Luxury Dark)
-                    )
-                )
-            ),
-        contentAlignment = Alignment.Center
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(backgroundColor)
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize()
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier
-                    .offset(y = offsetY.value.dp)
-                    .graphicsLayer {
-                        scaleX = scale.value
-                        scaleY = scale.value
-                        this.alpha = alpha.value
-                    }
-            ) {
-                // Logo with glowing gold circular border
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.size(120.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(120.dp)
-                            .border(
-                                width = 3.dp,
-                                brush = Brush.sweepGradient(
-                                    colors = listOf(Color(0xFFE8A020), Color.Transparent, Color(0xFFFFD700), Color.Transparent)
-                                ),
-                                shape = CircleShape
-                            )
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.reward_club_logo),
-                        contentDescription = "Reward Club Logo",
-                        modifier = Modifier
-                            .size(96.dp)
-                            .shadow(8.dp, CircleShape)
-                            .clip(CircleShape)
-                            .background(Color.White)
-                            .padding(14.dp)
-                    )
-                }
-                
-                Text(
-                    text = "Reward Club",
-                    fontSize = 34.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color.White,
-                    letterSpacing = 1.sp
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            // Tagline
+            icon()
             Text(
-                text = "aha, everywhere!",
-                color = Color(0xFFFF9900), // Gold Accent
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 0.5.sp,
-                modifier = Modifier.graphicsLayer { this.alpha = taglineAlpha.value }
+                text = label,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                fontSize = 13.sp,
+                color = textColor
             )
-            
-            Spacer(modifier = Modifier.height(64.dp))
-            
-            // Progress Bar
-            Box(
-                modifier = Modifier
-                    .width(140.dp)
-                    .height(4.dp)
-                    .graphicsLayer { this.alpha = progressAlpha.value }
-            ) {
-                LinearProgressIndicator(
-                    color = Color(0xFFFF9900),
-                    trackColor = Color.White.copy(alpha = 0.15f),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(2.dp))
-                )
-            }
         }
     }
 }
@@ -263,193 +142,156 @@ fun DrawerContent(
     walletCoins: String = "0",
     onItemClick: (String) -> Unit
 ) {
-    val items = listOf(
-        DrawerItemData("Account Details", Icons.Default.AccountBox),
-        DrawerItemData("Order History", Icons.Default.ShoppingBag),
-        DrawerItemData("About Company", Icons.Default.Info),
-        DrawerItemData("Help & Support", Icons.AutoMirrored.Filled.Help)
-    )
-
     ModalDrawerSheet(
-        drawerContainerColor = Color(0xFFFAFAFA),
-        modifier = Modifier.width(310.dp)
+        drawerContainerColor = Color.Transparent,
+        drawerShape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp),
+        modifier = Modifier.width(260.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .background(Color(0xFFFAFAFA))
+                .border(
+                    BorderStroke(1.5.dp, DarkGreen.copy(alpha = 0.3f)),
+                    RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp)
+                )
         ) {
-            // Profile Header Section (Clean White)
-            Box(
+            val drawerScrollState = rememberScrollState()
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White)
-                    .border(BorderStroke(0.5.dp, BorderColor.copy(alpha = 0.3f)))
-                    .clickable { onItemClick("Header") }
-                    .padding(horizontal = 20.dp, vertical = 28.dp)
+                    .fillMaxSize()
+                    .verticalScroll(drawerScrollState)
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        // Profile Avatar Circle
+                // Header Banner
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(DarkGreen.copy(alpha=0.15f), Color.Transparent)
+                            )
+                        )
+                        .clickable { onItemClick("Header") }
+                        .padding(vertical = 32.dp, horizontal = 24.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(60.dp)
-                                .background(Color(0xFFF5F7FA), shape = CircleShape)
-                                .border(1.5.dp, BorderColor.copy(alpha = 0.5f), CircleShape),
+                                .size(64.dp)
+                                .clip(CircleShape)
+                                .background(Color.White)
+                                .border(1.5.dp, DarkGreen, CircleShape)
+                                .padding(2.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = if (userName == "Join Reward Club") "👤" else userName.take(1).uppercase(),
-                                fontSize = 26.sp,
+                                fontSize = 28.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = TextDark
                             )
                         }
+                        Spacer(modifier = Modifier.width(16.dp))
                         Column {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(
                                     text = userName,
-                                    color = TextDark,
+                                    color = DarkGreen,
                                     fontSize = 18.sp,
-                                    fontWeight = FontWeight.ExtraBold
+                                    fontWeight = FontWeight.Bold
                                 )
-                                Text("👑", fontSize = 14.sp)
+                                Text("👑", fontSize = 12.sp)
                             }
-                            Spacer(modifier = Modifier.height(2.dp))
-                             Text(
+                            Text(
                                 text = userPhone,
-                                color = TextGray,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium
+                                color = TextDark.copy(alpha = 0.6f),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
+                                letterSpacing = 1.sp
                             )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text("🪙", fontSize = 12.sp)
+                                Text(text = "$walletCoins Coins", color = Color(0xFFFF9900), fontSize = 12.sp, fontWeight = FontWeight.Black)
+                            }
                         }
-                    }
-
-                    // Floating Mini Wallet Card in Drawer
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFF0F5FA), RoundedCornerShape(10.dp))
-                            .border(1.dp, BorderColor.copy(alpha = 0.2f), RoundedCornerShape(10.dp))
-                            .padding(horizontal = 14.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text("🪙", fontSize = 16.sp)
-                             Text(
-                                text = "Wallet Balance",
-                                color = TextDark,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        Text(
-                            text = "$walletCoins Coins",
-                            color = Color(0xFFFF9900),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Black
-                        )
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // Navigation Items List - Premium Custom Rows
-            items.forEach { item ->
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                // Sections
+                Text(
+                    text = "PROFILE & ORDERS",
+                    color = TextDark.copy(alpha = 0.6f),
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp,
+                    modifier = Modifier.padding(start = 24.dp, top = 8.dp, bottom = 4.dp)
+                )
+                DrawerBubbleItem(
+                    icon = { Icon(Icons.Default.AccountBox, contentDescription = null, tint = DarkGreen) },
+                    label = "Account Details",
+                    selected = false,
+                    onClick = { onItemClick("Account Details") }
+                )
+                DrawerBubbleItem(
+                    icon = { Icon(Icons.Default.ShoppingBag, contentDescription = null, tint = DarkGreen) },
+                    label = "Order History",
+                    selected = false,
+                    onClick = { onItemClick("Order History") }
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = DarkGreen.copy(alpha = 0.2f))
+
+                Text(
+                    text = "SUPPORT",
+                    color = TextDark.copy(alpha = 0.6f),
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp,
+                    modifier = Modifier.padding(start = 24.dp, top = 8.dp, bottom = 4.dp)
+                )
+                DrawerBubbleItem(
+                    icon = { Icon(Icons.Default.Info, contentDescription = null, tint = DarkGreen) },
+                    label = "About Company",
+                    selected = false,
+                    onClick = { onItemClick("About Company") }
+                )
+                DrawerBubbleItem(
+                    icon = { Icon(Icons.AutoMirrored.Filled.Help, contentDescription = null, tint = DarkGreen) },
+                    label = "Help & Support",
+                    selected = false,
+                    onClick = { onItemClick("Help & Support") }
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // Footer Branding
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 2.dp)
-                        .clickable { onItemClick(item.title) }
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(14.dp)
-                        ) {
-                            Icon(
-                                imageVector = item.icon,
-                                contentDescription = item.title,
-                                tint = Color(0xFF005C38),
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Text(
-                                text = item.title,
-                                color = Color(0xFF0F1111),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
-                            )
-                        }
-                        Icon(
-                            imageVector = Icons.Default.ChevronRight,
-                            contentDescription = null,
-                            tint = Color.Gray,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(2.dp))
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            // Footer Branding
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                HorizontalDivider(color = Color(0xFFE5E5E5))
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.reward_club_logo),
-                        contentDescription = "Reward Club Logo",
-                        modifier = Modifier
-                            .size(26.dp)
-                            .clip(CircleShape)
-                            .background(Color.White)
-                            .padding(2.dp)
-                    )
                     Text(
-                        text = "Reward Club",
-                        fontWeight = FontWeight.Black,
-                        fontSize = 15.sp,
-                        color = Color.Black
-                    )
-                    Text(
-                        text = "•  v${com.rewardclub.app.BuildConfig.VERSION_NAME}",
-                        color = Color.Gray,
+                        text = "App version ${com.rewardclub.app.BuildConfig.VERSION_NAME}",
+                        color = Color.LightGray,
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Made with ❤️ in India",
+                        color = Color.Gray,
+                        fontSize = 10.sp
                     )
                 }
             }
         }
     }
 }
-
-data class DrawerItemData(val title: String, val icon: ImageVector)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -606,8 +448,8 @@ fun BottomNavigationBar(
                 label = { Text("Home", fontSize = 10.sp, fontWeight = if (currentScreen is Screen.Home) FontWeight.Bold else FontWeight.Normal) },
                 alwaysShowLabel = true,
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = NavyDark,
-                    selectedTextColor = NavyDark,
+                    selectedIconColor = TextDark,
+                    selectedTextColor = TextDark,
                     unselectedIconColor = TextGray,
                     unselectedTextColor = TextGray,
                     indicatorColor = Color(0xFFFFF3E0)
@@ -620,8 +462,8 @@ fun BottomNavigationBar(
                 label = { Text("Profile", fontSize = 10.sp, fontWeight = if (currentScreen is Screen.Profile) FontWeight.Bold else FontWeight.Normal) },
                 alwaysShowLabel = true,
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = NavyDark,
-                    selectedTextColor = NavyDark,
+                    selectedIconColor = TextDark,
+                    selectedTextColor = TextDark,
                     unselectedIconColor = TextGray,
                     unselectedTextColor = TextGray,
                     indicatorColor = Color(0xFFFFF3E0)
