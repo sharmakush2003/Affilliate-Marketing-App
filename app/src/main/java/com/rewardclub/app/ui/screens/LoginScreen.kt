@@ -33,6 +33,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
 import com.rewardclub.app.ui.theme.*
 import com.rewardclub.app.utils.OtpApiClient
+import com.rewardclub.app.utils.Supabase
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.providers.builtin.OTP
+import io.github.jan.supabase.auth.providers.builtin.IDToken
+import io.github.jan.supabase.auth.providers.Google
+import io.github.jan.supabase.auth.OtpType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import android.app.Activity
@@ -80,20 +86,46 @@ fun LoginScreen(
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
                 val account = task.getResult(ApiException::class.java)
-                if (account != null) {
-                    val email = account.email ?: "google-user@rewardclub.com"
+                val googleIdToken = account?.idToken
+                if (googleIdToken != null) {
+                    val email = account.email ?: ""
                     val name = account.displayName ?: "Google User"
-                    com.rewardclub.app.utils.UserSession.login(email, name)
-                    Toast.makeText(context, "Welcome, $name!", Toast.LENGTH_SHORT).show()
-                    onLoginSuccess()
+                    isSendingEmail = true
+                    scope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                        try {
+                            Supabase.client.auth.signInWith(IDToken) {
+                                idToken = googleIdToken
+                                provider = Google
+                            }
+                            val user = Supabase.client.auth.currentUserOrNull()
+                            if (user != null) {
+                                scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                    isSendingEmail = false
+                                    com.rewardclub.app.utils.UserSession.login(user.email ?: email, user.id, name)
+                                    Toast.makeText(context, "Welcome, $name!", Toast.LENGTH_SHORT).show()
+                                    onLoginSuccess()
+                                }
+                            } else {
+                                scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                    isSendingEmail = false
+                                    Toast.makeText(context, "Failed to authenticate session with Supabase.", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        } catch (e: Exception) {
+                            scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                isSendingEmail = false
+                                Toast.makeText(context, "Supabase Login failed: ${e.message}", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
                 } else {
-                    Toast.makeText(context, "Google Sign-In failed. Please try again.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Google Sign-In: ID Token is null. Check Web Client ID configuration.", Toast.LENGTH_LONG).show()
                 }
             } catch (e: ApiException) {
                 if (com.rewardclub.app.BuildConfig.DEBUG) {
                     android.util.Log.e("LoginScreen", "Google Sign-In failed: ${e.statusCode}", e)
                 }
-                Toast.makeText(context, "Google Sign-In failed. Please try again.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Google Sign-In failed: ${e.statusCode}. Please try again.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -307,14 +339,19 @@ fun LoginScreen(
                                         isSendingEmail = true
                                         Toast.makeText(context, "Sending OTP to $emailAddress...", Toast.LENGTH_SHORT).show()
                                         scope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                                            val result = OtpApiClient.sendOtp(emailAddress.trim())
-                                            scope.launch(kotlinx.coroutines.Dispatchers.Main) {
-                                                isSendingEmail = false
-                                                if (result.success) {
+                                            try {
+                                                Supabase.client.auth.signInWith(OTP) {
+                                                    email = emailAddress.trim()
+                                                }
+                                                scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                                    isSendingEmail = false
                                                     isOtpSent = true
                                                     Toast.makeText(context, "OTP Sent to $emailAddress!", Toast.LENGTH_LONG).show()
-                                                } else {
-                                                    Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+                                                }
+                                            } catch (e: Exception) {
+                                                scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                                    isSendingEmail = false
+                                                    Toast.makeText(context, "Failed: ${e.message}", Toast.LENGTH_LONG).show()
                                                 }
                                             }
                                         }
@@ -412,20 +449,30 @@ fun LoginScreen(
                                     onClick = {
                                         isSendingEmail = true
                                         scope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                                            val result = OtpApiClient.verifyOtp(emailAddress.trim(), otpCode)
-                                            scope.launch(kotlinx.coroutines.Dispatchers.Main) {
-                                                if (result.verified) {
-                                                    isSendingEmail = false
-                                                    com.rewardclub.app.utils.UserSession.login(emailAddress.trim())
-                                                    Toast.makeText(context, "Sign In Successful!", Toast.LENGTH_SHORT).show()
-                                                    onLoginSuccess()
-                                                } else {
-                                                    isSendingEmail = false
-                                                    Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
-                                                    if (result.remaining == 0) {
-                                                        otpCode = ""
-                                                        isOtpSent = false
+                                            try {
+                                                Supabase.client.auth.verifyEmailOtp(
+                                                    email = emailAddress.trim(),
+                                                    token = otpCode.trim(),
+                                                    type = OtpType.Email.MAGIC_LINK
+                                                )
+                                                val user = Supabase.client.auth.currentUserOrNull()
+                                                if (user != null) {
+                                                    scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                                        isSendingEmail = false
+                                                        com.rewardclub.app.utils.UserSession.login(user.email ?: emailAddress.trim(), user.id)
+                                                        Toast.makeText(context, "Sign In Successful!", Toast.LENGTH_SHORT).show()
+                                                        onLoginSuccess()
                                                     }
+                                                } else {
+                                                    scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                                        isSendingEmail = false
+                                                        Toast.makeText(context, "Session retrieval failed.", Toast.LENGTH_SHORT).show()
+                                                    }
+                                                }
+                                            } catch (e: Exception) {
+                                                scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                                    isSendingEmail = false
+                                                    Toast.makeText(context, "Verification failed: ${e.message}", Toast.LENGTH_LONG).show()
                                                 }
                                             }
                                         }

@@ -4,6 +4,26 @@ package com.rewardclub.app.utils
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.status.SessionStatus
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.serialization.Serializable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+
+@Serializable
+data class DbProfile(
+    val id: String,
+    val email: String,
+    val full_name: String? = "",
+    val mobile: String? = "",
+    val total_coins: Long? = 100L,
+    val redeemed_coins: Long? = 50L,
+    val total_savings: Long? = 150L
+)
 
 object UserSession {
     var currentUser by mutableStateOf<MockUser?>(null)
@@ -18,12 +38,58 @@ object UserSession {
 
     data class MockUser(val uid: String, val email: String, val displayName: String)
 
-    fun login(userEmail: String, name: String = "") {
+    private val sessionScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    // Listen to session changes
+    suspend fun listenToSession() {
+        Supabase.client.auth.sessionStatus.collectLatest { status ->
+            if (status is SessionStatus.Authenticated) {
+                val session = status.session
+                val user = session.user
+                if (user != null) {
+                    val cleanEmail = user.email ?: ""
+                    val defaultName = cleanEmail.split("@").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: "User"
+                    currentUser = MockUser(
+                        uid = user.id,
+                        email = cleanEmail,
+                        displayName = defaultName
+                    )
+                    email = cleanEmail
+                    fullName = defaultName
+                    fetchProfileAndStats(user.id)
+                }
+            } else {
+                clearSession()
+            }
+        }
+    }
+
+    suspend fun fetchProfileAndStats(userId: String) {
+        try {
+            // Fetch Profile
+            val profile = Supabase.client.postgrest["profiles"]
+                .select { filter { eq("id", userId) } }
+                .decodeSingleOrNull<DbProfile>()
+            
+            if (profile != null) {
+                fullName = profile.full_name ?: fullName
+                mobile = profile.mobile ?: ""
+                totalCoins = profile.total_coins ?: totalCoins
+                redeemedCoins = profile.redeemed_coins ?: redeemedCoins
+                totalSavings = profile.total_savings ?: totalSavings
+                currentUser = currentUser?.copy(displayName = fullName)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun login(userEmail: String, uid: String, name: String = "") {
         val cleanEmail = userEmail.trim().lowercase()
-        val defaultName = name.ifEmpty { cleanEmail.split("@").first().replaceFirstChar { it.uppercase() } }
+        val defaultName = name.ifEmpty { cleanEmail.split("@").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: "User" }
         
         currentUser = MockUser(
-            uid = "mock-uid-" + java.util.UUID.randomUUID().toString().substring(0, 8),
+            uid = uid,
             email = cleanEmail,
             displayName = defaultName
         )
@@ -33,9 +99,52 @@ object UserSession {
         totalCoins = 100L
         redeemedCoins = 50L
         totalSavings = 150L
+
+        // Attempt async fetch of database profile
+        sessionScope.launch {
+            fetchProfileAndStats(uid)
+        }
     }
 
     fun logout() {
+        sessionScope.launch {
+            try {
+                Supabase.client.auth.signOut()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        clearSession()
+    }
+
+    fun updateProfile(name: String, phone: String, onComplete: (Boolean) -> Unit) {
+        fullName = name
+        mobile = phone
+        val userId = currentUser?.uid
+        if (userId != null) {
+            sessionScope.launch {
+                try {
+                    Supabase.client.postgrest["profiles"].update(
+                        {
+                            set("full_name", name)
+                            set("mobile", phone)
+                        }
+                    ) {
+                        filter { eq("id", userId) }
+                    }
+                    currentUser = currentUser?.copy(displayName = name)
+                    onComplete(true)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    onComplete(false)
+                }
+            }
+        } else {
+            onComplete(true)
+        }
+    }
+
+    private fun clearSession() {
         currentUser = null
         email = ""
         fullName = ""
@@ -43,11 +152,5 @@ object UserSession {
         totalCoins = 0L
         redeemedCoins = 0L
         totalSavings = 0L
-    }
-
-    fun updateProfile(name: String, phone: String, onComplete: (Boolean) -> Unit) {
-        fullName = name
-        mobile = phone
-        onComplete(true)
     }
 }

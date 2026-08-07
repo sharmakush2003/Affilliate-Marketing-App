@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import kotlinx.coroutines.launch
+import androidx.lifecycle.lifecycleScope
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -74,8 +75,10 @@ sealed class Screen {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Initialize UserSession
-        val temp = com.rewardclub.app.utils.UserSession.currentUser
+        // Initialize UserSession and listen to session changes
+        lifecycleScope.launch {
+            com.rewardclub.app.utils.UserSession.listenToSession()
+        }
         // Step 3: Initialize Cuelinks SDK (reads Channel ID 301603 from AndroidManifest)
         com.cuelinks.sdk.Cuelinks.initialize(this)
 

@@ -11,6 +11,8 @@ val cuelinksApiKey: String = localProperties.getProperty("CUELINKS_API_KEY") ?: 
 val cuelinksChannelId: String = localProperties.getProperty("CUELINKS_CHANNEL_ID") ?: "301603"
 val otpServerUrl: String = localProperties.getProperty("OTP_SERVER_URL") ?: ""
 val otpApiSecret: String = localProperties.getProperty("OTP_API_SECRET") ?: ""
+val supabaseUrl: String = localProperties.getProperty("SUPABASE_URL") ?: ""
+val supabaseAnonKey: String = localProperties.getProperty("SUPABASE_ANON_KEY") ?: ""
 
 plugins {
   alias(libs.plugins.android.application)
@@ -23,7 +25,7 @@ android {
     compileSdk = 36
     defaultConfig {
         applicationId = "com.rewardclub.app"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 4
         versionName = "1.0.3"
@@ -35,6 +37,8 @@ android {
         // Android now calls the OTP server via HTTPS instead of doing SMTP directly.
         buildConfigField("String", "OTP_SERVER_URL", "\"$otpServerUrl\"")
         buildConfigField("String", "OTP_API_SECRET", "\"$otpApiSecret\"")
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
     }
 
     buildTypes {
@@ -88,7 +92,11 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-auth:21.2.0")
 
-
+    // Supabase dependencies
+    implementation(platform("io.github.jan-tennert.supabase:bom:3.0.1"))
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")
+    implementation("io.github.jan-tennert.supabase:auth-kt")
+    implementation("io.ktor:ktor-client-android:3.0.0")
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
