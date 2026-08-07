@@ -64,7 +64,7 @@ fun LoginScreen(
     // Configure Google Sign-In options
     val gso = remember {
         GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("com.rewardclub.app") // TODO: replace with your actual Web Client ID from Firebase Console
+            .requestIdToken("com.rewardclub.app") // TODO: replace with your actual Web Client ID from Supabase Dashboard
             .requestEmail()
             .build()
     }
