@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Outer blue square -->
+    <path
+        android:fillColor="#004B87"
+        android:pathData="M4,4h40v40h-40z"/>
+    <!-- Inner white square -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M10,10h28v28h-28z"/>
+    <!-- Center blue square -->
+    <path
+        android:fillColor="#004B87"
+        android:pathData="M18,18h12v12h-12z"/>
+    <!-- Four red bars -->
+    <path
+        android:fillColor="#ED1C24"
+        android:pathData="M22,4h4v6h-4z M22,38h4v6h-4z M4,22h6v4h-6z M38,22h6v4h-6z"/>
+</vector>

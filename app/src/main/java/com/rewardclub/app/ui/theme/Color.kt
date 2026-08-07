@@ -4,14 +4,14 @@ package com.rewardclub.app.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // ── Brand Header Colors ─────────────────────────────────────────
-val NavyDark    = Color(0xFF005C38)   // Rich vibrant green header (replaced dark black)
-val NavyMid     = Color(0xFF004D2C)   // Deep header accent
+val NavyDark    = Color(0xFF0D2E5C)   // Premium Navy Blue
+val NavyMid     = Color(0xFF081C36)   // Dark Navy Accent
 val AmazonOrange = Color(0xFFFF9900)  // Signature orange
 val OrangeLight  = Color(0xFFFFF3E0)  // Soft orange background
 
-// ── Keep brand green for CTAs & coins ─────────────────────────
-val DarkGreen   = Color(0xFF007600)   // Amazon's green for "In stock"
-val LightGreen  = Color(0xFFE8F5E9)
+// ── Replaced brand green with premium blue for CTAs ──────────
+val DarkGreen   = Color(0xFF0D47A1)   // Premium Royal Blue for CTAs & highlights
+val LightGreen  = Color(0xFFE3F2FD)   // Soft light blue background
 
 // ── Surfaces & Backgrounds ────────────────────────────────────
 val GrayBackground = Color(0xFFF3F3F3) // Amazon page bg

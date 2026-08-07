@@ -373,7 +373,9 @@ fun EarnCoinsScreen(
                                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF9FBF9)),
                                 border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.4f)),
                                 shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(130.dp)
                             ) {
                                 Column(
                                     modifier = Modifier

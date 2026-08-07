@@ -123,9 +123,9 @@ fun HomeScreen(
     )
 
     val creditCards = listOf(
-        CreditCardMock("SBI SimplyCLICK Card", "SBI Card", "5,000 Coins", "On card approval", Color(0xFF0F3E5F)),
-        CreditCardMock("HDFC Regalia Gold", "HDFC Bank", "8,000 Coins", "On card approval", Color(0xFF1A1A1A)),
-        CreditCardMock("ICICI Amazon Pay", "ICICI Bank", "3,500 Coins", "On card approval", Color(0xFFB85D06))
+        CreditCardMock("SBI SimplyCLICK Card", "SBI Card", "5,000 Coins", "On card approval", Color(0xFF0F3E5F), R.drawable.sbi_logo),
+        CreditCardMock("HDFC Regalia Gold", "HDFC Bank", "8,000 Coins", "On card approval", Color(0xFF1A1A1A), R.drawable.hdfc_logo),
+        CreditCardMock("ICICI Amazon Pay", "ICICI Bank", "3,500 Coins", "On card approval", Color(0xFFB85D06), R.drawable.icici_logo)
     )
 
     val insurances = listOf(
@@ -252,7 +252,7 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
+            colors = CardDefaults.cardColors(containerColor = LightGreen),
             border = BorderStroke(1.dp, BorderColor)
         ) {
             Column(
@@ -318,7 +318,7 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
             .fillMaxWidth()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFF005C38), Color(0xFF003820))
+                    colors = listOf(NavyDark, NavyMid)
                 )
             )
             .padding(bottom = 12.dp)
@@ -375,40 +375,6 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
                 )
             }
         }
-        
-        Spacer(modifier = Modifier.height(4.dp))
-        
-        // Flipkart-style Search Bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 4.dp)
-                .height(44.dp)
-                .background(White, RoundedCornerShape(22.dp))
-                .border(1.dp, BorderColor.copy(alpha = 0.1f), RoundedCornerShape(22.dp))
-                .padding(horizontal = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search icon",
-                tint = TextGray,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = "Search brands, gift cards, coupons...",
-                color = TextGray,
-                fontSize = 13.sp,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                imageVector = Icons.Default.Mic,
-                contentDescription = "Voice search icon",
-                tint = TextGray,
-                modifier = Modifier.size(18.dp)
-            )
-        }
     }
 }
 
@@ -428,7 +394,7 @@ fun CoinBalanceSection(onRedeemClick: () -> Unit) {
                 .fillMaxWidth()
                 .background(
                     Brush.horizontalGradient(
-                        colors = listOf(Color(0xFF004D40), Color(0xFF00796B))
+                        colors = listOf(NavyDark, Color(0xFF1976D2))
                     )
                 )
                 .padding(all = 20.dp)
@@ -972,14 +938,27 @@ fun CreditCardItem(card: CreditCardMock, onClick: () -> Unit) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = card.logoText,
-                            color = White,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Black,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                        if (card.logoResId != null) {
+                            Image(
+                                painter = painterResource(id = card.logoResId),
+                                contentDescription = card.logoText,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White)
+                                    .padding(2.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        } else {
+                            Text(
+                                text = card.logoText,
+                                color = White,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Black,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                         Text(
                             text = "💳",
                             color = White,
@@ -1006,7 +985,7 @@ fun CreditCardItem(card: CreditCardMock, onClick: () -> Unit) {
             Spacer(modifier = Modifier.height(4.dp))
             Box(
                 modifier = Modifier
-                    .background(Color(0xFFE8F5E9), shape = RoundedCornerShape(6.dp))
+                    .background(LightGreen, shape = RoundedCornerShape(6.dp))
                     .padding(horizontal = 8.dp, vertical = 3.dp)
             ) {
                 Row(
