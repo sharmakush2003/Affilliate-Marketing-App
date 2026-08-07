@@ -172,6 +172,21 @@ fun HomeScreen(
         // Green Header
         HeaderSection(onHamburgerClick = onHamburgerClick, onJoinClick = onJoinClick)
 
+        // Circular Category Strip (NEW)
+        CategoryHorizontalStrip(onCategoryClick = { category ->
+            when (category) {
+                "Products" -> onCategoryClick("Products")
+                "Vouchers" -> onCategoryClick("Vouchers")
+                "Utilities" -> onCategoryClick("Products") // Fallback
+                "Loans" -> onBrandClick("Personal Loan")
+                "Insurance" -> onBrandClick("Car Insurance")
+                "Cards" -> onBrandClick("SBI SimplyCLICK Card")
+            }
+        })
+
+        // Banner Slider Section (NOW ACTIVE)
+        BannerSliderSection()
+
         // Coin Balance (Google Pay style, replacing Login card)
         CoinBalanceSection(onRedeemClick = { onCategoryClick("Products") })
 
@@ -229,7 +244,7 @@ fun HomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Zillion-Style Slogans Footer
         Card(
@@ -360,6 +375,40 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
                 )
             }
         }
+        
+        Spacer(modifier = Modifier.height(4.dp))
+        
+        // Flipkart-style Search Bar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp)
+                .height(44.dp)
+                .background(White, RoundedCornerShape(22.dp))
+                .border(1.dp, BorderColor.copy(alpha = 0.1f), RoundedCornerShape(22.dp))
+                .padding(horizontal = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search icon",
+                tint = TextGray,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = "Search brands, gift cards, coupons...",
+                color = TextGray,
+                fontSize = 13.sp,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = Icons.Default.Mic,
+                contentDescription = "Voice search icon",
+                tint = TextGray,
+                modifier = Modifier.size(18.dp)
+            )
+        }
     }
 }
 
@@ -369,21 +418,20 @@ fun CoinBalanceSection(onRedeemClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 10.dp)
-            .shadow(6.dp, RoundedCornerShape(16.dp))
+            .shadow(4.dp, RoundedCornerShape(16.dp))
             .clickable { onRedeemClick() },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        border = BorderStroke(1.dp, Color(0xFF007600).copy(alpha = 0.15f))
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
                     Brush.horizontalGradient(
-                        colors = listOf(Color(0xFF005C38), Color(0xFF003820))
+                        colors = listOf(Color(0xFF004D40), Color(0xFF00796B))
                     )
                 )
-                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .padding(all = 20.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -392,48 +440,54 @@ fun CoinBalanceSection(onRedeemClick: () -> Unit) {
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(46.dp)
+                            .size(48.dp)
                             .background(
-                                Brush.linearGradient(listOf(Color(0xFFFFD060), Color(0xFFE8A020))),
-                                CircleShape
+                                brush = Brush.linearGradient(
+                                    colors = listOf(Color(0xFFFFD54F), Color(0xFFFF8F00))
+                                ),
+                                shape = CircleShape
                             )
-                            .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
+                            .border(1.5.dp, Color.White, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(text = "🪙", fontSize = 24.sp)
                     }
                     Column {
                         Text(
-                            text = "Total Balance",
-                            color = Color.White.copy(alpha = 0.75f),
+                            text = "Reward Club Coins",
+                            color = Color.White.copy(alpha = 0.8f),
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.5.sp
                         )
                         val isLoggedIn = com.rewardclub.app.utils.UserSession.currentUser != null
                         Text(
                             text = if (isLoggedIn) "${com.rewardclub.app.utils.UserSession.totalCoins} Coins" else "Join to Earn",
                             color = Color.White,
-                            fontSize = 18.sp,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Black
                         )
                     }
                 }
+                
+                // Redeem Pill Button
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier
-                        .background(Color.White.copy(alpha = 0.12f), RoundedCornerShape(12.dp))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                        .background(Color.White.copy(alpha = 0.15f), RoundedCornerShape(20.dp))
+                        .border(1.dp, Color.White.copy(alpha = 0.25f), RoundedCornerShape(20.dp))
+                        .padding(horizontal = 14.dp, vertical = 7.dp)
                 ) {
-                    Text(text = "History", color = Color(0xFFFF9900), fontSize = 12.sp, fontWeight = FontWeight.Black)
+                    Text(text = "Redeem", color = Color(0xFFFFB74D), fontSize = 12.sp, fontWeight = FontWeight.Black)
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
-                        contentDescription = null,
-                        tint = Color(0xFFFF9900),
+                        contentDescription = "Redeem arrow",
+                        tint = Color(0xFFFFB74D),
                         modifier = Modifier.size(14.dp)
                     )
                 }
@@ -1200,6 +1254,60 @@ fun LoanItem(loan: LoanMock, onClick: () -> Unit) {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+        }
+    }
+}
+
+data class CategoryItemData(val title: String, val icon: String)
+
+@Composable
+fun CategoryHorizontalStrip(
+    onCategoryClick: (String) -> Unit
+) {
+    val items = listOf(
+        CategoryItemData("Products", "📦"),
+        CategoryItemData("Vouchers", "🎟️"),
+        CategoryItemData("Utilities", "🧾"),
+        CategoryItemData("Loans", "💰"),
+        CategoryItemData("Insurance", "🛡️"),
+        CategoryItemData("Cards", "💳")
+    )
+    
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .border(BorderStroke(0.5.dp, BorderColor.copy(alpha = 0.1f)))
+    ) {
+        items(items) { item ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .clickable { onCategoryClick(item.title) }
+                    .width(64.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .background(Color(0xFFF5F7FA), CircleShape)
+                        .border(1.dp, BorderColor.copy(alpha = 0.2f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = item.icon, fontSize = 24.sp)
+                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = item.title,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextDark,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }

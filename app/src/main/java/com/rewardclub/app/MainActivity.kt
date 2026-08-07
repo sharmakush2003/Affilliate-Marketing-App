@@ -25,7 +25,7 @@ import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.Help
+import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import kotlinx.coroutines.launch
@@ -102,13 +102,15 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun SplashScreen(onTimeout: () -> Unit) {
-    val scale = remember { Animatable(0.4f) }
-    val offsetY = remember { Animatable(400f) }
+    val scale = remember { Animatable(0.5f) }
+    val offsetY = remember { Animatable(300f) }
     val alpha = remember { Animatable(0f) }
+    val taglineAlpha = remember { Animatable(0f) }
+    val progressAlpha = remember { Animatable(0f) }
     
     val overshootEasing = remember {
         Easing { fraction ->
-            OvershootInterpolator(1.3f).getInterpolation(fraction)
+            OvershootInterpolator(1.2f).getInterpolation(fraction)
         }
     }
     
@@ -117,7 +119,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
             scale.animateTo(
                 targetValue = 1f,
                 animationSpec = tween(
-                    durationMillis = 1000,
+                    durationMillis = 900,
                     easing = overshootEasing
                 )
             )
@@ -126,7 +128,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
             offsetY.animateTo(
                 targetValue = 0f,
                 animationSpec = tween(
-                    durationMillis = 1000,
+                    durationMillis = 900,
                     easing = LinearOutSlowInEasing
                 )
             )
@@ -139,8 +141,22 @@ fun SplashScreen(onTimeout: () -> Unit) {
                 )
             )
         }
+        launch {
+            delay(400)
+            taglineAlpha.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 800)
+            )
+        }
+        launch {
+            delay(800)
+            progressAlpha.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 800)
+            )
+        }
         
-        delay(2500) // Keep splash screen for 2.5s
+        delay(2600) // Keep splash screen for 2.6s
         onTimeout()
     }
     
@@ -150,8 +166,8 @@ fun SplashScreen(onTimeout: () -> Unit) {
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF0F5132),
-                        Color(0xFF198754)
+                        Color(0xFF0F172A), // Slate 900
+                        Color(0xFF020617)  // Slate 950 (Luxury Dark)
                     )
                 )
             ),
@@ -159,41 +175,86 @@ fun SplashScreen(onTimeout: () -> Unit) {
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            modifier = Modifier
-                .offset(y = offsetY.value.dp)
-                .graphicsLayer {
-                    scaleX = scale.value
-                    scaleY = scale.value
-                    this.alpha = alpha.value
-                }
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.reward_club_logo),
-                contentDescription = "Reward Club Logo",
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier
-                    .size(130.dp)
-                    .shadow(12.dp, CircleShape)
-                    .clip(CircleShape)
-                    .background(Color.White)
-                    .padding(16.dp)
-            )
+                    .offset(y = offsetY.value.dp)
+                    .graphicsLayer {
+                        scaleX = scale.value
+                        scaleY = scale.value
+                        this.alpha = alpha.value
+                    }
+            ) {
+                // Logo with glowing gold circular border
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(120.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .border(
+                                width = 3.dp,
+                                brush = Brush.sweepGradient(
+                                    colors = listOf(Color(0xFFE8A020), Color.Transparent, Color(0xFFFFD700), Color.Transparent)
+                                ),
+                                shape = CircleShape
+                            )
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.reward_club_logo),
+                        contentDescription = "Reward Club Logo",
+                        modifier = Modifier
+                            .size(96.dp)
+                            .shadow(8.dp, CircleShape)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                            .padding(14.dp)
+                    )
+                }
+                
+                Text(
+                    text = "Reward Club",
+                    fontSize = 34.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White,
+                    letterSpacing = 1.sp
+                )
+            }
             
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            // Tagline
             Text(
-                text = "Reward Club",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
-                letterSpacing = 1.sp
+                text = "aha, everywhere!",
+                color = Color(0xFFFF9900), // Gold Accent
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.5.sp,
+                modifier = Modifier.graphicsLayer { this.alpha = taglineAlpha.value }
             )
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(64.dp))
             
-            CircularProgressIndicator(
-                color = Color.White,
-                strokeWidth = 2.dp,
-                modifier = Modifier.size(24.dp)
-            )
+            // Progress Bar
+            Box(
+                modifier = Modifier
+                    .width(140.dp)
+                    .height(4.dp)
+                    .graphicsLayer { this.alpha = progressAlpha.value }
+            ) {
+                LinearProgressIndicator(
+                    color = Color(0xFFFF9900),
+                    trackColor = Color.White.copy(alpha = 0.15f),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(2.dp))
+                )
+            }
         }
     }
 }
@@ -209,7 +270,7 @@ fun DrawerContent(
         DrawerItemData("Account Details", Icons.Default.AccountBox),
         DrawerItemData("Order History", Icons.Default.ShoppingBag),
         DrawerItemData("About Company", Icons.Default.Info),
-        DrawerItemData("Help & Support", Icons.Default.Help)
+        DrawerItemData("Help & Support", Icons.AutoMirrored.Filled.Help)
     )
 
     ModalDrawerSheet(
@@ -492,7 +553,7 @@ fun AppMainContainer() {
                         onCouponClick = { coupon -> navigateTo(Screen.CouponDetail(coupon)) }
                     )
                     is Screen.EarnCoins -> EarnCoinsScreen(
-                        brandName = (currentScreen as Screen.EarnCoins).brandName,
+                        brandName = currentScreen.brandName,
                         onBackClick = { navigateBack() }
                     )
                     is Screen.Products -> ProductsScreen(
@@ -506,7 +567,7 @@ fun AppMainContainer() {
                         onCouponClick = { coupon -> navigateTo(Screen.CouponDetail(coupon)) }
                     )
                     is Screen.CouponDetail -> CouponDetailScreen(
-                        couponName = (currentScreen as Screen.CouponDetail).couponName,
+                        couponName = currentScreen.couponName,
                         onBackClick = { navigateBack() }
                     )
                     is Screen.HelpSupport -> HelpSupportScreen(
@@ -525,7 +586,6 @@ fun AppMainContainer() {
                     is Screen.Profile -> AccountDetailsScreen(
                         onBackClick = { navigateTo(Screen.Home) }
                     )
-                    else -> {}
                 }
             }
         }
