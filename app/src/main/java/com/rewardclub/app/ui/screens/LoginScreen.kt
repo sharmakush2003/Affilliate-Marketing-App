@@ -1,4 +1,4 @@
-﻿// Â© 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
+// Â© 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
 package com.rewardclub.app.ui.screens
 
 import android.widget.Toast
@@ -489,45 +489,50 @@ fun LoginScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(40.dp))
+                // TODO: Google Sign-In — hidden until proper Web Client ID is configured
+                // To re-enable: get Web Client ID from Supabase Dashboard → Auth → Google Provider
+                // Then replace requestIdToken("com.rewardclub.app") with the real client ID
+                if (false) {
+                    Spacer(modifier = Modifier.height(40.dp))
 
-                // Divider
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    HorizontalDivider(modifier = Modifier.weight(1f), color = BorderColor)
-                    Text("OR", color = TextGray, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 16.dp))
-                    HorizontalDivider(modifier = Modifier.weight(1f), color = BorderColor)
-                }
+                    // Divider
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = BorderColor)
+                        Text("OR", color = TextGray, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 16.dp))
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = BorderColor)
+                    }
 
-                Spacer(modifier = Modifier.height(40.dp))
+                    Spacer(modifier = Modifier.height(40.dp))
 
-                // Standard Google Button
-                Button(
-                    onClick = {
-                        val signInIntent = googleSignInClient.signInIntent
-                        signInLauncher.launch(signInIntent)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = White),
-                    shape = RoundedCornerShape(8.dp),
-                    border = BorderStroke(1.dp, BorderColor),
-                    modifier = Modifier.fillMaxWidth().height(52.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                    // Standard Google Button
+                    Button(
+                        onClick = {
+                            val signInIntent = googleSignInClient.signInIntent
+                            signInLauncher.launch(signInIntent)
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = White),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, BorderColor),
+                        modifier = Modifier.fillMaxWidth().height(52.dp)
                     ) {
-                        Text(
-                            text = "G",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color(0xFFEA4335)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = "Continue with Google",
-                            color = TextDark,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "G",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color(0xFFEA4335)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = "Continue with Google",
+                                color = TextDark,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
                 }
                     }

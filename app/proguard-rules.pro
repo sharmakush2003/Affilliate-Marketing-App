@@ -8,14 +8,11 @@
 -keep public class * extends android.app.Application
 
 # ─── Protect sensitive classes from reverse engineering ──────────────────────
-# EmailSender is intentionally NOT kept here — let ProGuard obfuscate it fully.
-# Keeping it with {*;} would expose class/method names in the APK (opposite of intent).
 -keepclassmembers class com.rewardclub.app.api.** {
     public *;
 }
 
 # ─── Jetpack Compose ─────────────────────────────────────────────────────────
-# Compose handles its own proguard rules; keeping everything prevents icon shrinking.
 -dontwarn androidx.compose.**
 
 # ─── Kotlin Serialization ────────────────────────────────────────────────────
@@ -25,6 +22,32 @@
 -keepclasseswithmembers class kotlinx.serialization.json.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
+-keep @kotlinx.serialization.Serializable class * { *; }
+-keepclassmembers @kotlinx.serialization.Serializable class * {
+    *** Companion;
+    *** INSTANCE;
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+# ─── Kotlin Coroutines ───────────────────────────────────────────────────────
+-keep class kotlinx.coroutines.** { *; }
+-dontwarn kotlinx.coroutines.**
+
+# ─── Supabase ────────────────────────────────────────────────────────────────
+-keep class io.github.jan.supabase.** { *; }
+-dontwarn io.github.jan.supabase.**
+
+# ─── Ktor (used by Supabase internally) ──────────────────────────────────────
+-keep class io.ktor.** { *; }
+-dontwarn io.ktor.**
+-keep class io.ktor.client.** { *; }
+-keep class io.ktor.http.** { *; }
+
+# ─── OkHttp / Okio ───────────────────────────────────────────────────────────
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-keep class okhttp3.** { *; }
+-keep class okio.** { *; }
 
 # ─── JavaMail / SMTP ─────────────────────────────────────────────────────────
 -keep class com.sun.mail.** { *; }
