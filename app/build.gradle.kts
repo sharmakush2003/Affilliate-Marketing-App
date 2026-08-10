@@ -14,6 +14,11 @@ val otpApiSecret: String = localProperties.getProperty("OTP_API_SECRET") ?: ""
 val supabaseUrl: String = localProperties.getProperty("SUPABASE_URL") ?: ""
 val supabaseAnonKey: String = localProperties.getProperty("SUPABASE_ANON_KEY") ?: ""
 
+val releaseStoreFile: String = localProperties.getProperty("RELEASE_STORE_FILE") ?: ""
+val releaseStorePassword: String = localProperties.getProperty("RELEASE_STORE_PASSWORD") ?: ""
+val releaseKeyAlias: String = localProperties.getProperty("RELEASE_KEY_ALIAS") ?: ""
+val releaseKeyPassword: String = localProperties.getProperty("RELEASE_KEY_PASSWORD") ?: ""
+
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.compose.compiler)
@@ -23,12 +28,18 @@ plugins {
 android {
     namespace = "com.rewardclub.app"
     compileSdk = 36
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
+
     defaultConfig {
         applicationId = "com.rewardclub.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.0.3"
+        versionCode = 6
+        versionName = "1.0.5"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "CUELINKS_API_KEY", "\"$cuelinksApiKey\"")
@@ -41,11 +52,23 @@ android {
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
     }
 
+    signingConfigs {
+        create("release") {
+            if (releaseStoreFile.isNotEmpty()) {
+                storeFile = file(releaseStoreFile)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

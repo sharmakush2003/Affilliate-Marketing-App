@@ -2,8 +2,8 @@
 # ProGuard Rules for Reward Club App
 # Production Release — Obfuscation & Security Hardening
 
-# ─── Keep app entry points ───────────────────────────────────────────────────
--keep public class com.rewardclub.app.MainActivity
+# ─── Keep app entry points and custom package ─────────────────────────────────
+-keep class com.rewardclub.app.** { *; }
 -keep public class * extends android.app.Activity
 -keep public class * extends android.app.Application
 
@@ -15,7 +15,7 @@
 }
 
 # ─── Jetpack Compose ─────────────────────────────────────────────────────────
--keep class androidx.compose.** { *; }
+# Compose handles its own proguard rules; keeping everything prevents icon shrinking.
 -dontwarn androidx.compose.**
 
 # ─── Kotlin Serialization ────────────────────────────────────────────────────
