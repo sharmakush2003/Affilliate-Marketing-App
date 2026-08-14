@@ -71,7 +71,8 @@ data class CreditCardMock(
     val offerText: String,
     val subText: String,
     val logoBg: Color = Color(0xFF1E1E1E),
-    val logoResId: Int? = null
+    val logoResId: Int? = null,
+    val description: String = ""
 )
 
 data class InsuranceMock(
@@ -105,7 +106,11 @@ fun HomeScreen(
     onBrandClick: (String) -> Unit,
     onCategoryClick: (String) -> Unit,
     onViewAllCouponsClick: () -> Unit,
-    onCouponClick: (String) -> Unit
+    onCouponClick: (String) -> Unit,
+    onViewAllBrandsClick: () -> Unit,
+    onViewAllCardsClick: () -> Unit,
+    onViewAllLoansClick: () -> Unit,
+    onViewAllInsuranceClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -129,10 +134,10 @@ fun HomeScreen(
     )
 
     val insurances = listOf(
-        InsuranceMock("Car Insurance", "🚗", "Upto 2,000 Coins", "Get instant policy online", Color(0xFFE3F2FD), R.drawable.car_insurance_icon),
-        InsuranceMock("Health Insurance", "🛡️", "Upto 5,000 Coins", "Cashless claims network", Color(0xFFE8F5E9), R.drawable.health_insurance_icon),
-        InsuranceMock("Term Life Insurance", "👥", "Upto 8,000 Coins", "Secure family's future", Color(0xFFFFF3E0), R.drawable.term_life_insurance_icon),
-        InsuranceMock("HDFC ERGO Insurance", "🏥", "Upto 6,000 Coins", "Complete motor & health", Color(0xFFFFEBEE), R.drawable.hdfc_ergo_icon)
+        InsuranceMock("Vehicle Insurance", "🚗/🏍️", "Up to 25% Earning", "Car & Bike insurance online", Color(0xFFE3F2FD), R.drawable.car_insurance_icon),
+        InsuranceMock("Health Insurance", "🛡️", "Up to 25% Earning", "Cashless claims network", Color(0xFFE8F5E9), R.drawable.health_insurance_icon),
+        InsuranceMock("Term Life Insurance", "👥", "Up to 25% Earning", "Secure family's future", Color(0xFFFFF3E0), R.drawable.term_life_insurance_icon),
+        InsuranceMock("HDFC ERGO Insurance", "🏥", "Up to 25% Earning", "Complete motor & health", Color(0xFFFFEBEE), R.drawable.hdfc_ergo_icon)
     )
 
     val loans = listOf(
@@ -172,26 +177,11 @@ fun HomeScreen(
         // Green Header
         HeaderSection(onHamburgerClick = onHamburgerClick, onJoinClick = onJoinClick)
 
-        // Circular Category Strip (NEW)
-        CategoryHorizontalStrip(onCategoryClick = { category ->
-            when (category) {
-                "Products" -> onCategoryClick("Products")
-                "Vouchers" -> onCategoryClick("Vouchers")
-                "Utilities" -> onCategoryClick("Products") // Fallback
-                "Loans" -> onBrandClick("Personal Loan")
-                "Insurance" -> onBrandClick("Car Insurance")
-                "Cards" -> onBrandClick("SBI SimplyCLICK Card")
-            }
-        })
-
         // Banner Slider Section (NOW ACTIVE)
         BannerSliderSection()
 
-        // Coin Balance (Google Pay style, replacing Login card)
-        CoinBalanceSection(onRedeemClick = { onCategoryClick("Products") })
-
         // Shop & Earn Coins (placed at the very top)
-        SectionHeader(title = "Shop & Earn Coins", onViewAllClick = { onBrandClick("Amazon") })
+        SectionHeader(title = "Shop & Earn Coins", onViewAllClick = onViewAllBrandsClick)
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -205,7 +195,11 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Loan Enquiries [NEW]
-        SectionHeader(title = "Loan Enquiries", showViewAll = false)
+        SectionHeader(
+            title = "Loan Enquiries",
+            showViewAll = true,
+            onViewAllClick = onViewAllLoansClick
+        )
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -219,7 +213,11 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Insurance [NEW]
-        SectionHeader(title = "Insurance", showViewAll = false)
+        SectionHeader(
+            title = "Insurance",
+            showViewAll = true,
+            onViewAllClick = onViewAllInsuranceClick
+        )
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -233,7 +231,11 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Credit Cards [NEW]
-        SectionHeader(title = "Credit Cards", showViewAll = false)
+        SectionHeader(
+            title = "Credit Cards",
+            showViewAll = true,
+            onViewAllClick = onViewAllCardsClick
+        )
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -317,6 +319,7 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
         modifier = Modifier
             .fillMaxWidth()
             .background(NavyDark)
+            .statusBarsPadding()
             .border(BorderStroke(0.5.dp, BorderColor.copy(alpha = 0.5f)))
             .padding(bottom = 12.dp)
     ) {
@@ -1067,7 +1070,7 @@ fun InsuranceItem(insurance: InsuranceMock, onClick: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text(text = "🪙", fontSize = 10.sp)
+                    Text(text = "💸", fontSize = 10.sp)
                     Text(
                         text = insurance.offerText,
                         color = DarkGreen,

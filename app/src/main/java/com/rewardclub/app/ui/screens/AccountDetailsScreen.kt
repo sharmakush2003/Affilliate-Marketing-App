@@ -31,15 +31,16 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
 
     val userSession = com.rewardclub.app.utils.UserSession
     // Form state
-    var fullName by remember { mutableStateOf(userSession.fullName) }
-    var email by remember { mutableStateOf(userSession.email) }
-    var mobile by remember { mutableStateOf(userSession.mobile) }
+    val isGuest = userSession.isGuest
+    var fullName by remember { mutableStateOf(if (isGuest && userSession.fullName.isEmpty()) "Guest User" else userSession.fullName) }
+    var email by remember { mutableStateOf(if (isGuest && userSession.email.isEmpty()) "guest@rewardclub.com" else userSession.email) }
+    var mobile by remember { mutableStateOf(if (isGuest && userSession.mobile.isEmpty()) "Not Linked" else userSession.mobile) }
     var receiveEmails by remember { mutableStateOf(true) }
 
-    LaunchedEffect(userSession.fullName, userSession.email, userSession.mobile) {
-        fullName = userSession.fullName
-        email = userSession.email
-        mobile = userSession.mobile
+    LaunchedEffect(userSession.fullName, userSession.email, userSession.mobile, isGuest) {
+        fullName = if (isGuest && userSession.fullName.isEmpty()) "Guest User" else userSession.fullName
+        email = if (isGuest && userSession.email.isEmpty()) "guest@rewardclub.com" else userSession.email
+        mobile = if (isGuest && userSession.mobile.isEmpty()) "Not Linked" else userSession.mobile
     }
 
     // Accordion state
@@ -48,6 +49,17 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
     var deleteDropdownExpanded by remember { mutableStateOf(false) }
     var selectedDeleteReason by remember { mutableStateOf("") }
     var otherReason by remember { mutableStateOf("") }
+
+    // Feedback dialog state
+    var showFeedbackDialog by remember { mutableStateOf(false) }
+    var feedbackType by remember { mutableStateOf("General Feedback") }
+    var feedbackMessage by remember { mutableStateOf("") }
+    var feedbackRating by remember { mutableStateOf(5) }
+
+    // Activity dialog states
+    var showOrderHistory by remember { mutableStateOf(false) }
+    var showRedemptionHistory by remember { mutableStateOf(false) }
+    var showReferEarn by remember { mutableStateOf(false) }
 
     val deleteReasons = listOf(
         "I no longer use the app",
@@ -275,7 +287,7 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
                     iconTint = Color(0xFF1565C0),
                     title = "Order History",
                     subtitle = "Track your coin orders",
-                    onClick = { Toast.makeText(context, "Coming soon!", Toast.LENGTH_SHORT).show() }
+                    onClick = { showOrderHistory = true }
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF5F5F5))
                 QuickMenuRow(
@@ -284,7 +296,7 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
                     iconTint = Color(0xFFF57C00),
                     title = "Redemption History",
                     subtitle = "See all redeemed coins",
-                    onClick = { Toast.makeText(context, "Coming soon!", Toast.LENGTH_SHORT).show() }
+                    onClick = { showRedemptionHistory = true }
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF5F5F5))
                 QuickMenuRow(
@@ -293,7 +305,7 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
                     iconTint = DarkGreen,
                     title = "Refer & Earn",
                     subtitle = "Invite friends and earn bonus coins",
-                    onClick = { Toast.makeText(context, "Referral code: RC2024", Toast.LENGTH_SHORT).show() }
+                    onClick = { showReferEarn = true }
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF5F5F5))
                 QuickMenuRow(
@@ -301,9 +313,9 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
                     iconBg = Color(0xFFF3E5F5),
                     iconTint = Color(0xFF7B1FA2),
                     title = "Contact Us",
-                    subtitle = "Email · Call · Chat support",
+                    subtitle = "Feedback & support form",
                     onClick = {
-                        Toast.makeText(context, "📧 rewardclub.team@gmail.com\n📞 1800-XXX-XXXX", Toast.LENGTH_LONG).show()
+                        showFeedbackDialog = true
                     }
                 )
             }
@@ -385,7 +397,38 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
 
                 if (selectedDeleteReason.isNotEmpty()) {
                     OutlinedButton(
-                        onClick = { Toast.makeText(context, "Deletion request submitted. Our team will contact you within 48 hours.", Toast.LENGTH_LONG).show() },
+                        onClick = {
+                            val reasonText = if (selectedDeleteReason == "Others") otherReason else selectedDeleteReason
+                            val mailIntent = android.content.Intent(android.content.Intent.ACTION_SENDTO).apply {
+                                data = android.net.Uri.parse("mailto:")
+                                putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf("rewardclub.team@gmail.com"))
+                                putExtra(android.content.Intent.EXTRA_SUBJECT, "Account Deletion Request - $fullName")
+                                val body = """
+                                    Hello Reward Club Team,
+
+                                    I would like to request the permanent deletion of my account.
+
+                                    User Details:
+                                    - Name: $fullName
+                                    - Email: $email
+                                    - Mobile: $mobile
+                                    - Reason: $reasonText
+                                    - User ID: ${userSession.currentUser?.uid ?: "Guest / Local User"}
+
+                                    Please process this request.
+
+                                    Regards,
+                                    $fullName
+                                """.trimIndent()
+                                putExtra(android.content.Intent.EXTRA_TEXT, body)
+                            }
+                            try {
+                                context.startActivity(mailIntent)
+                                Toast.makeText(context, "Redirecting to email client...", Toast.LENGTH_SHORT).show()
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "No email client app found.", Toast.LENGTH_SHORT).show()
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth().height(48.dp),
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.5.dp, Color(0xFFD32F2F)),
@@ -447,6 +490,557 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
             Icon(Icons.Default.Logout, contentDescription = null, modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(10.dp))
             Text("Sign Out", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        }
+
+
+        if (showFeedbackDialog) {
+            androidx.compose.ui.window.Dialog(
+                onDismissRequest = { showFeedbackDialog = false }
+            ) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .wrapContentHeight(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        // Premium Header with Gradient Background
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    Brush.horizontalGradient(
+                                        colors = listOf(Color(0xFF1B5E20), Color(0xFF388E3C))
+                                    )
+                                )
+                                .padding(horizontal = 20.dp, vertical = 16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text(
+                                        text = "Contact Support",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "We're here to help you",
+                                        color = Color.White.copy(alpha = 0.8f),
+                                        fontSize = 11.sp
+                                    )
+                                }
+                                IconButton(
+                                    onClick = { showFeedbackDialog = false },
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .background(Color.White.copy(alpha = 0.2f), CircleShape)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Close dialog",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        // Scrollable Content to handle keyboard beautifully (Responsive)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState())
+                                .padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Text(
+                                text = "Submit a query or report an issue. Our support team will get back to you shortly.",
+                                fontSize = 12.sp,
+                                color = Color.Gray,
+                                lineHeight = 16.sp
+                            )
+
+                            // 1. Query Type Dropdown
+                            var expandedType by remember { mutableStateOf(false) }
+                            val types = listOf("General Feedback", "Bug Report", "Reward Queries", "Other Support")
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(
+                                    text = "Query Type",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextDark
+                                )
+                                ExposedDropdownMenuBox(
+                                    expanded = expandedType,
+                                    onExpandedChange = { expandedType = !expandedType }
+                                ) {
+                                    OutlinedTextField(
+                                        value = feedbackType,
+                                        onValueChange = {},
+                                        readOnly = true,
+                                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedType) },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .menuAnchor(),
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedBorderColor = DarkGreen,
+                                            unfocusedBorderColor = Color(0xFFE0E0E0),
+                                            focusedContainerColor = Color(0xFFFAFAFA),
+                                            unfocusedContainerColor = Color(0xFFFAFAFA)
+                                        )
+                                    )
+                                    ExposedDropdownMenu(
+                                        expanded = expandedType,
+                                        onDismissRequest = { expandedType = false }
+                                    ) {
+                                        types.forEach { type ->
+                                            DropdownMenuItem(
+                                                text = { Text(type, fontSize = 14.sp) },
+                                                onClick = { feedbackType = type; expandedType = false }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            // 2. Rating Selector (Responsive Emojis)
+                            val ratingLabels = listOf("Terrible", "Bad", "Okay", "Good", "Awesome!")
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(
+                                    text = "Rate your experience",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextDark
+                                )
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(Color(0xFFF9F9F9), RoundedCornerShape(12.dp))
+                                        .padding(vertical = 10.dp, horizontal = 12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    listOf("😠", "🙁", "😐", "🙂", "😄").forEachIndexed { index, emoji ->
+                                        val ratingVal = index + 1
+                                        val isSelected = feedbackRating == ratingVal
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier
+                                                .clickable { feedbackRating = ratingVal }
+                                                .padding(4.dp)
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(40.dp)
+                                                    .background(
+                                                        if (isSelected) DarkGreen.copy(alpha = 0.15f) else Color.Transparent,
+                                                        CircleShape
+                                                    )
+                                                    .border(
+                                                        1.5.dp,
+                                                        if (isSelected) DarkGreen else Color.Transparent,
+                                                        CircleShape
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(emoji, fontSize = 22.sp)
+                                            }
+                                        }
+                                    }
+                                }
+                                Text(
+                                    text = "Selected: ${ratingLabels[feedbackRating - 1]}",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = DarkGreen,
+                                    modifier = Modifier.align(Alignment.End)
+                                )
+                            }
+
+                            // 3. Message Input Field
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(
+                                    text = "Your Message / Query",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextDark
+                                )
+                                OutlinedTextField(
+                                    value = feedbackMessage,
+                                    onValueChange = { feedbackMessage = it },
+                                    placeholder = { Text("Write details of your support query here...", fontSize = 12.sp, color = Color.LightGray) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(120.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = DarkGreen,
+                                        unfocusedBorderColor = Color(0xFFE0E0E0),
+                                        cursorColor = DarkGreen
+                                    )
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            // Action Buttons
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                OutlinedButton(
+                                    onClick = { showFeedbackDialog = false },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(48.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    border = BorderStroke(1.dp, Color.Gray.copy(alpha = 0.5f)),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Gray)
+                                ) {
+                                    Text("Cancel", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                }
+
+                                Button(
+                                    onClick = {
+                                        if (feedbackMessage.isBlank()) {
+                                            Toast.makeText(context, "Please write a message before submitting.", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast.makeText(context, "Support request submitted! We will contact you soon.", Toast.LENGTH_LONG).show()
+                                            showFeedbackDialog = false
+                                            feedbackMessage = ""
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .weight(1.5f)
+                                        .height(48.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = DarkGreen)
+                                ) {
+                                    Text("Submit Query", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 1. Order/Earnings History Dialog
+        if (showOrderHistory) {
+            androidx.compose.ui.window.Dialog(
+                onDismissRequest = { showOrderHistory = false }
+            ) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .heightIn(max = 500.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        // Header
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    Brush.horizontalGradient(
+                                        colors = listOf(Color(0xFF1565C0), Color(0xFF1E88E5))
+                                    )
+                                )
+                                .padding(horizontal = 20.dp, vertical = 16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text("Activation History", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                    Text("Track your affiliate earnings", color = Color.White.copy(alpha = 0.8f), fontSize = 11.sp)
+                                }
+                                IconButton(
+                                    onClick = { showOrderHistory = false },
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .background(Color.White.copy(alpha = 0.2f), CircleShape)
+                                ) {
+                                    Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White, modifier = Modifier.size(16.dp))
+                                }
+                            }
+                        }
+
+                        // List content
+                        val orders = listOf(
+                            Triple("PolicyBazaar", "Vehicle Insurance (Up to 25% Earning)", "Pending Validation • 12 Aug 2026"),
+                            Triple("Amazon India", "Electronics Deal (8% Earning)", "Approved • 10 Aug 2026"),
+                            Triple("Flipkart", "Fashion Order (10% Earning)", "Approved • 05 Aug 2026")
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState())
+                                .padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            orders.forEach { (brand, reward, statusInfo) ->
+                                val isApproved = statusInfo.startsWith("Approved")
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(Color(0xFFF9F9F9), RoundedCornerShape(14.dp))
+                                        .border(1.dp, Color(0xFFF0F0F0), RoundedCornerShape(14.dp))
+                                        .padding(16.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(brand, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextDark)
+                                        Text(reward, fontSize = 12.sp, color = DarkGreen, fontWeight = FontWeight.Medium)
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(statusInfo, fontSize = 11.sp, color = Color.Gray)
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .background(
+                                                if (isApproved) Color(0xFFE8F5E9) else Color(0xFFFFF3E0),
+                                                RoundedCornerShape(8.dp)
+                                            )
+                                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    ) {
+                                        Text(
+                                            text = if (isApproved) "Approved" else "Pending",
+                                            color = if (isApproved) Color(0xFF2E7D32) else Color(0xFFE65100),
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. Redemption History Dialog
+        if (showRedemptionHistory) {
+            androidx.compose.ui.window.Dialog(
+                onDismissRequest = { showRedemptionHistory = false }
+            ) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .heightIn(max = 500.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        // Header
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    Brush.horizontalGradient(
+                                        colors = listOf(Color(0xFFF57C00), Color(0xFFFF9800))
+                                    )
+                                )
+                                .padding(horizontal = 20.dp, vertical = 16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text("Redemption History", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                    Text("List of claimed cash & vouchers", color = Color.White.copy(alpha = 0.8f), fontSize = 11.sp)
+                                }
+                                IconButton(
+                                    onClick = { showRedemptionHistory = false },
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .background(Color.White.copy(alpha = 0.2f), CircleShape)
+                                ) {
+                                    Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White, modifier = Modifier.size(16.dp))
+                                }
+                            }
+                        }
+
+                        // List content
+                        val redemptions = listOf(
+                            Triple("Amazon Voucher", "₹500 Gift Voucher", "Success • Code: AMZN-500-RC9A"),
+                            Triple("UPI Cash Out", "₹100 Transferred", "Success • ID: paytm@upi"),
+                            Triple("Google Play Code", "₹250 Play Store Card", "Success • Code: GPY-250-8B92")
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState())
+                                .padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            redemptions.forEach { (type, reward, detail) ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(Color(0xFFF9F9F9), RoundedCornerShape(14.dp))
+                                        .border(1.dp, Color(0xFFF0F0F0), RoundedCornerShape(14.dp))
+                                        .padding(16.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(type, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextDark)
+                                        Text(reward, fontSize = 12.sp, color = DarkGreen, fontWeight = FontWeight.Medium)
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(detail, fontSize = 11.sp, color = Color.Gray)
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .background(Color(0xFFE8F5E9), RoundedCornerShape(8.dp))
+                                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    ) {
+                                        Text(
+                                            text = "Success",
+                                            color = Color(0xFF2E7D32),
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. Refer & Earn Dialog
+        if (showReferEarn) {
+            androidx.compose.ui.window.Dialog(
+                onDismissRequest = { showReferEarn = false }
+            ) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .wrapContentHeight(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        // Header
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    Brush.horizontalGradient(
+                                        colors = listOf(Color(0xFF2E7D32), Color(0xFF4CAF50))
+                                    )
+                                )
+                                .padding(horizontal = 20.dp, vertical = 16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text("Refer & Earn", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                    Text("Earn 10% of what your friends earn!", color = Color.White.copy(alpha = 0.8f), fontSize = 11.sp)
+                                }
+                                IconButton(
+                                    onClick = { showReferEarn = false },
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .background(Color.White.copy(alpha = 0.2f), CircleShape)
+                                ) {
+                                    Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White, modifier = Modifier.size(16.dp))
+                                }
+                            }
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState())
+                                .padding(20.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Text(
+                                text = "Invite friends to Reward Club and get a 10% lifetime bonus on all their affiliate and cashback earnings!",
+                                fontSize = 13.sp,
+                                color = Color.DarkGray,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 18.sp
+                            )
+
+                            // Dash Border referral code box
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color(0xFFE8F5E9), RoundedCornerShape(12.dp))
+                                    .border(1.5.dp, DarkGreen, RoundedCornerShape(12.dp))
+                                    .padding(vertical = 14.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text("YOUR REFERRAL CODE", fontSize = 10.sp, color = Color.Gray, fontWeight = FontWeight.Bold)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text("RC2026", fontSize = 24.sp, color = DarkGreen, fontWeight = FontWeight.ExtraBold, letterSpacing = 2.sp)
+                                }
+                            }
+
+                            // How it works timeline
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text("How it works:", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextDark)
+                                listOf(
+                                    "📲 Share your referral code with your friends",
+                                    "🆕 Your friends register on Reward Club using your code",
+                                    "💸 You earn a 10% cash bonus every time they make successful deals!"
+                                ).forEach { step ->
+                                    Text(step, fontSize = 12.sp, color = Color.Gray)
+                                }
+                            }
+
+                            // Share button
+                            Button(
+                                onClick = {
+                                    Toast.makeText(context, "Referral link copied to clipboard!", Toast.LENGTH_SHORT).show()
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = DarkGreen)
+                            ) {
+                                Text("Copy & Share Code", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(28.dp))

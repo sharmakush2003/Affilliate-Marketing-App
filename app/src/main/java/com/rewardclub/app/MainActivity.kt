@@ -57,6 +57,8 @@ import androidx.compose.ui.unit.sp
 import com.rewardclub.app.ui.screens.*
 import com.rewardclub.app.ui.theme.*
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.window.Dialog
 
 sealed class Screen {
     object Home : Screen()
@@ -70,6 +72,10 @@ sealed class Screen {
     object AccountDetails : Screen()
     object AboutCompany : Screen()
     object Profile : Screen()
+    object Brands : Screen()
+    object CreditCards : Screen()
+    object Loans : Screen()
+    object Insurance : Screen()
 }
 
 class MainActivity : ComponentActivity() {
@@ -325,103 +331,388 @@ fun AppMainContainer() {
 
 
     val userSession = com.rewardclub.app.utils.UserSession
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            val isLoggedIn = userSession.currentUser != null
-            DrawerContent(
-                userName = if (isLoggedIn) userSession.fullName.ifEmpty { "User" } else "Join Reward Club",
-                userPhone = if (isLoggedIn) userSession.mobile.ifEmpty { userSession.email } else "Tap to Sign In",
-                walletCoins = if (isLoggedIn) userSession.totalCoins.toString() else "0",
-                onItemClick = { itemTitle ->
-                    scope.launch { drawerState.close() }
-                    when (itemTitle) {
-                        "Header" -> {
-                            if (isLoggedIn) navigateTo(Screen.AccountDetails) else navigateTo(Screen.Login)
+    val currentUser = userSession.currentUser
+    val isSessionChecked = userSession.isSessionChecked
+    var showLoginRequiredDialog by remember { mutableStateOf(false) }
+    var showGuestDisclaimerDialog by remember { mutableStateOf(false) }
+    var pendingGuestAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+
+    if (showGuestDisclaimerDialog) {
+        Dialog(
+            onDismissRequest = {
+                showGuestDisclaimerDialog = false
+                pendingGuestAction = null
+            }
+        ) {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                shape = RoundedCornerShape(24.dp),
+                border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.4f)),
+                elevation = CardDefaults.cardElevation(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Premium Emoji Badge
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .background(Color(0xFFFFF3E0), CircleShape)
+                            .border(1.5.dp, Color(0xFFFF9900).copy(alpha = 0.3f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "🛍️", fontSize = 32.sp)
+                    }
+
+                    // Title
+                    Text(
+                        text = "Shopping as Guest",
+                        fontWeight = FontWeight.Black,
+                        fontSize = 20.sp,
+                        color = TextDark,
+                        textAlign = TextAlign.Center
+                    )
+
+                    // Description text
+                    Text(
+                        text = "You can shop through this link, but you will not earn any Reward Coins on your transaction. Sign in now to get cashback coins! 🪙",
+                        fontSize = 14.sp,
+                        color = TextGray,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 20.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Buttons (Centered & Stacked for clean styling and responsiveness)
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        // 1. Primary "Proceed to Shop" button
+                        Button(
+                            onClick = {
+                                showGuestDisclaimerDialog = false
+                                pendingGuestAction?.invoke()
+                                pendingGuestAction = null
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                        ) {
+                            Text("Proceed to Shop 🚀", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         }
-                        "Account Details" -> {
-                            if (isLoggedIn) navigateTo(Screen.AccountDetails) else navigateTo(Screen.Login)
+
+                        // 2. Secondary "Sign In to Earn" outlined button
+                        OutlinedButton(
+                            onClick = {
+                                showGuestDisclaimerDialog = false
+                                pendingGuestAction = null
+                                userSession.isGuest = false
+                            },
+                            border = BorderStroke(1.5.dp, DarkGreen),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = DarkGreen),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                        ) {
+                            Text("Sign In to Earn 🪙", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         }
-                        "Order History" -> {
-                            if (isLoggedIn) navigateTo(Screen.Products) else navigateTo(Screen.Login)
-                        }
-                        "About Company" -> {
-                            navigateTo(Screen.AboutCompany)
-                        }
-                        "Help & Support" -> {
-                            navigateTo(Screen.HelpSupport)
+
+                        // 3. Cancel button
+                        TextButton(
+                            onClick = {
+                                showGuestDisclaimerDialog = false
+                                pendingGuestAction = null
+                            }
+                        ) {
+                            Text("Cancel", color = TextGray, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                         }
                     }
                 }
-            )
+            }
         }
-    ) {
-        Scaffold(
-            bottomBar = {
-                if (currentScreen is Screen.Home || currentScreen is Screen.Profile) {
-                    BottomNavigationBar(
-                        currentScreen = currentScreen,
-                        onTabSelected = { screen ->
-                            navigateTo(screen)
-                        }
+    }
+
+    if (showLoginRequiredDialog) {
+        Dialog(
+            onDismissRequest = { showLoginRequiredDialog = false }
+        ) {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                shape = RoundedCornerShape(24.dp),
+                border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.4f)),
+                elevation = CardDefaults.cardElevation(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Premium Lock Emoji Badge
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .background(Color(0xFFE8F5E9), CircleShape)
+                            .border(1.5.dp, DarkGreen.copy(alpha = 0.3f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "🔒", fontSize = 32.sp)
+                    }
+
+                    // Title
+                    Text(
+                        text = "Sign In Required",
+                        fontWeight = FontWeight.Black,
+                        fontSize = 20.sp,
+                        color = TextDark,
+                        textAlign = TextAlign.Center
                     )
+
+                    // Description text
+                    Text(
+                        text = "Please sign in or create an account to start earning coins, viewing coupons, and ordering products. 🪙",
+                        fontSize = 14.sp,
+                        color = TextGray,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 20.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Buttons
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                showLoginRequiredDialog = false
+                                userSession.isGuest = false
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                        ) {
+                            Text("Sign In Now 🔑", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        }
+
+                        TextButton(
+                            onClick = { showLoginRequiredDialog = false }
+                        ) {
+                            Text("Cancel", color = TextGray, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                        }
+                    }
                 }
             }
-        ) { paddingValues ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
+        }
+    }
+
+    if (!isSessionChecked) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(Color(0xFFE8F5E9), Color(0xFFFFFFFF))
+                    )
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                when (currentScreen) {
-                    is Screen.Home -> HomeScreen(
-                        onHamburgerClick = { scope.launch { drawerState.open() } },
-                        onJoinClick = { navigateTo(Screen.Login) },
-                        onBrandClick = { brand -> navigateTo(Screen.EarnCoins(brand)) },
-                        onCategoryClick = { category ->
-                            when (category) {
-                                "Products" -> navigateTo(Screen.Products)
-                                "Vouchers" -> navigateTo(Screen.Vouchers)
-                                "Utilities" -> navigateTo(Screen.Products)
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .background(Color.White, CircleShape)
+                        .border(1.5.dp, DarkGreen, CircleShape)
+                        .shadow(8.dp, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "RC",
+                        fontSize = 36.sp,
+                        fontWeight = FontWeight.Black,
+                        color = DarkGreen
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Reward Club",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextDark
+                )
+                Text(
+                    text = "Loading your session...",
+                    fontSize = 14.sp,
+                    color = TextGray
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                CircularProgressIndicator(
+                    color = DarkGreen,
+                    strokeWidth = 3.dp,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+        }
+    } else if (currentUser == null && !userSession.isGuest) {
+        LoginScreen(
+            onLoginSuccess = {
+                // currentUser will automatically become non-null and trigger recomposition to main app
+            },
+            onBackClick = {
+                (context as? android.app.Activity)?.finish()
+            }
+        )
+    } else {
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                val isLoggedIn = !userSession.isGuest && currentUser != null
+                DrawerContent(
+                    userName = if (isLoggedIn) userSession.fullName.ifEmpty { "User" } else "Join Reward Club",
+                    userPhone = if (isLoggedIn) userSession.mobile.ifEmpty { userSession.email } else "Tap to Sign In",
+                    walletCoins = if (isLoggedIn) userSession.totalCoins.toString() else "0",
+                    onItemClick = { itemTitle ->
+                        scope.launch { drawerState.close() }
+                        if (!isLoggedIn && !userSession.isGuest && (itemTitle == "Header" || itemTitle == "Account Details" || itemTitle == "Order History")) {
+                            showLoginRequiredDialog = true
+                            return@DrawerContent
+                        } else if (userSession.isGuest && itemTitle == "Order History") {
+                            showLoginRequiredDialog = true
+                            return@DrawerContent
+                        }
+                        when (itemTitle) {
+                            "Header" -> navigateTo(Screen.AccountDetails)
+                            "Account Details" -> navigateTo(Screen.AccountDetails)
+                            "Order History" -> navigateTo(Screen.Products)
+                            "About Company" -> navigateTo(Screen.AboutCompany)
+                            "Help & Support" -> navigateTo(Screen.HelpSupport)
+                        }
+                    }
+                )
+            }
+        ) {
+            Scaffold(
+                bottomBar = {
+                    if (currentScreen is Screen.Home || currentScreen is Screen.Profile) {
+                        BottomNavigationBar(
+                            currentScreen = currentScreen,
+                            onTabSelected = { screen ->
+                                navigateTo(screen)
                             }
-                        },
-                        onViewAllCouponsClick = { navigateTo(Screen.Coupons) },
-                        onCouponClick = { coupon -> navigateTo(Screen.CouponDetail(coupon)) }
-                    )
-                    is Screen.EarnCoins -> EarnCoinsScreen(
-                        brandName = currentScreen.brandName,
-                        onBackClick = { navigateBack() }
-                    )
-                    is Screen.Products -> ProductsScreen(
-                        onBackClick = { navigateBack() }
-                    )
-                    is Screen.Vouchers -> VouchersScreen(
-                        onBackClick = { navigateBack() }
-                    )
-                    is Screen.Coupons -> CouponsScreen(
-                        onBackClick = { navigateBack() },
-                        onCouponClick = { coupon -> navigateTo(Screen.CouponDetail(coupon)) }
-                    )
-                    is Screen.CouponDetail -> CouponDetailScreen(
-                        couponName = currentScreen.couponName,
-                        onBackClick = { navigateBack() }
-                    )
-                    is Screen.HelpSupport -> HelpSupportScreen(
-                        onBackClick = { navigateBack() }
-                    )
-                    is Screen.Login -> LoginScreen(
-                        onLoginSuccess = { navigateBack() },
-                        onBackClick = { navigateBack() }
-                    )
-                    is Screen.AccountDetails -> AccountDetailsScreen(
-                        onBackClick = { navigateBack() }
-                    )
-                    is Screen.AboutCompany -> AboutCompanyScreen(
-                        onBackClick = { navigateBack() }
-                    )
-                    is Screen.Profile -> AccountDetailsScreen(
-                        onBackClick = { navigateTo(Screen.Home) }
-                    )
+                        )
+                    }
+                }
+            ) { paddingValues ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    val isGuest = userSession.isGuest
+                    fun runIfAuthenticated(action: () -> Unit) {
+                        if (isGuest) {
+                            pendingGuestAction = action
+                            showGuestDisclaimerDialog = true
+                        } else {
+                            action()
+                        }
+                    }
+
+                    when (currentScreen) {
+                        is Screen.Home -> HomeScreen(
+                            onHamburgerClick = { scope.launch { drawerState.open() } },
+                            onJoinClick = { userSession.isGuest = false },
+                            onBrandClick = { brand -> runIfAuthenticated { navigateTo(Screen.EarnCoins(brand)) } },
+                            onCategoryClick = { category ->
+                                runIfAuthenticated {
+                                    when (category) {
+                                        "Products" -> navigateTo(Screen.Products)
+                                        "Vouchers" -> navigateTo(Screen.Vouchers)
+                                        "Utilities" -> navigateTo(Screen.Products)
+                                    }
+                                }
+                            },
+                            onViewAllCouponsClick = { runIfAuthenticated { navigateTo(Screen.Coupons) } },
+                            onCouponClick = { coupon -> runIfAuthenticated { navigateTo(Screen.CouponDetail(coupon)) } },
+                            onViewAllBrandsClick = { navigateTo(Screen.Brands) },
+                            onViewAllCardsClick = { navigateTo(Screen.CreditCards) },
+                            onViewAllLoansClick = { navigateTo(Screen.Loans) },
+                            onViewAllInsuranceClick = { navigateTo(Screen.Insurance) }
+                        )
+                        is Screen.Brands -> BrandsScreen(
+                            onBackClick = { navigateBack() },
+                            onBrandClick = { brand -> runIfAuthenticated { navigateTo(Screen.EarnCoins(brand)) } }
+                        )
+                        is Screen.CreditCards -> CreditCardsScreen(
+                            onBackClick = { navigateBack() },
+                            onCardClick = { card -> runIfAuthenticated { navigateTo(Screen.EarnCoins(card)) } }
+                        )
+                        is Screen.Loans -> LoansScreen(
+                            onBackClick = { navigateBack() },
+                            onLoanClick = { loan -> runIfAuthenticated { navigateTo(Screen.EarnCoins(loan)) } }
+                        )
+                        is Screen.Insurance -> InsuranceScreen(
+                            onBackClick = { navigateBack() },
+                            onInsuranceClick = { insurance -> runIfAuthenticated { navigateTo(Screen.EarnCoins(insurance)) } }
+                        )
+                        is Screen.EarnCoins -> EarnCoinsScreen(
+                            brandName = currentScreen.brandName,
+                            onBackClick = { navigateBack() }
+                        )
+                        is Screen.Products -> ProductsScreen(
+                            onBackClick = { navigateBack() }
+                        )
+                        is Screen.Vouchers -> VouchersScreen(
+                            onBackClick = { navigateBack() }
+                        )
+                        is Screen.Coupons -> CouponsScreen(
+                            onBackClick = { navigateBack() },
+                            onCouponClick = { coupon -> navigateTo(Screen.CouponDetail(coupon)) }
+                        )
+                        is Screen.CouponDetail -> CouponDetailScreen(
+                            couponName = currentScreen.couponName,
+                            onBackClick = { navigateBack() }
+                        )
+                        is Screen.HelpSupport -> HelpSupportScreen(
+                            onBackClick = { navigateBack() }
+                        )
+                        is Screen.Login -> {
+                            // No-op - login handled outside this container
+                        }
+                        is Screen.AccountDetails -> AccountDetailsScreen(
+                            onBackClick = { navigateBack() }
+                        )
+                        is Screen.AboutCompany -> AboutCompanyScreen(
+                            onBackClick = { navigateBack() }
+                        )
+                        is Screen.Profile -> AccountDetailsScreen(
+                            onBackClick = { navigateTo(Screen.Home) }
+                        )
+                    }
                 }
             }
         }
@@ -437,9 +728,7 @@ fun BottomNavigationBar(
         HorizontalDivider(color = BorderColor, thickness = 0.8.dp)
         NavigationBar(
             containerColor = Color.White,
-            tonalElevation = 0.dp,
-            modifier = Modifier.height(57.dp),
-            windowInsets = WindowInsets(0.dp)
+            tonalElevation = 0.dp
         ) {
             NavigationBarItem(
                 selected = currentScreen is Screen.Home,

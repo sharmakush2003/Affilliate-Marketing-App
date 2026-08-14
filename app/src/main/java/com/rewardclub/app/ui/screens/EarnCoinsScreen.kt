@@ -166,7 +166,7 @@ fun EarnCoinsScreen(
                                 "Flipkart" -> "https://www.flipkart.com"
                                 "Myntra" -> "https://www.myntra.com"
                                 "HP Pay" -> "https://www.hppay.in"
-                                "Car Insurance" -> "https://www.policybazaar.com/motor-insurance/car-insurance/"
+                                "Vehicle Insurance" -> "https://www.policybazaar.com/motor-insurance/car-insurance/"
                                 "Health Insurance" -> "https://www.policybazaar.com/health-insurance/"
                                 "Term Life Insurance" -> "https://www.policybazaar.com/life-insurance/term-insurance/"
                                 "HDFC ERGO Insurance" -> "https://www.hdfcergo.com"
@@ -248,7 +248,7 @@ fun EarnCoinsScreen(
                         "Flipkart" -> R.drawable.flipkart_logo
                         "HP Pay" -> R.drawable.hp_pay_logo
                         "Myntra" -> R.drawable.myntra_logo
-                        "Car Insurance" -> R.drawable.car_insurance_icon
+                        "Vehicle Insurance" -> R.drawable.car_insurance_icon
                         "Health Insurance" -> R.drawable.health_insurance_icon
                         "Term Life Insurance" -> R.drawable.term_life_insurance_icon
                         "HDFC ERGO Insurance" -> R.drawable.hdfc_ergo_icon
@@ -267,10 +267,10 @@ fun EarnCoinsScreen(
                         "Flipkart" -> "Earn Upto 200 Coins per transaction on Flipkart orders"
                         "Myntra" -> "Earn Upto 10 Coins per ₹100 on Myntra lifestyle orders"
                         "HP Pay" -> "Earn Upto 10 Coins per ₹100 on HP Pay digital fuel payments"
-                        "Car Insurance" -> "Earn Upto 2,000 Coins on verified policy issuance"
-                        "Health Insurance" -> "Earn Upto 5,000 Coins on verified policy issuance"
-                        "Term Life Insurance" -> "Earn Upto 8,000 Coins on verified policy issuance"
-                        "HDFC ERGO Insurance" -> "Earn Upto 6,000 Coins on verified policy issuance"
+                        "Vehicle Insurance" -> "Earn up to 25% reward on verified policy issuance"
+                        "Health Insurance" -> "Earn up to 25% reward on verified policy issuance"
+                        "Term Life Insurance" -> "Earn up to 25% reward on verified policy issuance"
+                        "HDFC ERGO Insurance" -> "Earn up to 25% reward on verified policy issuance"
                         "Personal Loan" -> "Earn Upto 10,000 Coins on verified loan disbursement"
                         "Home Loan" -> "Earn Upto 25,000 Coins on verified loan disbursement"
                         "Car Loan" -> "Earn Upto 15,000 Coins on verified loan disbursement"

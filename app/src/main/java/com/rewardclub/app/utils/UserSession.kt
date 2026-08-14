@@ -29,6 +29,11 @@ object UserSession {
     var currentUser by mutableStateOf<MockUser?>(null)
         private set
 
+    var isSessionChecked by mutableStateOf(false)
+        private set
+
+    var isGuest by mutableStateOf(false)
+
     var totalCoins by mutableStateOf(100L) // Default demo balance
     var redeemedCoins by mutableStateOf(50L)
     var totalSavings by mutableStateOf(150L)
@@ -43,23 +48,32 @@ object UserSession {
     // Listen to session changes
     suspend fun listenToSession() {
         Supabase.client.auth.sessionStatus.collectLatest { status ->
-            if (status is SessionStatus.Authenticated) {
-                val session = status.session
-                val user = session.user
-                if (user != null) {
-                    val cleanEmail = user.email ?: ""
-                    val defaultName = cleanEmail.split("@").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: "User"
-                    currentUser = MockUser(
-                        uid = user.id,
-                        email = cleanEmail,
-                        displayName = defaultName
-                    )
-                    email = cleanEmail
-                    fullName = defaultName
-                    fetchProfileAndStats(user.id)
+            when (status) {
+                is SessionStatus.Authenticated -> {
+                    val session = status.session
+                    val user = session.user
+                    if (user != null) {
+                        val cleanEmail = user.email ?: ""
+                        val defaultName = cleanEmail.split("@").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: "User"
+                        currentUser = MockUser(
+                            uid = user.id,
+                            email = cleanEmail,
+                            displayName = defaultName
+                        )
+                        email = cleanEmail
+                        fullName = defaultName
+                        isGuest = false
+                        fetchProfileAndStats(user.id)
+                    }
+                    isSessionChecked = true
                 }
-            } else {
-                clearSession()
+                is SessionStatus.NotAuthenticated -> {
+                    clearSession()
+                    isSessionChecked = true
+                }
+                else -> {
+                    // e.g. SessionStatus.Loading or SessionStatus.NetworkError
+                }
             }
         }
     }
@@ -114,6 +128,7 @@ object UserSession {
                 e.printStackTrace()
             }
         }
+        isGuest = false
         clearSession()
     }
 
