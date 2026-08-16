@@ -112,7 +112,7 @@ object OtpApiClient {
                 404 -> VerifyResult(success = false, verified = false, message = "OTP not found. Please request a new OTP.")
                 else -> {
                     val msg = json?.optString("error") ?: "Verification failed. Please try again."
-                    VerifyResult(success = false, verified = false, message = msg)
+            VerifyResult(success = false, verified = false, message = msg)
                 }
             }
         } catch (e: Exception) {
@@ -122,4 +122,62 @@ object OtpApiClient {
             VerifyResult(success = false, verified = false, message = "Network error. Please check your connection.")
         }
     }
+
+    /**
+     * Sends a POST to /api/send-support-email on the backend.
+     * Tells the server to send a support request email in the background.
+     */
+    suspend fun sendSupportEmail(
+        name: String,
+        email: String,
+        mobile: String,
+        userId: String,
+        feedbackType: String,
+        rating: Int,
+        message: String
+    ): OtpResult = withContext(Dispatchers.IO) {
+        return@withContext try {
+            val url = URL("$SERVER_URL/api/send-support-email")
+            val conn = url.openConnection() as HttpURLConnection
+            conn.requestMethod = "POST"
+            conn.setRequestProperty("Content-Type", "application/json; charset=utf-8")
+            conn.setRequestProperty("X-Api-Secret", API_SECRET)
+            conn.doOutput = true
+            conn.connectTimeout = 10_000
+            conn.readTimeout = 10_000
+
+            val body = JSONObject().apply {
+                put("name", name)
+                put("email", email)
+                put("mobile", mobile)
+                put("userId", userId)
+                put("feedbackType", feedbackType)
+                put("rating", rating)
+                put("message", message)
+            }.toString()
+            OutputStreamWriter(conn.outputStream, "UTF-8").use { it.write(body) }
+
+            val code = conn.responseCode
+            val responseBody = if (code in 200..299) {
+                conn.inputStream.bufferedReader().readText()
+            } else {
+                conn.errorStream?.bufferedReader()?.readText() ?: ""
+            }
+            conn.disconnect()
+
+            if (code == 200) {
+                OtpResult(success = true, message = "Support request submitted successfully.")
+            } else {
+                val msg = runCatching { JSONObject(responseBody).getString("error") }
+                    .getOrDefault("Failed to submit support request. Please try again.")
+                OtpResult(success = false, message = msg)
+            }
+        } catch (e: Exception) {
+            if (com.rewardclub.app.BuildConfig.DEBUG) {
+                Log.e("OtpApiClient", "sendSupportEmail failed: ${e.message}", e)
+            }
+            OtpResult(success = false, message = "Network error. Please check your connection.")
+        }
+    }
 }
+

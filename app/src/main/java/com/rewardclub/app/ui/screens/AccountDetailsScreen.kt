@@ -23,11 +23,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rewardclub.app.ui.theme.*
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import io.github.jan.supabase.postgrest.postgrest
+import com.rewardclub.app.utils.Supabase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountDetailsScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var isSendingFeedback by remember { mutableStateOf(false) }
 
     val userSession = com.rewardclub.app.utils.UserSession
     // Form state
@@ -45,10 +51,6 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
 
     // Accordion state
     var settingsExpanded by remember { mutableStateOf(false) }
-    var deleteExpanded by remember { mutableStateOf(false) }
-    var deleteDropdownExpanded by remember { mutableStateOf(false) }
-    var selectedDeleteReason by remember { mutableStateOf("") }
-    var otherReason by remember { mutableStateOf("") }
 
     // Feedback dialog state
     var showFeedbackDialog by remember { mutableStateOf(false) }
@@ -60,15 +62,6 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
     var showOrderHistory by remember { mutableStateOf(false) }
     var showRedemptionHistory by remember { mutableStateOf(false) }
     var showReferEarn by remember { mutableStateOf(false) }
-
-    val deleteReasons = listOf(
-        "I no longer use the app",
-        "I have a duplicate account",
-        "I have privacy concerns",
-        "The app is not useful for me",
-        "I am not satisfied with the rewards",
-        "Others"
-    )
 
     Column(
         modifier = Modifier
@@ -321,127 +314,6 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // ── Delete Account Accordion ──────────────────────────────────────────
-        ProfileSectionCard(
-            icon = Icons.Default.DeleteForever,
-            iconBg = Color(0xFFFFEBEE),
-            iconTint = Color(0xFFD32F2F),
-            title = "Request Account Deletion",
-            subtitle = if (deleteExpanded) "Tap to close" else "Permanently remove your account & data",
-            expanded = deleteExpanded,
-            onToggle = { deleteExpanded = !deleteExpanded },
-            headerTextColor = Color(0xFFD32F2F)
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Text(
-                    "This is permanent. All your coins, order history and data will be deleted and cannot be recovered.",
-                    fontSize = 12.sp,
-                    color = Color(0xFF888888),
-                    lineHeight = 18.sp
-                )
-
-                ExposedDropdownMenuBox(
-                    expanded = deleteDropdownExpanded,
-                    onExpandedChange = { deleteDropdownExpanded = !deleteDropdownExpanded }
-                ) {
-                    OutlinedTextField(
-                        value = selectedDeleteReason.ifEmpty { "Select a reason..." },
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Reason for deletion") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = deleteDropdownExpanded) },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFFD32F2F),
-                            focusedLabelColor = Color(0xFFD32F2F),
-                            unfocusedTextColor = if (selectedDeleteReason.isEmpty()) Color.Gray else Color(0xFF1A1A1A)
-                        )
-                    )
-                    ExposedDropdownMenu(
-                        expanded = deleteDropdownExpanded,
-                        onDismissRequest = { deleteDropdownExpanded = false }
-                    ) {
-                        deleteReasons.forEach { reason ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        reason, fontSize = 14.sp,
-                                        color = if (reason == selectedDeleteReason) Color(0xFFD32F2F) else Color(0xFF1A1A1A),
-                                        fontWeight = if (reason == selectedDeleteReason) FontWeight.SemiBold else FontWeight.Normal
-                                    )
-                                },
-                                onClick = { selectedDeleteReason = reason; deleteDropdownExpanded = false }
-                            )
-                        }
-                    }
-                }
-
-                if (selectedDeleteReason == "Others") {
-                    OutlinedTextField(
-                        value = otherReason,
-                        onValueChange = { otherReason = it },
-                        label = { Text("Describe your reason") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        minLines = 3, maxLines = 5,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFFD32F2F),
-                            focusedLabelColor = Color(0xFFD32F2F),
-                            cursorColor = Color(0xFFD32F2F)
-                        )
-                    )
-                }
-
-                if (selectedDeleteReason.isNotEmpty()) {
-                    OutlinedButton(
-                        onClick = {
-                            val reasonText = if (selectedDeleteReason == "Others") otherReason else selectedDeleteReason
-                            val mailIntent = android.content.Intent(android.content.Intent.ACTION_SENDTO).apply {
-                                data = android.net.Uri.parse("mailto:")
-                                putExtra(android.content.Intent.EXTRA_EMAIL, arrayOf("rewardclub.team@gmail.com"))
-                                putExtra(android.content.Intent.EXTRA_SUBJECT, "Account Deletion Request - $fullName")
-                                val body = """
-                                    Hello Reward Club Team,
-
-                                    I would like to request the permanent deletion of my account.
-
-                                    User Details:
-                                    - Name: $fullName
-                                    - Email: $email
-                                    - Mobile: $mobile
-                                    - Reason: $reasonText
-                                    - User ID: ${userSession.currentUser?.uid ?: "Guest / Local User"}
-
-                                    Please process this request.
-
-                                    Regards,
-                                    $fullName
-                                """.trimIndent()
-                                putExtra(android.content.Intent.EXTRA_TEXT, body)
-                            }
-                            try {
-                                context.startActivity(mailIntent)
-                                Toast.makeText(context, "Redirecting to email client...", Toast.LENGTH_SHORT).show()
-                            } catch (e: Exception) {
-                                Toast.makeText(context, "No email client app found.", Toast.LENGTH_SHORT).show()
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.5.dp, Color(0xFFD32F2F)),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFD32F2F))
-                    ) {
-                        Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Submit Deletion Request", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                    }
-                }
-            }
-        }
-
         Spacer(modifier = Modifier.height(16.dp))
 
         // ── Save Changes ──────────────────────────────────────────────────────
@@ -626,8 +498,8 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .background(Color(0xFFF9F9F9), RoundedCornerShape(12.dp))
-                                        .padding(vertical = 10.dp, horizontal = 12.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                        .padding(vertical = 10.dp, horizontal = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceAround,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     listOf("😠", "🙁", "😐", "🙂", "😄").forEachIndexed { index, emoji ->
@@ -637,11 +509,11 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                             modifier = Modifier
                                                 .clickable { feedbackRating = ratingVal }
-                                                .padding(4.dp)
+                                                .padding(vertical = 4.dp, horizontal = 2.dp)
                                         ) {
                                             Box(
                                                 modifier = Modifier
-                                                    .size(40.dp)
+                                                    .size(38.dp)
                                                     .background(
                                                         if (isSelected) DarkGreen.copy(alpha = 0.15f) else Color.Transparent,
                                                         CircleShape
@@ -653,7 +525,7 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
                                                     ),
                                                 contentAlignment = Alignment.Center
                                             ) {
-                                                Text(emoji, fontSize = 22.sp)
+                                                Text(emoji, fontSize = 20.sp)
                                             }
                                         }
                                     }
@@ -715,18 +587,42 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
                                         if (feedbackMessage.isBlank()) {
                                             Toast.makeText(context, "Please write a message before submitting.", Toast.LENGTH_SHORT).show()
                                         } else {
-                                            Toast.makeText(context, "Support request submitted! We will contact you soon.", Toast.LENGTH_LONG).show()
-                                            showFeedbackDialog = false
-                                            feedbackMessage = ""
+                                            isSendingFeedback = true
+                                            scope.launch {
+                                                try {
+                                                    val query = SupportQuery(
+                                                        name = fullName,
+                                                        email = email,
+                                                        mobile = mobile,
+                                                        user_id = userSession.currentUser?.uid ?: "Guest / Local User",
+                                                        feedback_type = feedbackType,
+                                                        rating = feedbackRating,
+                                                        message = feedbackMessage
+                                                    )
+                                                    Supabase.client.postgrest["support_queries"].insert(query)
+                                                    isSendingFeedback = false
+                                                    Toast.makeText(context, "Support request submitted successfully!", Toast.LENGTH_LONG).show()
+                                                    showFeedbackDialog = false
+                                                    feedbackMessage = ""
+                                                } catch (e: Exception) {
+                                                    isSendingFeedback = false
+                                                    Toast.makeText(context, "Failed to submit: ${e.message}", Toast.LENGTH_LONG).show()
+                                                }
+                                            }
                                         }
                                     },
                                     modifier = Modifier
                                         .weight(1.5f)
                                         .height(48.dp),
                                     shape = RoundedCornerShape(12.dp),
+                                    enabled = !isSendingFeedback,
                                     colors = ButtonDefaults.buttonColors(containerColor = DarkGreen)
                                 ) {
-                                    Text("Submit Query", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                    if (isSendingFeedback) {
+                                        CircularProgressIndicator(color = Color.White, strokeWidth = 2.dp, modifier = Modifier.size(20.dp))
+                                    } else {
+                                        Text("Submit Query", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                    }
                                 }
                             }
                         }
@@ -1211,3 +1107,14 @@ private fun QuickMenuRow(
         Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color(0xFFBBBBBB), modifier = Modifier.size(20.dp))
     }
 }
+
+@Serializable
+data class SupportQuery(
+    val name: String,
+    val email: String,
+    val mobile: String,
+    val user_id: String,
+    val feedback_type: String,
+    val rating: Int,
+    val message: String
+)

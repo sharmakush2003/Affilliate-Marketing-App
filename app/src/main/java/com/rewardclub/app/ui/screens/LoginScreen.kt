@@ -151,37 +151,46 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .imePadding()
+                .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
         ) {
             // Top Banner Area
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(230.dp)
+                    .height(240.dp)
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(
-                                if (isRegistering) Color(0xFFFFF3E0) else Color(0xFFE8F5E9),
-                                Color(0xFFF8FAFC)
-                            )
+                            colors = if (isRegistering) {
+                                listOf(
+                                    Color(0xFFFF9900),  // AmazonOrange
+                                    Color(0xFFFF5722)   // Vibrant deep orange/red-orange
+                                )
+                            } else {
+                                listOf(
+                                    Color(0xFF0066CC),  // DarkGreen (actually link blue)
+                                    Color(0xFF0033AA)   // Premium royal/navy blue
+                                )
+                            }
                         )
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                // Floating circles
+                // Floating circles with subtle opacity to add depth (glassmorphism/glowing effect)
                 Box(
                     modifier = Modifier
                         .size(240.dp)
                         .align(Alignment.TopStart)
                         .graphicsLayer(translationX = -80f, translationY = -80f)
-                        .background(Color.White.copy(alpha = 0.35f), CircleShape)
+                        .background(Color.White.copy(alpha = 0.12f), CircleShape)
                 )
                 Box(
                     modifier = Modifier
                         .size(160.dp)
                         .align(Alignment.BottomEnd)
                         .graphicsLayer(translationX = 40f, translationY = 40f)
-                        .background(Color.White.copy(alpha = 0.25f), CircleShape)
+                        .background(Color.White.copy(alpha = 0.08f), CircleShape)
                 )
 
                 Column(
@@ -190,26 +199,27 @@ fun LoginScreen(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(76.dp)
+                            .size(80.dp)
                             .background(White, CircleShape)
-                            .border(1.5.dp, if (isRegistering) AmazonOrange else DarkGreen, CircleShape)
-                            .shadow(8.dp, CircleShape, spotColor = Color(0x1A000000)),
+                            .border(2.dp, if (isRegistering) Color(0xFFFFCC80) else Color(0xFF90CAF9), CircleShape)
+                            .shadow(12.dp, CircleShape, spotColor = Color(0x33000000)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(if (isRegistering) "👋" else "🛍️", fontSize = 36.sp)
+                        Text(if (isRegistering) "👋" else "🛍️", fontSize = 38.sp)
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
                     Text(
                         text = "Reward Club",
-                        fontSize = 26.sp,
+                        fontSize = 28.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = TextDark,
+                        color = Color.White,
                         letterSpacing = 0.5.sp
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = if (isRegistering) "Create your account today" else "Shop. Earn Coins. Redeem Rewards.",
-                        fontSize = 13.sp,
-                        color = TextGray,
+                        fontSize = 14.sp,
+                        color = Color.White.copy(alpha = 0.9f),
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -222,7 +232,6 @@ fun LoginScreen(
                 border = BorderStroke(1.dp, Color(0xFFECEFF1)),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
                     .graphicsLayer(translationY = -20f)
             ) {
                 Column(
@@ -278,7 +287,7 @@ fun LoginScreen(
                                             .background(color = Color(0xFFF8FAFC), shape = RoundedCornerShape(10.dp))
                                             .border(
                                                 width = if (isNameFocused) 2.dp else 1.dp,
-                                                color = if (isNameFocused) DarkGreen else BorderColor,
+                                                color = if (isNameFocused) (if (isRegistering) AmazonOrange else DarkGreen) else BorderColor,
                                                 shape = RoundedCornerShape(10.dp)
                                             )
                                             .onFocusChanged { isNameFocused = it.isFocused },
@@ -290,7 +299,7 @@ fun LoginScreen(
                                                 Icon(
                                                     imageVector = Icons.Default.Person,
                                                     contentDescription = null,
-                                                    tint = if (isNameFocused) DarkGreen else TextLight,
+                                                    tint = if (isNameFocused) (if (isRegistering) AmazonOrange else DarkGreen) else TextLight,
                                                     modifier = Modifier.size(20.dp)
                                                 )
                                                 Spacer(modifier = Modifier.width(12.dp))
@@ -328,7 +337,7 @@ fun LoginScreen(
                                     .background(color = Color(0xFFF8FAFC), shape = RoundedCornerShape(10.dp))
                                     .border(
                                         width = if (isEmailFocused) 2.dp else 1.dp,
-                                        color = if (isEmailFocused) DarkGreen else BorderColor,
+                                        color = if (isEmailFocused) (if (isRegistering) AmazonOrange else DarkGreen) else BorderColor,
                                         shape = RoundedCornerShape(10.dp)
                                     )
                                     .onFocusChanged { isEmailFocused = it.isFocused },
@@ -340,7 +349,7 @@ fun LoginScreen(
                                         Icon(
                                             imageVector = Icons.Default.Email,
                                             contentDescription = null,
-                                            tint = if (isEmailFocused) DarkGreen else TextLight,
+                                            tint = if (isEmailFocused) (if (isRegistering) AmazonOrange else DarkGreen) else TextLight,
                                             modifier = Modifier.size(20.dp)
                                         )
                                         Spacer(modifier = Modifier.width(12.dp))
@@ -418,7 +427,7 @@ fun LoginScreen(
                                         }
                                     }
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
+                                colors = ButtonDefaults.buttonColors(containerColor = if (isRegistering) AmazonOrange else DarkGreen),
                                 shape = RoundedCornerShape(10.dp),
                                 enabled = !isSendingEmail,
                                 modifier = Modifier
@@ -442,7 +451,7 @@ fun LoginScreen(
                             // Switch mode link (Register vs Sign In)
                             Text(
                                 text = if (isRegistering) "Already have an account? Sign In" else "New to Reward Club? Register Now",
-                                color = DarkGreen,
+                                color = if (isRegistering) AmazonOrange else DarkGreen,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.clickable {
@@ -463,6 +472,8 @@ fun LoginScreen(
                                     onLoginSuccess()
                                 }
                             )
+
+                            Spacer(modifier = Modifier.height(24.dp))
                         }
 
                         LoginStep.ENTER_OTP -> {
@@ -487,7 +498,7 @@ fun LoginScreen(
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "Edit",
-                                    color = DarkGreen,
+                                    color = if (isRegistering) AmazonOrange else DarkGreen,
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.clickable {
@@ -523,7 +534,7 @@ fun LoginScreen(
                                                     .background(Color(0xFFF8FAFC), shape = RoundedCornerShape(10.dp))
                                                     .border(
                                                         width = if (isFocused) 2.dp else 1.dp,
-                                                        color = if (isFocused) DarkGreen else BorderColor,
+                                                        color = if (isFocused) (if (isRegistering) AmazonOrange else DarkGreen) else BorderColor,
                                                         shape = RoundedCornerShape(10.dp)
                                                     )
                                                     .shadow(if (isFocused) 4.dp else 0.dp, RoundedCornerShape(10.dp)),
@@ -619,7 +630,7 @@ fun LoginScreen(
                                         }
                                     }
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
+                                colors = ButtonDefaults.buttonColors(containerColor = if (isRegistering) AmazonOrange else DarkGreen),
                                 shape = RoundedCornerShape(10.dp),
                                 enabled = !isSendingEmail,
                                 modifier = Modifier
@@ -660,7 +671,7 @@ fun LoginScreen(
                                     Text(
                                         text = "Resend OTP",
                                         fontSize = 13.sp,
-                                        color = DarkGreen,
+                                        color = if (isRegistering) AmazonOrange else DarkGreen,
                                         fontWeight = FontWeight.Bold,
                                         modifier = Modifier.clickable {
                                             otpCode = ""
@@ -683,6 +694,7 @@ fun LoginScreen(
                                     )
                                 }
                             }
+                            Spacer(modifier = Modifier.height(24.dp))
                         }
                     }
                 }
