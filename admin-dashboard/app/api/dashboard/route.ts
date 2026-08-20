@@ -1,0 +1,59 @@
+import { NextResponse } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase'
+
+export async function GET() {
+  // Fetch all KPIs in parallel
+  const [
+    { count: totalUsers },
+    { data: transactionStats },
+    { data: pendingStats },
+    { data: recentUsers },
+    { data: recentTransactions },
+  ] = await Promise.all([
+    supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }),
+    supabaseAdmin
+      .from('transactions')
+      .select('order_amount, commission_earned, status, payment_status, cashback_credited_coins'),
+    supabaseAdmin
+      .from('transactions')
+      .select('commission_earned')
+      .eq('payment_status', 'unpaid')
+      .eq('status', 'approved'),
+    supabaseAdmin
+      .from('profiles')
+      .select('id, full_name, email, total_coins, created_at')
+      .order('created_at', { ascending: false })
+      .limit(5),
+    supabaseAdmin
+      .from('transactions')
+      .select('id, merchant_name, order_amount, commission_earned, status, transaction_time, profiles(full_name, email)')
+      .order('created_at', { ascending: false })
+      .limit(5),
+  ])
+
+  const allTransactions = transactionStats ?? []
+  const totalOrderVolume = allTransactions.reduce((sum, t) => sum + (t.order_amount ?? 0), 0)
+  const totalCommission = allTransactions.reduce((sum, t) => sum + (t.commission_earned ?? 0), 0)
+  const totalCashbackCoins = allTransactions.reduce((sum, t) => sum + (t.cashback_credited_coins ?? 0), 0)
+  const totalTransactions = allTransactions.length
+  const approvedCount = allTransactions.filter(t => t.status === 'approved').length
+  const pendingCount = allTransactions.filter(t => t.status === 'pending').length
+  const rejectedCount = allTransactions.filter(t => t.status === 'rejected').length
+  const totalUnpaidCommission = (pendingStats ?? []).reduce((sum, t) => sum + (t.commission_earned ?? 0), 0)
+
+  return NextResponse.json({
+    kpis: {
+      totalUsers: totalUsers ?? 0,
+      totalOrderVolume: totalOrderVolume.toFixed(2),
+      totalCommission: totalCommission.toFixed(2),
+      totalCashbackCoins,
+      totalTransactions,
+      approvedCount,
+      pendingCount,
+      rejectedCount,
+      totalUnpaidCommission: totalUnpaidCommission.toFixed(2),
+    },
+    recentUsers: recentUsers ?? [],
+    recentTransactions: recentTransactions ?? [],
+  })
+}
