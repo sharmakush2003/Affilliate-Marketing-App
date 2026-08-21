@@ -9,7 +9,6 @@ const nav = [
   { href: '/dashboard',              label: 'Overview',       icon: LayoutDashboard },
   { href: '/dashboard/users',        label: 'Users',          icon: Users },
   { href: '/dashboard/transactions', label: 'Transactions',   icon: ArrowLeftRight },
-  { href: '/dashboard/how-to-use',   label: 'How To Use',     icon: HelpCircle },
 ]
 
 export function Sidebar() {

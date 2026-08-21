@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { RefreshCcw, Check, AlertCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { RefreshCcw, Check, AlertCircle, Clock } from 'lucide-react'
 
 export function Header() {
   const [syncing, setSyncing] = useState(false)
@@ -31,11 +31,29 @@ export function Header() {
     }
   }
 
-  const now = new Date().toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
+  const [timeString, setTimeString] = useState('')
+
+  useEffect(() => {
+    const updateClock = () => {
+      const d = new Date()
+      const datePart = d.toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+      const timePart = d.toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+      })
+      setTimeString(`${datePart} • ${timePart}`)
+    }
+
+    updateClock()
+    const timer = setInterval(updateClock, 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   return (
     <div
@@ -90,7 +108,10 @@ export function Header() {
           <RefreshCcw size={12} className={syncing ? 'animate-spin' : ''} />
           {syncing ? 'Syncing...' : 'Sync CueLinks'}
         </button>
-        <span style={{ fontSize: 12, color: '#9ca3af' }}>{now}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '12px', color: '#64748b', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+          <Clock size={13} style={{ color: '#94a3b8' }} />
+          <span>{timeString}</span>
+        </div>
       </div>
 
       <style>{`
