@@ -1,51 +1,50 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { Lock, Mail, Eye, EyeOff, ShieldAlert, CheckCircle2 } from 'lucide-react'
+import { Lock, Eye, EyeOff, ShieldAlert, CheckCircle2 } from 'lucide-react'
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('')
+export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const router = useRouter()
 
-  // If already authenticated, redirect immediately to dashboard
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        router.push('/dashboard')
-      }
-    }
-    checkUser()
-  }, [router])
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
     setSuccess(false)
 
+    if (password !== confirmPassword) {
+      setError('Passwords do not match. Please verify.')
+      setLoading(false)
+      return
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.')
+      setLoading(false)
+      return
+    }
+
     try {
-      const { error: authError, data } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: password,
       })
 
-      if (authError) {
-        setError(authError.message)
-      } else if (data?.session) {
+      if (updateError) {
+        setError(updateError.message)
+      } else {
         setSuccess(true)
-        // Delay slightly for success animation
+        // Delay slightly for success animation and user feedback
         setTimeout(() => {
-          router.push('/dashboard')
-        }, 800)
+          router.push('/login')
+        }, 1500)
       }
     } catch (err) {
       console.error(err)
@@ -62,11 +61,11 @@ export default function LoginPage() {
           <div style={styles.logoContainer}>
             <img src="/logo.webp" alt="Logo" style={styles.logo} />
           </div>
-          <h1 style={styles.title}>Reward Club</h1>
-          <span style={styles.subtitle}>ADMIN PORTAL</span>
+          <h1 style={styles.title}>Reset Password</h1>
+          <span style={styles.subtitle}>SECURE UPDATE</span>
         </div>
 
-        <form onSubmit={handleLogin} style={styles.form}>
+        <form onSubmit={handleUpdatePassword} style={styles.form}>
           {error && (
             <div style={styles.errorAlert}>
               <ShieldAlert size={18} style={styles.alertIcon} />
@@ -77,33 +76,12 @@ export default function LoginPage() {
           {success && (
             <div style={styles.successAlert}>
               <CheckCircle2 size={18} style={styles.alertIcon} />
-              <span>Login successful! Redirecting...</span>
+              <span>Password updated! Redirecting to login...</span>
             </div>
           )}
 
           <div style={styles.inputGroup}>
-            <label htmlFor="email" style={styles.label}>Email Address</label>
-            <div style={styles.inputWrapper}>
-              <Mail size={16} style={styles.inputIcon} />
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@rewardclub.com"
-                style={styles.input}
-              />
-            </div>
-          </div>
-
-          <div style={styles.inputGroup}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label htmlFor="password" style={styles.label}>Password</label>
-              <Link href="/forgot-password" style={styles.forgotLink}>
-                Forgot password?
-              </Link>
-            </div>
+            <label htmlFor="password" style={styles.label}>New Password</label>
             <div style={styles.inputWrapper}>
               <Lock size={16} style={styles.inputIcon} />
               <input
@@ -125,6 +103,22 @@ export default function LoginPage() {
             </div>
           </div>
 
+          <div style={styles.inputGroup}>
+            <label htmlFor="confirmPassword" style={styles.label}>Confirm New Password</label>
+            <div style={styles.inputWrapper}>
+              <Lock size={16} style={styles.inputIcon} />
+              <input
+                id="confirmPassword"
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                style={{ ...styles.input, paddingRight: '40px' }}
+              />
+            </div>
+          </div>
+
           <button
             type="submit"
             disabled={loading || success}
@@ -133,13 +127,7 @@ export default function LoginPage() {
               ...(loading || success ? styles.submitButtonDisabled : {}),
             }}
           >
-            {loading ? (
-              <span style={styles.spinner} />
-            ) : success ? (
-              'Authorized ✓'
-            ) : (
-              'Access Dashboard'
-            )}
+            {loading ? <span style={styles.spinner} /> : 'Save New Password'}
           </button>
         </form>
 
@@ -158,14 +146,14 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: '#ffffff', // Pure white page background
+    background: '#ffffff',
     fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
     padding: '20px',
   },
   card: {
     width: '100%',
     maxWidth: '400px',
-    background: '#f8fafc', // Modern soft off-white/light-slate card
+    background: '#f8fafc',
     border: '1px solid #e2e8f0',
     borderRadius: '20px',
     padding: '36px 30px',
@@ -183,7 +171,7 @@ const styles: Record<string, React.CSSProperties> = {
   logoContainer: {
     width: '56px',
     height: '56px',
-    background: '#ffffff', // Pure white logo background to stand out
+    background: '#ffffff',
     border: '1px solid #e2e8f0',
     borderRadius: '14px',
     display: 'flex',
@@ -255,12 +243,6 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#475569',
     paddingLeft: '2px',
   },
-  forgotLink: {
-    fontSize: '11.5px',
-    fontWeight: '600',
-    color: '#10b981',
-    textDecoration: 'none',
-  },
   inputWrapper: {
     position: 'relative',
     display: 'flex',
@@ -274,7 +256,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   input: {
     width: '100%',
-    background: '#ffffff', // High-contrast pure white inputs
+    background: '#ffffff',
     border: '1px solid #cbd5e1',
     borderRadius: '10px',
     padding: '10px 12px 10px 38px',
@@ -300,7 +282,7 @@ const styles: Record<string, React.CSSProperties> = {
     outline: 'none',
   },
   submitButton: {
-    background: '#0f172a', // Solid corporate dark theme
+    background: '#0f172a',
     border: 'none',
     borderRadius: '10px',
     padding: '12px',
