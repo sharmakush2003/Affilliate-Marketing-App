@@ -107,7 +107,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                style={styles.input}
+                style={{ ...styles.input, paddingRight: '40px' }}
               />
               <button
                 type="button"
@@ -279,11 +279,13 @@ const styles: Record<string, React.CSSProperties> = {
     border: 'none',
     color: '#94a3b8',
     cursor: 'pointer',
-    padding: '4px',
+    width: '28px',
+    height: '28px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: '50%',
+    outline: 'none',
   },
   submitButton: {
     background: '#0f172a', // Solid corporate dark theme
