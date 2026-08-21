@@ -1,21 +1,45 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { Mail, ShieldAlert, CheckCircle2, ArrowLeft, Send } from 'lucide-react'
+import { Mail, ShieldAlert, CheckCircle2, ArrowLeft, Send, RotateCw } from 'lucide-react'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [captchaCode, setCaptchaCode] = useState('')
+  const [captchaInput, setCaptchaInput] = useState('')
+
+  const generateCaptcha = () => {
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'
+    let code = ''
+    for (let i = 0; i < 5; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    setCaptchaCode(code)
+    setCaptchaInput('')
+  }
+
+  useEffect(() => {
+    generateCaptcha()
+  }, [])
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
     setSuccess(false)
+
+    // Verify Captcha
+    if (captchaInput.trim().toUpperCase() !== captchaCode) {
+      setError('Verification code (CAPTCHA) is incorrect. Please try again.')
+      generateCaptcha()
+      setLoading(false)
+      return
+    }
 
     try {
       const res = await fetch('/api/auth/forgot-password', {
@@ -76,6 +100,32 @@ export default function ForgotPasswordPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@rewardclub.com"
                   style={styles.input}
+                />
+              </div>
+            </div>
+
+            <div style={styles.inputGroup}>
+              <label htmlFor="captcha" style={styles.label}>Security Verification</label>
+              <div style={styles.captchaRow}>
+                <div style={styles.captchaBox}>
+                  {captchaCode}
+                </div>
+                <button
+                  type="button"
+                  onClick={generateCaptcha}
+                  style={styles.refreshButton}
+                  title="Refresh Captcha"
+                >
+                  <RotateCw size={16} />
+                </button>
+                <input
+                  id="captcha"
+                  type="text"
+                  required
+                  value={captchaInput}
+                  onChange={(e) => setCaptchaInput(e.target.value)}
+                  placeholder="Verification code"
+                  style={{ ...styles.input, flex: 1, paddingLeft: '12px' }}
                 />
               </div>
             </div>
@@ -241,6 +291,42 @@ const styles: Record<string, React.CSSProperties> = {
     outline: 'none',
     transition: 'all 0.15s ease',
     fontFamily: 'inherit',
+  },
+  captchaRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+  },
+  captchaBox: {
+    background: '#f1f5f9',
+    border: '1px dashed #cbd5e1',
+    borderRadius: '10px',
+    padding: '10px 16px',
+    fontSize: '18px',
+    fontWeight: 'bold',
+    letterSpacing: '4px',
+    fontFamily: 'monospace',
+    color: '#0f172a',
+    textDecoration: 'line-through',
+    userSelect: 'none',
+    fontStyle: 'italic',
+    backgroundImage: 'radial-gradient(circle, #e2e8f0 10%, transparent 11%), radial-gradient(circle, #e2e8f0 10%, transparent 11%)',
+    backgroundSize: '8px 8px',
+    backgroundPosition: '0 0, 4px 4px',
+  },
+  refreshButton: {
+    background: '#ffffff',
+    border: '1px solid #cbd5e1',
+    borderRadius: '10px',
+    width: '38px',
+    height: '38px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#64748b',
+    cursor: 'pointer',
+    flexShrink: 0,
+    outline: 'none',
   },
   submitButton: {
     background: '#0f172a',

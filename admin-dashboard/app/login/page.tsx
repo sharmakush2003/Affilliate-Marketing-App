@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { Lock, Mail, Eye, EyeOff, ShieldAlert, CheckCircle2 } from 'lucide-react'
+import { Lock, Mail, Eye, EyeOff, ShieldAlert, CheckCircle2, RotateCw } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -13,7 +13,19 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [captchaCode, setCaptchaCode] = useState('')
+  const [captchaInput, setCaptchaInput] = useState('')
   const router = useRouter()
+
+  const generateCaptcha = () => {
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'
+    let code = ''
+    for (let i = 0; i < 5; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    setCaptchaCode(code)
+    setCaptchaInput('')
+  }
 
   // If already authenticated, redirect immediately to dashboard
   useEffect(() => {
@@ -24,6 +36,7 @@ export default function LoginPage() {
       }
     }
     checkUser()
+    generateCaptcha()
   }, [router])
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -31,6 +44,14 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     setSuccess(false)
+
+    // Verify Captcha
+    if (captchaInput.trim().toUpperCase() !== captchaCode) {
+      setError('Verification code (CAPTCHA) is incorrect. Please try again.')
+      generateCaptcha()
+      setLoading(false)
+      return
+    }
 
     try {
       const { error: authError, data } = await supabase.auth.signInWithPassword({
@@ -122,6 +143,32 @@ export default function LoginPage() {
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
+            </div>
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label htmlFor="captcha" style={styles.label}>Security Verification</label>
+            <div style={styles.captchaRow}>
+              <div style={styles.captchaBox}>
+                {captchaCode}
+              </div>
+              <button
+                type="button"
+                onClick={generateCaptcha}
+                style={styles.refreshButton}
+                title="Refresh Captcha"
+              >
+                <RotateCw size={16} />
+              </button>
+              <input
+                id="captcha"
+                type="text"
+                required
+                value={captchaInput}
+                onChange={(e) => setCaptchaInput(e.target.value)}
+                placeholder="Verification code"
+                style={{ ...styles.input, flex: 1, paddingLeft: '12px' }}
+              />
             </div>
           </div>
 
@@ -260,6 +307,42 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: '600',
     color: '#10b981',
     textDecoration: 'none',
+  },
+  captchaRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+  },
+  captchaBox: {
+    background: '#f1f5f9',
+    border: '1px dashed #cbd5e1',
+    borderRadius: '10px',
+    padding: '10px 16px',
+    fontSize: '18px',
+    fontWeight: 'bold',
+    letterSpacing: '4px',
+    fontFamily: 'monospace',
+    color: '#0f172a',
+    textDecoration: 'line-through',
+    userSelect: 'none',
+    fontStyle: 'italic',
+    backgroundImage: 'radial-gradient(circle, #e2e8f0 10%, transparent 11%), radial-gradient(circle, #e2e8f0 10%, transparent 11%)',
+    backgroundSize: '8px 8px',
+    backgroundPosition: '0 0, 4px 4px',
+  },
+  refreshButton: {
+    background: '#ffffff',
+    border: '1px solid #cbd5e1',
+    borderRadius: '10px',
+    width: '38px',
+    height: '38px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#64748b',
+    cursor: 'pointer',
+    flexShrink: 0,
+    outline: 'none',
   },
   inputWrapper: {
     position: 'relative',
