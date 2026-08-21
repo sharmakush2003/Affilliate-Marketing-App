@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Lock, Eye, EyeOff, ShieldAlert, CheckCircle2 } from 'lucide-react'
@@ -13,6 +13,18 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    // Check if URL hash has a redirect error from Supabase
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash
+      if (hash && hash.includes('error=')) {
+        const params = new URLSearchParams(hash.replace('#', '?'))
+        const errorDescription = params.get('error_description') || 'Invalid or expired recovery link.'
+        setError(errorDescription.replace(/\+/g, ' '))
+      }
+    }
+  }, [])
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -352,3 +352,12 @@ hr { border: none; border-top: 1px solid #e5e7eb; margin: 0; }
   margin-top: 4px;
 }
 
+/* Hide default browser password reveal eye icon (Edge and Chrome) */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none !important;
+}
+input::-webkit-credentials-store-indicator {
+  display: none !important;
+}
+
