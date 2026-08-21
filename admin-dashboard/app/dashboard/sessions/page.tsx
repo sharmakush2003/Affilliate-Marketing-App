@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { ShieldCheck, History, Monitor, Smartphone, Globe, AlertTriangle, LogOut, Search, Clock } from 'lucide-react'
+import { ShieldCheck, History, Monitor, Smartphone, Globe, AlertTriangle, LogOut, Search, Clock, KeyRound, MapPin, Database } from 'lucide-react'
 
 interface AdminSession {
   id: string
@@ -53,7 +53,6 @@ export default function AdminSessionsPage() {
 
       if (!res.ok) throw new Error('Termination request failed')
 
-      // Check if the terminated session was the current browser session
       const currentSessionId = localStorage.getItem('current_admin_session_id')
       if (currentSessionId === sessionId) {
         localStorage.removeItem('current_admin_session_id')
@@ -62,7 +61,6 @@ export default function AdminSessionsPage() {
         return
       }
 
-      // Reload sessions list
       await fetchSessions()
     } catch (err: any) {
       alert(err.message || 'Failed to terminate session.')
@@ -71,7 +69,6 @@ export default function AdminSessionsPage() {
     }
   }
 
-  // Helper to parse simple OS/Browser name from user agent
   const parseUserAgent = (ua: string) => {
     const lower = ua.toLowerCase()
     let os = 'Unknown OS'
@@ -100,6 +97,11 @@ export default function AdminSessionsPage() {
 
   const currentSessionId = typeof window !== 'undefined' ? localStorage.getItem('current_admin_session_id') : null
 
+  // Calculate statistics
+  const activeSessionsCount = sessions.filter(s => s.status === 'active').length
+  const uniqueLocationsCount = new Set(sessions.map(s => s.location)).size
+  const totalSessionsLogged = sessions.length
+
   return (
     <div style={styles.container}>
       {/* Header */}
@@ -116,6 +118,43 @@ export default function AdminSessionsPage() {
           <span>{error}</span>
         </div>
       )}
+
+      {/* Summary Metrics Cards */}
+      <div style={styles.metricsGrid}>
+        <div style={styles.metricCard}>
+          <div style={styles.metricHeader}>
+            <span style={styles.metricLabel}>Active Sessions</span>
+            <div style={styles.metricIconWrapperGreen}>
+              <div className="status-ping" style={styles.pingDot} />
+              <KeyRound size={18} style={{ color: '#059669' }} />
+            </div>
+          </div>
+          <span style={styles.metricValue}>{activeSessionsCount}</span>
+          <span style={styles.metricSubtext}>Currently live connections</span>
+        </div>
+
+        <div style={styles.metricCard}>
+          <div style={styles.metricHeader}>
+            <span style={styles.metricLabel}>Geolocations</span>
+            <div style={styles.metricIconWrapperBlue}>
+              <MapPin size={18} style={{ color: '#2563eb' }} />
+            </div>
+          </div>
+          <span style={styles.metricValue}>{uniqueLocationsCount}</span>
+          <span style={styles.metricSubtext}>Distinct verified locations</span>
+        </div>
+
+        <div style={styles.metricCard}>
+          <div style={styles.metricHeader}>
+            <span style={styles.metricLabel}>Security Logs</span>
+            <div style={styles.metricIconWrapperGray}>
+              <Database size={18} style={{ color: '#475569' }} />
+            </div>
+          </div>
+          <span style={styles.metricValue}>{totalSessionsLogged}</span>
+          <span style={styles.metricSubtext}>Total session retention log</span>
+        </div>
+      </div>
 
       {/* Toolbar / Search */}
       <div style={styles.toolbar}>
@@ -148,7 +187,7 @@ export default function AdminSessionsPage() {
             <table style={styles.table}>
               <thead>
                 <tr style={styles.thRow}>
-                  <th style={styles.th}>ADMIN</th>
+                  <th style={styles.th}>ADMIN INFO</th>
                   <th style={styles.th}>LOCATION / IP</th>
                   <th style={styles.th}>DEVICE & BROWSER</th>
                   <th style={styles.th}>LOGIN ATTEMPT</th>
@@ -162,7 +201,7 @@ export default function AdminSessionsPage() {
                   const isCurrent = currentSessionId === session.id
 
                   return (
-                    <tr key={session.id} style={styles.tr}>
+                    <tr key={session.id} style={isCurrent ? styles.trCurrent : styles.tr}>
                       <td style={styles.td}>
                         <div style={styles.adminInfo}>
                           <span style={styles.adminEmail}>{session.email}</span>
@@ -172,7 +211,7 @@ export default function AdminSessionsPage() {
                       <td style={styles.td}>
                         <div style={styles.locationInfo}>
                           <div style={styles.locationName}>
-                            <Globe size={13} style={{ marginRight: 4, color: '#64748b' }} />
+                            <Globe size={13} style={{ marginRight: 6, color: '#3b82f6' }} />
                             <span>{session.location}</span>
                           </div>
                           <span style={styles.ipAddress}>IP: {session.ip_address}</span>
@@ -181,7 +220,11 @@ export default function AdminSessionsPage() {
                       <td style={styles.td}>
                         <div style={styles.deviceInfo}>
                           <div style={styles.deviceName}>
-                            {uaInfo.isMobile ? <Smartphone size={14} style={styles.deviceIcon} /> : <Monitor size={14} style={styles.deviceIcon} />}
+                            {uaInfo.isMobile ? (
+                              <Smartphone size={14} style={{ color: '#4f46e5', marginRight: 4 }} />
+                            ) : (
+                              <Monitor size={14} style={{ color: '#0f172a', marginRight: 4 }} />
+                            )}
                             <span>{uaInfo.os}</span>
                           </div>
                           <span style={styles.browserName}>{uaInfo.browser} Browser</span>
@@ -206,7 +249,10 @@ export default function AdminSessionsPage() {
                       </td>
                       <td style={styles.td}>
                         {session.status === 'active' ? (
-                          <span style={styles.statusActive}>Active</span>
+                          <div style={styles.statusActiveContainer}>
+                            <div className="status-ping-mini" style={styles.pingDotMini} />
+                            <span style={styles.statusActiveText}>Active</span>
+                          </div>
                         ) : (
                           <span style={styles.statusLoggedOut}>Terminated</span>
                         )}
@@ -233,6 +279,19 @@ export default function AdminSessionsPage() {
           </div>
         )}
       </div>
+
+      <style>{`
+        @keyframes ping {
+          0% { transform: scale(1); opacity: 1; }
+          70%, 100% { transform: scale(2.2); opacity: 0; }
+        }
+        .status-ping {
+          animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        .status-ping-mini {
+          animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+      `}</style>
     </div>
   )
 }
@@ -244,7 +303,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '24px',
     maxWidth: '1200px',
     margin: '0 auto',
-    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
   },
   header: {
     display: 'flex',
@@ -273,6 +332,86 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '8px',
     color: '#991b1b',
     fontSize: '13.5px'
+  },
+  metricsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: '20px',
+  },
+  metricCard: {
+    background: '#ffffff',
+    border: '1px solid #cbd5e1',
+    borderRadius: '16px',
+    padding: '20px',
+    boxShadow: '0 1px 3px rgba(15,23,42,0.02)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+  },
+  metricHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  metricLabel: {
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#64748b',
+  },
+  metricIconWrapperGreen: {
+    position: 'relative',
+    width: '32px',
+    height: '32px',
+    borderRadius: '8px',
+    background: '#ecfdf5',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  metricIconWrapperBlue: {
+    width: '32px',
+    height: '32px',
+    borderRadius: '8px',
+    background: '#eff6ff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  metricIconWrapperGray: {
+    width: '32px',
+    height: '32px',
+    borderRadius: '8px',
+    background: '#f1f5f9',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pingDot: {
+    position: 'absolute',
+    width: '8px',
+    height: '8px',
+    borderRadius: '50%',
+    background: '#10b981',
+    top: 4,
+    right: 4,
+  },
+  pingDotMini: {
+    width: '6px',
+    height: '6px',
+    borderRadius: '50%',
+    background: '#10b981',
+    flexShrink: 0,
+  },
+  metricValue: {
+    fontSize: '28px',
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: '-1px',
+    lineHeight: '1.2',
+  },
+  metricSubtext: {
+    fontSize: '12px',
+    color: '#94a3b8',
   },
   toolbar: {
     display: 'flex',
@@ -309,7 +448,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: '1px solid #cbd5e1',
     borderRadius: '16px',
     overflow: 'hidden',
-    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.03)',
   },
   tableContainer: {
     overflowX: 'auto',
@@ -335,6 +474,12 @@ const styles: Record<string, React.CSSProperties> = {
     borderBottom: '1px solid #f1f5f9',
     transition: 'background 0.15s ease',
   },
+  trCurrent: {
+    borderBottom: '1px solid #f1f5f9',
+    background: '#f0fdf4',
+    borderLeft: '4px solid #10b981',
+    transition: 'background 0.15s ease',
+  },
   td: {
     padding: '16px 20px',
     verticalAlign: 'middle',
@@ -351,13 +496,14 @@ const styles: Record<string, React.CSSProperties> = {
   },
   currentBadge: {
     alignSelf: 'flex-start',
-    background: '#ecfdf5',
-    border: '1px solid #a7f3d0',
-    color: '#047857',
-    fontSize: '10px',
-    fontWeight: '700',
+    background: '#10b981',
+    color: '#ffffff',
+    fontSize: '9.5px',
+    fontWeight: '800',
     padding: '1px 6px',
     borderRadius: '6px',
+    letterSpacing: '0.2px',
+    textTransform: 'uppercase',
   },
   locationInfo: {
     display: 'flex',
@@ -374,7 +520,7 @@ const styles: Record<string, React.CSSProperties> = {
   ipAddress: {
     fontSize: '11.5px',
     color: '#94a3b8',
-    paddingLeft: '17px',
+    paddingLeft: '19px',
   },
   deviceInfo: {
     display: 'flex',
@@ -384,13 +530,9 @@ const styles: Record<string, React.CSSProperties> = {
   deviceName: {
     display: 'flex',
     alignItems: 'center',
-    gap: '4px',
     fontSize: '13px',
     fontWeight: '600',
     color: '#334155',
-  },
-  deviceIcon: {
-    color: '#64748b',
   },
   browserName: {
     fontSize: '11.5px',
@@ -411,14 +553,18 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '11px',
     color: '#94a3b8',
   },
-  statusActive: {
-    display: 'inline-block',
-    background: '#ecfdf5',
+  statusActiveContainer: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    background: '#d1fae5',
+    padding: '2px 8px',
+    borderRadius: '8px',
+  },
+  statusActiveText: {
     color: '#065f46',
     fontSize: '11.5px',
     fontWeight: '700',
-    padding: '2px 8px',
-    borderRadius: '8px',
   },
   statusLoggedOut: {
     display: 'inline-block',
@@ -443,7 +589,7 @@ const styles: Record<string, React.CSSProperties> = {
     transition: 'all 0.15s ease',
   },
   terminateSelfButton: {
-    background: '#f8fafc',
+    background: '#ffffff',
     border: '1px solid #cbd5e1',
     borderRadius: '8px',
     color: '#475569',
