@@ -18,14 +18,17 @@ export default function ForgotPasswordPage() {
     setSuccess(false)
 
     try {
-      // Dynamically get the current location origin (handles localhost or production vercel URL)
-      const origin = window.location.origin
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${origin}/reset-password`,
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
       })
 
-      if (resetError) {
-        setError(resetError.message)
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Failed to send recovery email')
       } else {
         setSuccess(true)
       }
