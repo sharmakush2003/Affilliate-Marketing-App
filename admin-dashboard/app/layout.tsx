@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { DeviceGuard } from '@/components/DeviceGuard'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -16,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={inter.variable} style={{ colorScheme: 'light', background: '#f9fafb' }}>
       <body className={inter.className} style={{ margin: 0, background: '#f9fafb', color: '#111827' }}>
-        {children}
+        <DeviceGuard>{children}</DeviceGuard>
       </body>
     </html>
   )

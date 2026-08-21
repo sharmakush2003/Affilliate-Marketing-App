@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, Users, ArrowLeftRight, Settings2, LogOut, Globe, HelpCircle } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 const nav = [
   { href: '/dashboard',              label: 'Overview',       icon: LayoutDashboard },
@@ -73,8 +74,12 @@ export function Sidebar() {
 
         {/* Logout Button */}
         <button
-          onClick={() => {
-            console.log('Logging out...')
+          onClick={async () => {
+            try {
+              await supabase.auth.signOut()
+            } catch (err) {
+              console.error('Error signing out:', err)
+            }
           }}
           style={{
             display: 'flex',
