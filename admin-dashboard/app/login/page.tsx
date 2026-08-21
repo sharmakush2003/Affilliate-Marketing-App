@@ -61,6 +61,7 @@ export default function LoginPage() {
 
       if (authError) {
         setError(authError.message)
+        generateCaptcha()
       } else if (data?.session) {
         setSuccess(true)
         // Delay slightly for success animation
@@ -71,6 +72,7 @@ export default function LoginPage() {
     } catch (err) {
       console.error(err)
       setError('An unexpected error occurred. Please try again.')
+      generateCaptcha()
     } finally {
       setLoading(false)
     }

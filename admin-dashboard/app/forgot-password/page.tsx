@@ -53,12 +53,14 @@ export default function ForgotPasswordPage() {
       const data = await res.json()
       if (!res.ok) {
         setError(data.error || 'Failed to send recovery email')
+        generateCaptcha()
       } else {
         setSuccess(true)
       }
     } catch (err) {
       console.error(err)
       setError('An unexpected error occurred. Please try again.')
+      generateCaptcha()
     } finally {
       setLoading(false)
     }
