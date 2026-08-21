@@ -194,7 +194,17 @@ export default function LoginPage() {
 
         <div style={styles.footer}>
           <p style={styles.footerText}>Secure Admin Access Panel</p>
-          <p style={styles.footerSubText}>Managed & protected by ChittorTech</p>
+          <p style={styles.footerSubText}>
+            Managed & protected by{' '}
+            <a
+              href="https://chittortech.online"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#10b981', textDecoration: 'none', fontWeight: '600' }}
+            >
+              ChittorTech
+            </a>
+          </p>
         </div>
       </div>
     </div>
