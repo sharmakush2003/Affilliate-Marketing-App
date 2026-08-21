@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
       .from('admin_sessions')
       .select('*')
       .order('created_at', { ascending: false })
+      .limit(10)
 
     if (error) {
       console.error('[sessions] db fetch error:', error.message)

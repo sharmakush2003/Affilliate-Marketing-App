@@ -173,7 +173,16 @@ export default function UsersPage() {
                   <td style={{ padding: '11px 16px', fontSize: 13, color: '#6b7280' }}>{u.redeemed_coins ?? 0}</td>
                   <td style={{ padding: '11px 16px', fontSize: 13, color: '#6b7280' }}>₹{u.total_savings ?? 0}</td>
                   <td style={{ padding: '11px 16px', fontSize: 12, color: '#9ca3af', whiteSpace: 'nowrap' }}>
-                    {u.created_at ? new Date(u.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                    {u.created_at ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <span style={{ fontWeight: '500', color: '#374151' }}>
+                          {new Date(u.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </span>
+                        <span style={{ fontSize: '10.5px', color: '#94a3b8' }}>
+                          {new Date(u.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    ) : '—'}
                   </td>
                 </tr>
               ))}

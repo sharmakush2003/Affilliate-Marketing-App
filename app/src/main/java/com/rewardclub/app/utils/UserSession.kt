@@ -20,9 +20,9 @@ data class DbProfile(
     val email: String,
     val full_name: String? = "",
     val mobile: String? = "",
-    val total_coins: Long? = 100L,
-    val redeemed_coins: Long? = 50L,
-    val total_savings: Long? = 150L
+    val total_coins: Long? = 0L,
+    val redeemed_coins: Long? = 0L,
+    val total_savings: Long? = 0L
 )
 
 object UserSession {
@@ -34,9 +34,9 @@ object UserSession {
 
     var isGuest by mutableStateOf(false)
 
-    var totalCoins by mutableStateOf(100L) // Default demo balance
-    var redeemedCoins by mutableStateOf(50L)
-    var totalSavings by mutableStateOf(150L)
+    var totalCoins by mutableStateOf(0L) 
+    var redeemedCoins by mutableStateOf(0L)
+    var totalSavings by mutableStateOf(0L)
     var fullName by mutableStateOf("")
     var email by mutableStateOf("")
     var mobile by mutableStateOf("")
