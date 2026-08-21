@@ -53,29 +53,81 @@ export default function LoginPage() {
       return
     }
 
-    try {
-      const { error: authError, data } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (authError) {
-        setError(authError.message)
-        generateCaptcha()
-      } else if (data?.session) {
-        setSuccess(true)
-        // Delay slightly for success animation
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 800)
-      }
-    } catch (err) {
-      console.error(err)
-      setError('An unexpected error occurred. Please try again.')
-      generateCaptcha()
-    } finally {
+    if (!navigator.geolocation) {
+      setError('Access Denied: Your browser does not support location services.')
       setLoading(false)
+      return
     }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords
+        let locationName = `Lat: ${latitude.toFixed(4)}, Lon: ${longitude.toFixed(4)}`
+
+        try {
+          const geoRes = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`,
+            { headers: { 'User-Agent': 'RewardClubAdminPortal/1.0' } }
+          )
+          if (geoRes.ok) {
+            const geoData = await geoRes.json()
+            if (geoData?.display_name) {
+              locationName = geoData.display_name
+            }
+          }
+        } catch (geoErr) {
+          console.warn('Reverse geocoding failed, using coordinates.', geoErr)
+        }
+
+        try {
+          const { error: authError, data } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          })
+
+          if (authError) {
+            setError(authError.message)
+            generateCaptcha()
+            setLoading(false)
+          } else if (data?.session) {
+            const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown'
+            const logRes = await fetch('/api/auth/log-session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: email.trim().toLowerCase(),
+                location: locationName,
+                userAgent: userAgent,
+              }),
+            })
+
+            if (logRes.ok) {
+              const logData = await logRes.json()
+              if (logData.sessionId) {
+                localStorage.setItem('current_admin_session_id', logData.sessionId)
+              }
+            }
+
+            setSuccess(true)
+            setTimeout(() => {
+              router.push('/dashboard')
+            }, 800)
+          }
+        } catch (err) {
+          console.error(err)
+          setError('An unexpected error occurred. Please try again.')
+          generateCaptcha()
+          setLoading(false)
+        }
+      },
+      (geoError) => {
+        console.error('Geolocation error:', geoError)
+        setError('Access Denied: You must grant location permission to access the admin portal.')
+        generateCaptcha()
+        setLoading(false)
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    )
   }
 
   return (
