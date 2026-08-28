@@ -176,12 +176,13 @@ fun EarnCoinsScreen(
                                 "Business Loan" -> "https://www.bankbazaar.com/business-loan.html"
                                 else -> "https://www.flipkart.com"
                             }
-                            // Generate the Cuelinks tracking URL
-                            val trackingUrl = cuelinksApi.createAffiliateLink(rawUrl)
+                            // Generate the Cuelinks tracking URL with user's Supabase ID
+                            val currentUserId = com.rewardclub.app.utils.UserSession.currentUser?.uid ?: ""
+                            val trackingUrl = cuelinksApi.createAffiliateLink(rawUrl, userId = currentUserId)
 
                             // 🔥 Background ping to register click even if Chrome blocks redirect
                             coroutineScope.launch {
-                                cuelinksApi.fireAndForgetClick(rawUrl)
+                                cuelinksApi.fireAndForgetClick(rawUrl, userId = currentUserId)
                             }
 
                             // 🚀 Open Cuelinks tracking URL in Chrome

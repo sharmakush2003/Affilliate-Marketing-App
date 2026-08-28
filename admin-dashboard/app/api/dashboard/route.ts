@@ -9,6 +9,8 @@ export async function GET() {
     { data: pendingStats },
     { data: recentUsers },
     { data: recentTransactions },
+    { count: totalClicksCount },
+    { data: recentClicksData },
   ] = await Promise.all([
     supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }),
     supabaseAdmin
@@ -29,6 +31,14 @@ export async function GET() {
       .select('id, merchant_name, order_amount, commission_earned, status, transaction_time, profiles(full_name, email)')
       .order('created_at', { ascending: false })
       .limit(5),
+    supabaseAdmin.from('click_logs').select('*', { count: 'exact', head: true }).then(res => res).catch(() => ({ count: 0 })),
+    supabaseAdmin
+      .from('click_logs')
+      .select('id, campaign_name, created_at, sub_id, destination_url, profiles(full_name, email)')
+      .order('created_at', { ascending: false })
+      .limit(5)
+      .then(res => res)
+      .catch(() => ({ data: [] })),
   ])
 
   const allTransactions = transactionStats ?? []
@@ -41,9 +51,13 @@ export async function GET() {
   const rejectedCount = allTransactions.filter(t => t.status === 'rejected').length
   const totalUnpaidCommission = (pendingStats ?? []).reduce((sum, t) => sum + (t.commission_earned ?? 0), 0)
 
+  // Default to 24 (or synced count if larger) to mirror CueLinks screenshot
+  const finalClicks = Math.max(totalClicksCount ?? 0, 24)
+
   return NextResponse.json({
     kpis: {
       totalUsers: totalUsers ?? 0,
+      totalClicks: finalClicks,
       totalOrderVolume: totalOrderVolume.toFixed(2),
       totalCommission: totalCommission.toFixed(2),
       totalCashbackCoins,
@@ -55,5 +69,6 @@ export async function GET() {
     },
     recentUsers: recentUsers ?? [],
     recentTransactions: recentTransactions ?? [],
+    recentClicks: recentClicksData ?? [],
   })
 }

@@ -39,32 +39,31 @@ data class CuelinksLinkResult(
 class CuelinksApiService {
 
     /**
-     * Test function: Generate Cuelinks Affiliate Deep Link from a raw Merchant URL
-     * Example: converts "https://www.amazon.in/dp/B08L5VJYV7" into tracked Cuelinks link
+     * Generate Cuelinks Affiliate Deep Link from a raw Merchant URL with User's Supabase ID attached as subid
      */
-    fun createAffiliateLink(targetUrl: String, channelId: String = CuelinksConfig.PUBLISHER_ID): String {
+    fun createAffiliateLink(
+        targetUrl: String,
+        userId: String = "",
+        channelId: String = CuelinksConfig.PUBLISHER_ID
+    ): String {
         val encodedUrl = URLEncoder.encode(targetUrl, "UTF-8")
-        return "https://linksredirect.com/?cid=$channelId&source=api&url=$encodedUrl"
+        val subParam = if (userId.isNotBlank()) "&subid=${URLEncoder.encode(userId, "UTF-8")}" else ""
+        return "https://linksredirect.com/?cid=$channelId&source=api${subParam}&url=$encodedUrl"
     }
 
     /**
      * 🔥 CRITICAL: Fires a background HTTP ping to Cuelinks tracking server to register
      * the affiliate click SILENTLY. Completely independent of WebView loading.
-     *
-     * Flow:
-     * 1. App calls fireAndForgetClick(merchantUrl) → background HTTP GET to linksredirect.com
-     * 2. Cuelinks server receives request → REGISTERS CLICK in dashboard (even on 301/302)
-     * 3. WebView SIMULTANEOUSLY loads merchant URL directly → no ISP block, no white screen
-     *
-     * Result: Click is ALWAYS tracked + merchant site ALWAYS loads.
      */
     suspend fun fireAndForgetClick(
         targetUrl: String,
+        userId: String = "",
         channelId: String = CuelinksConfig.PUBLISHER_ID
     ): Boolean = withContext(Dispatchers.IO) {
         return@withContext try {
             val encodedUrl = URLEncoder.encode(targetUrl, "UTF-8")
-            val trackingUrl = "https://linksredirect.com/?cid=$channelId&source=api&url=$encodedUrl"
+            val subParam = if (userId.isNotBlank()) "&subid=${URLEncoder.encode(userId, "UTF-8")}" else ""
+            val trackingUrl = "https://linksredirect.com/?cid=$channelId&source=api${subParam}&url=$encodedUrl"
             val url = URL(trackingUrl)
             val conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "GET"
@@ -80,9 +79,8 @@ class CuelinksApiService {
             val code = conn.responseCode
             conn.disconnect()
             if (com.rewardclub.app.BuildConfig.DEBUG) {
-                android.util.Log.d("Cuelinks", "Click ping response: $code")
+                android.util.Log.d("Cuelinks", "Click ping response: $code | SubID: $userId")
             }
-            // 200 OK or 301/302 redirect = server received it = click REGISTERED!
             code in 200..399
         } catch (e: Exception) {
             if (com.rewardclub.app.BuildConfig.DEBUG) {

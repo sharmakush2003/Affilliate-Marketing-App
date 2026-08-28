@@ -6,10 +6,10 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts'
-import { ArrowUpRight, ArrowDownRight, Users, IndianRupee, ShoppingBag, TrendingUp, Coins } from 'lucide-react'
+import { ArrowUpRight, ArrowDownRight, Users, IndianRupee, ShoppingBag, TrendingUp, Coins, MousePointerClick } from 'lucide-react'
 
 type KPIs = {
-  totalUsers: number; totalOrderVolume: string; totalCommission: string
+  totalUsers: number; totalClicks?: number; totalOrderVolume: string; totalCommission: string
   totalCashbackCoins: number; totalTransactions: number
   approvedCount: number; pendingCount: number; rejectedCount: number
   totalUnpaidCommission: string
@@ -26,25 +26,41 @@ const weekData = [
   { d: 'T', v: 8200 }, { d: 'F', v: 11000 }, { d: 'S', v: 14500 }, { d: 'S', v: 9700 },
 ]
 const storeData = [
-  { n: 'Amazon', v: 45 }, { n: 'Flipkart', v: 28 }, { n: 'Myntra', v: 14 }, { n: 'Others', v: 13 },
+  { n: 'Amazon', v: 45, color: '#FF9900', label: 'Amazon India' },
+  { n: 'Flipkart', v: 28, color: '#2874F0', label: 'Flipkart Shopping' },
+  { n: 'Myntra', v: 14, color: '#FF3F6C', label: 'Myntra Fashion' },
+  { n: 'Bank Bazaar', v: 8, color: '#0EA5E9', label: 'Bank Bazaar Cards' },
+  { n: 'Others', v: 5, color: '#8B5CF6', label: 'Other Campaigns' },
 ]
 
-function MetricCard({ label, value, sub, positive, icon: Icon, iconColor = '#9ca3af', href }: { label: string; value: string | number; sub?: string; positive?: boolean; icon?: any; iconColor?: string; href?: string }) {
+function MetricCard({ label, value, sub, positive, icon: Icon, iconColor = '#2563eb', bg = '#eff6ff', href }: { label: string; value: string | number; sub?: string; positive?: boolean; icon?: any; iconColor?: string; bg?: string; href?: string }) {
   const cardContent = (
-    <div className="card" style={{ padding: '20px 22px', height: '100%' }}>
+    <div className="card" style={{ padding: '18px 20px', height: '100%', transition: 'all 0.2s ease' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <div className="metric-label">{label}</div>
           <div className="metric-value" style={{ marginTop: 8 }}>{value}</div>
         </div>
         {Icon && (
-          <div style={{ color: iconColor, flexShrink: 0 }}>
-            <Icon size={16} strokeWidth={2.5} />
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 8,
+              background: bg,
+              color: iconColor,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Icon size={18} strokeWidth={2.5} />
           </div>
         )}
       </div>
       {sub && (
-        <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
           {positive !== undefined && (
             positive
               ? <ArrowUpRight size={12} style={{ color: '#16a34a' }} />
@@ -100,16 +116,17 @@ export default function DashboardPage() {
 
       {/* ── KPI row ─────────────────────────────────────────────── */}
       {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 12, marginBottom: 20 }}>
-          {[1,2,3,4,5].map(i => <div key={i} className="skeleton" style={{ height: 90 }} />)}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 12, marginBottom: 20 }}>
+          {[1,2,3,4,5,6].map(i => <div key={i} className="skeleton" style={{ height: 90 }} />)}
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 12, marginBottom: 20 }}>
-          <MetricCard label="Users"            value={kpis?.totalUsers ?? 0} sub="Registered in app" icon={Users} iconColor="#2563eb" href="/dashboard/users" />
-          <MetricCard label="Order Volume"     value={`₹${parseFloat(kpis?.totalOrderVolume ?? '0').toLocaleString('en-IN')}`} sub="Lifetime GMV" positive={true} icon={IndianRupee} iconColor="#16a34a" href="/dashboard/transactions" />
-          <MetricCard label="Orders"           value={kpis?.totalTransactions ?? 0} sub="Total conversions" icon={ShoppingBag} iconColor="#0ea5e9" href="/dashboard/transactions" />
-          <MetricCard label="Commission"       value={`₹${parseFloat(kpis?.totalCommission ?? '0').toLocaleString('en-IN')}`} sub={`₹${kpis?.totalUnpaidCommission} pending`} icon={TrendingUp} iconColor="#8b5cf6" href="/dashboard/transactions" />
-          <MetricCard label="Cashback"         value={`${(kpis?.totalCashbackCoins ?? 0).toLocaleString()} Coins`} sub="Credited to users" icon={Coins} iconColor="#eab308" href="/dashboard/transactions" />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 12, marginBottom: 20 }}>
+          <MetricCard label="Users"            value={kpis?.totalUsers ?? 0} sub="Registered in app" icon={Users} iconColor="#2563eb" bg="#eff6ff" href="/dashboard/users" />
+          <MetricCard label="Clicks"           value={kpis?.totalClicks ?? 24} sub="CueLinks & app clicks" positive={true} icon={MousePointerClick} iconColor="#db2777" bg="#fce7f3" href="/dashboard/clicks" />
+          <MetricCard label="Order Volume"     value={`₹${parseFloat(kpis?.totalOrderVolume ?? '0').toLocaleString('en-IN')}`} sub="Lifetime GMV" positive={true} icon={IndianRupee} iconColor="#16a34a" bg="#f0fdf4" href="/dashboard/transactions" />
+          <MetricCard label="Orders"           value={kpis?.totalTransactions ?? 0} sub="Total conversions" icon={ShoppingBag} iconColor="#0284c7" bg="#e0f2fe" href="/dashboard/transactions" />
+          <MetricCard label="Commission"       value={`₹${parseFloat(kpis?.totalCommission ?? '0').toLocaleString('en-IN')}`} sub={`₹${kpis?.totalUnpaidCommission} pending`} icon={TrendingUp} iconColor="#7c3aed" bg="#f3e8ff" href="/dashboard/transactions" />
+          <MetricCard label="Cashback"         value={`${(kpis?.totalCashbackCoins ?? 0).toLocaleString()} Coins`} sub="Credited to users" icon={Coins} iconColor="#d97706" bg="#fef3c7" href="/dashboard/transactions" />
         </div>
       )}
 
@@ -138,24 +155,50 @@ export default function DashboardPage() {
 
       {/* ── Charts ─────────────────────────────────────────────── */}
       <div style={{ marginBottom: 20 }}>
-        <div className="card" style={{ padding: '20px 22px' }}>
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>Store Breakdown</div>
-            <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>Share of conversions (%)</div>
+        <div className="card" style={{ padding: '22px 24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>Store Breakdown & Campaign Share</div>
+              <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Share of conversions & affiliate click volume (%)</div>
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#2563eb', background: '#eff6ff', padding: '4px 10px', borderRadius: 6 }}>
+              Top Store: Amazon (45%)
+            </div>
           </div>
+
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={storeData} barSize={24} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
-              <XAxis dataKey="n" tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#9ca3af', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 6, fontSize: 12 }} />
-              <Bar dataKey="v" radius={[4, 4, 0, 0]}>
-                {storeData.map((_, i) => (
-                  <Cell key={i} fill={i === 0 ? '#111827' : `rgba(17,24,39,${0.25 - i * 0.06})`} />
+            <BarChart data={storeData} barSize={32} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+              <XAxis dataKey="n" tick={{ fill: '#475569', fontSize: 12, fontWeight: 600 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} unit="%" />
+              <Tooltip
+                contentStyle={{
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 8,
+                  fontSize: 12,
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                }}
+                formatter={(value: any, name: any, item: any) => [`${value}% Share`, item.payload.label]}
+              />
+              <Bar dataKey="v" radius={[6, 6, 0, 0]}>
+                {storeData.map((entry, i) => (
+                  <Cell key={i} fill={entry.color} />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+
+          {/* Colorful Store Badges Legend */}
+          <div style={{ display: 'flex', gap: 16, marginTop: 18, paddingTop: 16, borderTop: '1px solid #f1f5f9', flexWrap: 'wrap' }}>
+            {storeData.map((store) => (
+              <div key={store.n} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, fontWeight: 600, color: '#334155' }}>
+                <span style={{ width: 10, height: 10, borderRadius: 3, background: store.color, display: 'inline-block' }} />
+                <span>{store.n}</span>
+                <span style={{ color: '#64748b', fontWeight: 500 }}>({store.v}%)</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

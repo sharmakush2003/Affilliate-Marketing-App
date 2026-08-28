@@ -2,14 +2,16 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, ArrowLeftRight, Settings2, LogOut, Globe, HelpCircle, History } from 'lucide-react'
+import { LayoutDashboard, Users, ArrowLeftRight, Settings2, LogOut, Globe, HelpCircle, History, MousePointerClick, Tag } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 const nav = [
-  { href: '/dashboard',              label: 'Overview',       icon: LayoutDashboard },
-  { href: '/dashboard/users',        label: 'Users',          icon: Users },
-  { href: '/dashboard/transactions', label: 'Transactions',   icon: ArrowLeftRight },
-  { href: '/dashboard/sessions',     label: 'Admin Sessions', icon: History },
+  { href: '/dashboard',              label: 'Overview',          icon: LayoutDashboard },
+  { href: '/dashboard/users',        label: 'Users',             icon: Users },
+  { href: '/dashboard/offers',       label: 'Offers & Deals',    icon: Tag },
+  { href: '/dashboard/clicks',       label: 'Click Logs',        icon: MousePointerClick },
+  { href: '/dashboard/transactions', label: 'Transactions',      icon: ArrowLeftRight },
+  { href: '/dashboard/sessions',     label: 'Admin Sessions',    icon: History },
 ]
 
 export function Sidebar() {
@@ -48,7 +50,7 @@ export function Sidebar() {
       </div>
 
       {/* Navigation (Tabs are wider and separated from edges) */}
-      <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
         {nav.map(({ href, label, icon: Icon }) => {
           const active = href === '/dashboard' ? path === href : path.startsWith(href)
           return (
@@ -70,7 +72,7 @@ export function Sidebar() {
         })}
 
         {/* Separator before Logout */}
-        <div style={{ height: '1px', background: 'rgba(255, 255, 255, 0.05)', margin: '14px 0' }} />
+        <div style={{ height: '1px', background: 'rgba(255, 255, 255, 0.05)', margin: '8px 0' }} />
 
         {/* Logout Button */}
         <button
@@ -84,10 +86,10 @@ export function Sidebar() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 12,
-            padding: '14px 16px',
-            borderRadius: '14px',
-            fontSize: '0.92rem',
+            gap: 10,
+            padding: '9px 14px',
+            borderRadius: '10px',
+            fontSize: '0.88rem',
             fontWeight: '700',
             background: 'transparent',
             border: 'none',
@@ -96,8 +98,8 @@ export function Sidebar() {
             textAlign: 'left',
             width: '100%',
             transition: 'all 0.2s ease',
-            marginTop: 'auto', // Push it down like Dharamsala
-            marginBottom: '8px',
+            marginTop: 'auto',
+            marginBottom: '4px',
           }}
           className="hover:bg-red-500/10"
         >

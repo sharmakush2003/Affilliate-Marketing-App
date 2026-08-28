@@ -48,6 +48,10 @@ export async function GET(req: NextRequest) {
       cache: 'no-store',
     })
 
+    if (clRes.status === 204) {
+      return NextResponse.json({ message: 'No CueLinks transactions found (204 No Content)', synced: 0, coinsAwarded: 0 })
+    }
+
     if (!clRes.ok) {
       const errText = await clRes.text()
       return NextResponse.json(
