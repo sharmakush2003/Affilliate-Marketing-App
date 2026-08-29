@@ -134,9 +134,8 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             try {
-                // Import the session into Supabase client
-                val fullUri = "rewardclub://home#access_token=${accessToken}&refresh_token=${refreshToken}&token_type=bearer&type=signup"
-                Supabase.client.auth.parseSessionFromUrl(fullUri)
+                // Import the access token into the Supabase SDK session
+                Supabase.client.auth.importAuthToken(accessToken)
 
                 val user = Supabase.client.auth.currentUserOrNull() ?: return@launch
 
