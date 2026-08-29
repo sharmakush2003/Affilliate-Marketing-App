@@ -11,6 +11,7 @@ import androidx.activity.compose.setContent
 import com.rewardclub.app.utils.Supabase
 import com.rewardclub.app.utils.DbProfile
 import com.rewardclub.app.utils.UserSession
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.buildJsonObject
