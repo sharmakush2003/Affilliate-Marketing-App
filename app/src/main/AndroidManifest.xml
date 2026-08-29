@@ -19,10 +19,28 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.RewardClub">
+            android:theme="@style/Theme.RewardClub"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Deep link: rewardclub://home  (email verification redirect) -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="rewardclub" android:host="home" />
+            </intent-filter>
+            <!-- App Link: https://affilliate-marketing-app.vercel.app/verify-email -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="affilliate-marketing-app.vercel.app"
+                    android:pathPrefix="/verify-email" />
             </intent-filter>
         </activity>
     </application>

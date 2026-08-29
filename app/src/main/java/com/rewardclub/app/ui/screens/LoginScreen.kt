@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,6 +38,8 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.OTP
 import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.postgrest.postgrest
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -58,12 +61,14 @@ fun LoginScreen(
     var emailAddress by remember { mutableStateOf("") }
     var otpCode by remember { mutableStateOf("") }
     var fullName by remember { mutableStateOf("") }
+    var mobileNumber by remember { mutableStateOf("") }
 
     var currentStep by remember { mutableStateOf(LoginStep.ENTER_EMAIL) }
     var countdownTime by remember { mutableStateOf(30) }
 
     var isEmailFocused by remember { mutableStateOf(false) }
     var isNameFocused by remember { mutableStateOf(false) }
+    var isMobileFocused by remember { mutableStateOf(false) }
 
     // Check if the user is in registration mode (rather than simple sign-in)
     var isRegistering by remember { mutableStateOf(false) }
@@ -74,6 +79,15 @@ fun LoginScreen(
             try {
                 Supabase.client.auth.signInWith(OTP) {
                     this.email = email
+                    if (isRegistering) {
+                        this.data = kotlinx.serialization.json.buildJsonObject {
+                            put("full_name", fullName.trim())
+                            put("display_name", fullName.trim())
+                            put("name", fullName.trim())
+                            put("mobile", mobileNumber.trim())
+                            put("phone", mobileNumber.trim())
+                        }
+                    }
                 }
                 scope.launch(kotlinx.coroutines.Dispatchers.Main) {
                     isSendingEmail = false
@@ -83,7 +97,13 @@ fun LoginScreen(
             } catch (e: Exception) {
                 scope.launch(kotlinx.coroutines.Dispatchers.Main) {
                     isSendingEmail = false
-                    Toast.makeText(context, "Failed to send OTP: ${e.message}", Toast.LENGTH_LONG).show()
+                    val msg = e.message ?: "Failed to send OTP"
+                    val friendlyMsg = if (msg.contains("security purposes", ignoreCase = true) || msg.contains("429") || msg.contains("rate limit", ignoreCase = true)) {
+                        "Rate limit: Please wait 60 seconds before requesting OTP again."
+                    } else {
+                        "Failed to send OTP: $msg"
+                    }
+                    Toast.makeText(context, friendlyMsg, Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -261,13 +281,14 @@ fun LoginScreen(
 
                             Spacer(modifier = Modifier.height(24.dp))
 
-                            // Name Input Field (Register mode only)
+                            // Name & Mobile Input Fields (Register mode only)
                             AnimatedVisibility(
                                 visible = isRegistering,
                                 enter = expandVertically() + fadeIn(),
                                 exit = shrinkVertically() + fadeOut()
                             ) {
                                 Column(modifier = Modifier.fillMaxWidth()) {
+                                    // Full Name
                                     Text(
                                         text = "Full Name",
                                         color = TextDark,
@@ -287,7 +308,7 @@ fun LoginScreen(
                                             .background(color = Color(0xFFF8FAFC), shape = RoundedCornerShape(10.dp))
                                             .border(
                                                 width = if (isNameFocused) 2.dp else 1.dp,
-                                                color = if (isNameFocused) (if (isRegistering) AmazonOrange else DarkGreen) else BorderColor,
+                                                color = if (isNameFocused) AmazonOrange else BorderColor,
                                                 shape = RoundedCornerShape(10.dp)
                                             )
                                             .onFocusChanged { isNameFocused = it.isFocused },
@@ -299,19 +320,69 @@ fun LoginScreen(
                                                 Icon(
                                                     imageVector = Icons.Default.Person,
                                                     contentDescription = null,
-                                                    tint = if (isNameFocused) (if (isRegistering) AmazonOrange else DarkGreen) else TextLight,
+                                                    tint = if (isNameFocused) AmazonOrange else TextLight,
                                                     modifier = Modifier.size(20.dp)
                                                 )
                                                 Spacer(modifier = Modifier.width(12.dp))
                                                 Box(modifier = Modifier.weight(1f)) {
                                                     if (fullName.isEmpty()) {
-                                                        Text("John Doe", color = TextLight, fontSize = 15.sp)
+                                                        Text("Puran Dhakad", color = TextLight, fontSize = 15.sp)
                                                     }
                                                     innerTextField()
                                                 }
                                             }
                                         }
                                     )
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    // Mobile Number
+                                    Text(
+                                        text = "Mobile Number",
+                                        color = TextDark,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    BasicTextField(
+                                        value = mobileNumber,
+                                        onValueChange = { if (it.length <= 10 && it.all { char -> char.isDigit() }) mobileNumber = it },
+                                        enabled = !isSendingEmail,
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(52.dp)
+                                            .background(color = Color(0xFFF8FAFC), shape = RoundedCornerShape(10.dp))
+                                            .border(
+                                                width = if (isMobileFocused) 2.dp else 1.dp,
+                                                color = if (isMobileFocused) AmazonOrange else BorderColor,
+                                                shape = RoundedCornerShape(10.dp)
+                                            )
+                                            .onFocusChanged { isMobileFocused = it.isFocused },
+                                        decorationBox = { innerTextField ->
+                                            Row(
+                                                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Phone,
+                                                    contentDescription = null,
+                                                    tint = if (isMobileFocused) AmazonOrange else TextLight,
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(12.dp))
+                                                Box(modifier = Modifier.weight(1f)) {
+                                                    if (mobileNumber.isEmpty()) {
+                                                        Text("9876543210", color = TextLight, fontSize = 15.sp)
+                                                    }
+                                                    innerTextField()
+                                                }
+                                            }
+                                        }
+                                    )
+
                                     Spacer(modifier = Modifier.height(16.dp))
                                 }
                             }
@@ -376,9 +447,15 @@ fun LoginScreen(
                                         return@Button
                                     }
 
-                                    if (isRegistering && fullName.trim().isBlank()) {
-                                        Toast.makeText(context, "Please enter your full name", Toast.LENGTH_SHORT).show()
-                                        return@Button
+                                    if (isRegistering) {
+                                        if (fullName.trim().isBlank()) {
+                                            Toast.makeText(context, "Please enter your full name", Toast.LENGTH_SHORT).show()
+                                            return@Button
+                                        }
+                                        if (mobileNumber.trim().length < 10) {
+                                            Toast.makeText(context, "Please enter a valid 10-digit mobile number", Toast.LENGTH_SHORT).show()
+                                            return@Button
+                                        }
                                     }
 
                                     isSendingEmail = true
@@ -438,7 +515,7 @@ fun LoginScreen(
                                     CircularProgressIndicator(color = White, strokeWidth = 2.dp, modifier = Modifier.size(20.dp))
                                 } else {
                                     Text(
-                                        text = if (isRegistering) "Register & Send OTP" else "Continue",
+                                        text = if (isRegistering) "Register & Send Verification Email" else "Continue",
                                         color = White,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 15.sp
@@ -478,26 +555,24 @@ fun LoginScreen(
 
                         LoginStep.ENTER_OTP -> {
                             Text(
-                                text = "Verify OTP",
+                                text = "Verify Email Address",
                                 color = TextDark,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.fillMaxWidth(),
                                 textAlign = TextAlign.Start
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Column(modifier = Modifier.fillMaxWidth()) {
                                 Text(
-                                    text = "Code sent to $emailAddress",
+                                    text = "A verification email has been sent to $emailAddress. Please check your inbox and click the verification link.",
                                     color = TextGray,
-                                    fontSize = 13.sp
+                                    fontSize = 13.sp,
+                                    lineHeight = 18.sp
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Spacer(modifier = Modifier.height(6.dp))
                                 Text(
-                                    text = "Edit",
+                                    text = "Edit Email",
                                     color = if (isRegistering) AmazonOrange else DarkGreen,
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
@@ -509,94 +584,69 @@ fun LoginScreen(
 
                             Spacer(modifier = Modifier.height(28.dp))
 
-                            // OTP Inputs
-                            BasicTextField(
-                                value = otpCode,
-                                onValueChange = {
-                                    if (it.length <= 6 && it.all { char -> char.isDigit() }) {
-                                        otpCode = it
-                                    }
-                                },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                modifier = Modifier.fillMaxWidth().height(56.dp),
-                                decorationBox = {
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        repeat(6) { idx ->
-                                            val char = otpCode.getOrNull(idx)?.toString() ?: ""
-                                            val isFocused = otpCode.length == idx
-                                            Box(
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .height(56.dp)
-                                                    .background(Color(0xFFF8FAFC), shape = RoundedCornerShape(10.dp))
-                                                    .border(
-                                                        width = if (isFocused) 2.dp else 1.dp,
-                                                        color = if (isFocused) (if (isRegistering) AmazonOrange else DarkGreen) else BorderColor,
-                                                        shape = RoundedCornerShape(10.dp)
+                            // For registration: just show check email message, no OTP input
+                            // For sign-in: show OTP input box
+                            if (!isRegistering) {
+                                BasicTextField(
+                                    value = otpCode,
+                                    onValueChange = {
+                                        if (it.length <= 6 && it.all { char -> char.isDigit() }) {
+                                            otpCode = it
+                                        }
+                                    },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                                    decorationBox = {
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            repeat(6) { idx ->
+                                                val char = otpCode.getOrNull(idx)?.toString() ?: ""
+                                                val isFocused = otpCode.length == idx
+                                                Box(
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .height(56.dp)
+                                                        .background(Color(0xFFF8FAFC), shape = RoundedCornerShape(10.dp))
+                                                        .border(
+                                                            width = if (isFocused) 2.dp else 1.dp,
+                                                            color = if (isFocused) DarkGreen else BorderColor,
+                                                            shape = RoundedCornerShape(10.dp)
+                                                        )
+                                                        .shadow(if (isFocused) 4.dp else 0.dp, RoundedCornerShape(10.dp)),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Text(
+                                                        text = char,
+                                                        fontSize = 22.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = TextDark
                                                     )
-                                                    .shadow(if (isFocused) 4.dp else 0.dp, RoundedCornerShape(10.dp)),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                Text(
-                                                    text = char,
-                                                    fontSize = 22.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = TextDark
-                                                )
+                                                }
                                             }
                                         }
                                     }
-                                }
-                            )
+                                )
 
-                            Spacer(modifier = Modifier.height(28.dp))
+                                Spacer(modifier = Modifier.height(28.dp))
 
-                            Button(
-                                onClick = {
-                                    if (otpCode.length < 6) {
-                                        Toast.makeText(context, "Please enter all 6 digits", Toast.LENGTH_SHORT).show()
-                                        return@Button
-                                    }
-                                    isSendingEmail = true
-                                    scope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                                        try {
-                                            Supabase.client.auth.verifyEmailOtp(
-                                                email = emailAddress.trim(),
-                                                token = otpCode.trim(),
-                                                type = OtpType.Email.MAGIC_LINK
-                                            )
-                                            val user = Supabase.client.auth.currentUserOrNull()
-                                            if (user != null) {
-                                                // Handle profile setup/update
-                                                if (isRegistering) {
-                                                    // Update full name in database
-                                                    try {
-                                                        Supabase.client.postgrest["profiles"].update(
-                                                            {
-                                                                set("full_name", fullName.trim())
-                                                            }
-                                                        ) {
-                                                            filter { eq("id", user.id) }
-                                                        }
-                                                    } catch (e: Exception) {
-                                                        // Non-blocking update failure catch
-                                                    }
-
-                                                    scope.launch(kotlinx.coroutines.Dispatchers.Main) {
-                                                        isSendingEmail = false
-                                                        com.rewardclub.app.utils.UserSession.login(
-                                                            userEmail = user.email ?: emailAddress.trim(),
-                                                            uid = user.id,
-                                                            name = fullName.trim()
-                                                        )
-                                                        Toast.makeText(context, "Welcome to Reward Club!", Toast.LENGTH_SHORT).show()
-                                                        onLoginSuccess()
-                                                    }
-                                                } else {
-                                                    // Fetch user profile stats
+                                Button(
+                                    onClick = {
+                                        if (otpCode.length < 6) {
+                                            Toast.makeText(context, "Please enter all 6 digits", Toast.LENGTH_SHORT).show()
+                                            return@Button
+                                        }
+                                        isSendingEmail = true
+                                        scope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                            try {
+                                                Supabase.client.auth.verifyEmailOtp(
+                                                    email = emailAddress.trim(),
+                                                    token = otpCode.trim(),
+                                                    type = OtpType.Email.MAGIC_LINK
+                                                )
+                                                val user = Supabase.client.auth.currentUserOrNull()
+                                                if (user != null) {
                                                     val dbProfile = try {
                                                         Supabase.client.postgrest["profiles"]
                                                             .select { filter { eq("id", user.id) } }
@@ -604,7 +654,6 @@ fun LoginScreen(
                                                     } catch (e: Exception) {
                                                         null
                                                     }
-
                                                     scope.launch(kotlinx.coroutines.Dispatchers.Main) {
                                                         isSendingEmail = false
                                                         com.rewardclub.app.utils.UserSession.login(
@@ -615,32 +664,30 @@ fun LoginScreen(
                                                         Toast.makeText(context, "Welcome back!", Toast.LENGTH_SHORT).show()
                                                         onLoginSuccess()
                                                     }
+                                                } else {
+                                                    scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                                                        isSendingEmail = false
+                                                        Toast.makeText(context, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                                                    }
                                                 }
-                                            } else {
+                                            } catch (e: Exception) {
                                                 scope.launch(kotlinx.coroutines.Dispatchers.Main) {
                                                     isSendingEmail = false
-                                                    Toast.makeText(context, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(context, "Verification failed: ${e.message}", Toast.LENGTH_LONG).show()
                                                 }
                                             }
-                                        } catch (e: Exception) {
-                                            scope.launch(kotlinx.coroutines.Dispatchers.Main) {
-                                                isSendingEmail = false
-                                                Toast.makeText(context, "Verification failed: ${e.message}", Toast.LENGTH_LONG).show()
-                                            }
                                         }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
+                                    shape = RoundedCornerShape(10.dp),
+                                    enabled = !isSendingEmail,
+                                    modifier = Modifier.fillMaxWidth().height(52.dp)
+                                ) {
+                                    if (isSendingEmail) {
+                                        CircularProgressIndicator(color = White, strokeWidth = 2.dp, modifier = Modifier.size(20.dp))
+                                    } else {
+                                        Text("Verify & Sign In", fontWeight = FontWeight.Bold, color = White, fontSize = 15.sp)
                                     }
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = if (isRegistering) AmazonOrange else DarkGreen),
-                                shape = RoundedCornerShape(10.dp),
-                                enabled = !isSendingEmail,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(52.dp)
-                            ) {
-                                if (isSendingEmail) {
-                                    CircularProgressIndicator(color = White, strokeWidth = 2.dp, modifier = Modifier.size(20.dp))
-                                } else {
-                                    Text("Verify & Complete", fontWeight = FontWeight.Bold, color = White, fontSize = 15.sp)
                                 }
                             }
 

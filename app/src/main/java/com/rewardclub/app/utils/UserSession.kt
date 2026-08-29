@@ -81,16 +81,36 @@ object UserSession {
     suspend fun fetchProfileAndStats(userId: String) {
         try {
             // Fetch Profile
-            val profile = Supabase.client.postgrest["profiles"]
+            var profile = Supabase.client.postgrest["profiles"]
                 .select { filter { eq("id", userId) } }
                 .decodeSingleOrNull<DbProfile>()
             
+            if (profile == null && currentUser != null) {
+                try {
+                    val newP = DbProfile(
+                        id = userId,
+                        email = email,
+                        full_name = fullName,
+                        mobile = mobile,
+                        total_coins = 0L,
+                        redeemed_coins = 0L,
+                        total_savings = 0L
+                    )
+                    Supabase.client.postgrest["profiles"].upsert(newP)
+                    profile = newP
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
             if (profile != null) {
-                fullName = profile.full_name ?: fullName
+                if (!profile.full_name.isNullOrEmpty()) {
+                    fullName = profile.full_name
+                }
                 mobile = profile.mobile ?: ""
-                totalCoins = profile.total_coins ?: totalCoins
-                redeemedCoins = profile.redeemed_coins ?: redeemedCoins
-                totalSavings = profile.total_savings ?: totalSavings
+                totalCoins = profile.total_coins ?: 0L
+                redeemedCoins = profile.redeemed_coins ?: 0L
+                totalSavings = profile.total_savings ?: 0L
                 currentUser = currentUser?.copy(displayName = fullName)
             }
         } catch (e: Exception) {
@@ -110,9 +130,9 @@ object UserSession {
         email = cleanEmail
         fullName = defaultName
         mobile = ""
-        totalCoins = 100L
-        redeemedCoins = 50L
-        totalSavings = 150L
+        totalCoins = 0L
+        redeemedCoins = 0L
+        totalSavings = 0L
 
         // Attempt async fetch of database profile
         sessionScope.launch {
