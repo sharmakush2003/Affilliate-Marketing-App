@@ -8,6 +8,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import com.rewardclub.app.utils.Supabase
+import com.rewardclub.app.utils.DbProfile
+import com.rewardclub.app.utils.UserSession
+import io.github.jan.supabase.postgrest.postgrest
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.buildJsonObject
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
@@ -128,7 +134,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             try {
                 // Import the session into Supabase client
-                val fullUri = "rewardclub://home#access_token=$accessToken&refresh_token=$refreshToken&token_type=bearer&type=signup"
+                val fullUri = "rewardclub://home#access_token=${accessToken}&refresh_token=${refreshToken}&token_type=bearer&type=signup"
                 Supabase.client.auth.parseSessionFromUrl(fullUri)
 
                 val user = Supabase.client.auth.currentUserOrNull() ?: return@launch
@@ -143,7 +149,7 @@ class MainActivity : ComponentActivity() {
                     try {
                         // Update auth user metadata
                         Supabase.client.auth.updateUser {
-                            data = kotlinx.serialization.json.buildJsonObject {
+                            data = buildJsonObject {
                                 put("full_name", pendingName)
                                 put("mobile", pendingMobile)
                                 put("name", pendingName)
@@ -151,7 +157,7 @@ class MainActivity : ComponentActivity() {
                         }
                         // Upsert profile with real name and mobile
                         Supabase.client.postgrest["profiles"].upsert(
-                            com.rewardclub.app.model.DbProfile(
+                            DbProfile(
                                 id = user.id,
                                 email = pendingEmail,
                                 full_name = pendingName,
@@ -173,7 +179,7 @@ class MainActivity : ComponentActivity() {
                     user.userMetadata?.get("full_name")?.toString()?.trim('"') ?: ""
                 }
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                    com.rewardclub.app.utils.UserSession.login(
+                    UserSession.login(
                         userEmail = user.email ?: pendingEmail,
                         uid = user.id,
                         name = name
