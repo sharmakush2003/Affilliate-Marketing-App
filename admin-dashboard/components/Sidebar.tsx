@@ -2,13 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, ArrowLeftRight, Settings2, LogOut, Globe, HelpCircle, History, MousePointerClick, Tag } from 'lucide-react'
+import { LayoutDashboard, Users, ArrowLeftRight, Settings2, LogOut, Globe, HelpCircle, History, MousePointerClick } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 const nav = [
   { href: '/dashboard',              label: 'Overview',          icon: LayoutDashboard },
   { href: '/dashboard/users',        label: 'Users',             icon: Users },
-  { href: '/dashboard/offers',       label: 'Offers & Deals',    icon: Tag },
   { href: '/dashboard/clicks',       label: 'Click Logs',        icon: MousePointerClick },
   { href: '/dashboard/transactions', label: 'Transactions',      icon: ArrowLeftRight },
   { href: '/dashboard/sessions',     label: 'Admin Sessions',    icon: History },

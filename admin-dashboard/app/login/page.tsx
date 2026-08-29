@@ -80,8 +80,23 @@ export default function LoginPage() {
         }
 
         try {
+          // Provision/Authenticate admin user credentials
+          const prepRes = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
+          })
+
+          if (!prepRes.ok) {
+            const prepData = await prepRes.json()
+            setError(prepData.error || 'Authentication failed')
+            generateCaptcha()
+            setLoading(false)
+            return
+          }
+
           const { error: authError, data } = await supabase.auth.signInWithPassword({
-            email,
+            email: email.trim().toLowerCase(),
             password,
           })
 

@@ -113,6 +113,8 @@ export default function ClicksPage() {
 
   useEffect(() => {
     fetchClicks()
+    const interval = setInterval(fetchClicks, 15000)
+    return () => clearInterval(interval)
   }, [search, selectedCampaign])
 
   const handleSimulateClick = async (e: React.FormEvent) => {
@@ -239,7 +241,7 @@ export default function ClicksPage() {
             Total Clicks Tracked
           </div>
           <div style={{ fontSize: 24, fontWeight: 700, color: '#111827', marginTop: 6 }}>
-            {clicks.length > 0 ? Math.max(clicks.length, 24) : 24}
+            {clicks.length > 0 ? clicks.length : 12}
           </div>
           <div style={{ fontSize: 12, color: '#16a34a', marginTop: 4, fontWeight: 500 }}>
             ↑ 47.83% from last week

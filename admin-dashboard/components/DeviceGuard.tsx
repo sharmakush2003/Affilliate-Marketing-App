@@ -1,28 +1,35 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { MonitorOff, ShieldAlert } from 'lucide-react'
 
 export function DeviceGuard({ children }: { children: React.ReactNode }) {
   const [isMobile, setIsMobile] = useState<boolean | null>(null)
+  const pathname = usePathname()
+
+  // Allow public verification & confirmation pages on any device (Mobile or Desktop)
+  const isPublicPath = pathname?.startsWith('/verify') || 
+                       pathname?.startsWith('/confirm') || 
+                       pathname?.startsWith('/auth') ||
+                       pathname === '/'
 
   useEffect(() => {
     const checkDevice = () => {
       const ua = navigator.userAgent || navigator.vendor || (window as any).opera
-      // Checks for mobile devices specifically (phones). Allows tablets (e.g. ipad/android tablet usually do not contain 'mobile' in UA but contain 'android' or 'ipad')
       const isMobileUA = /android.+mobile|iphone|ipod|blackberry|iemobile|opera mini/i.test(ua.toLowerCase())
-      const isSmallScreen = window.innerWidth < 768
-      
-      setIsMobile(isMobileUA || isSmallScreen)
+      setIsMobile(isMobileUA)
     }
 
     checkDevice()
-    // Check again if viewport changes
     window.addEventListener('resize', checkDevice)
     return () => window.removeEventListener('resize', checkDevice)
   }, [])
 
-  // Show empty loading state during hydration/initial check
+  if (isPublicPath) {
+    return <>{children}</>
+  }
+
   if (isMobile === null) {
     return null
   }

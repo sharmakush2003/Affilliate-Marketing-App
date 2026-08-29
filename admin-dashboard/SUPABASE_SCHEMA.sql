@@ -1,7 +1,84 @@
--- ════════════════════════════════════════════════════════════════
--- Reward Club Admin Dashboard - Supabase Schema
--- Run this in your Supabase SQL Editor (dashboard.supabase.com)
--- ════════════════════════════════════════════════════════════════
+-- Create profiles table (if not exists)
+CREATE TABLE IF NOT EXISTS public.profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    email TEXT,
+    full_name TEXT,
+    mobile TEXT,
+    total_coins BIGINT DEFAULT 0,
+    redeemed_coins BIGINT DEFAULT 0,
+    total_savings NUMERIC(10, 2) DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Index for profiles
+CREATE INDEX IF NOT EXISTS idx_profiles_email ON public.profiles(email);
+CREATE INDEX IF NOT EXISTS idx_profiles_created_at ON public.profiles(created_at DESC);
+
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Service role profiles access" ON public.profiles
+  FOR ALL USING (true) WITH CHECK (true);
+
+-- Automatic trigger: create/update profile ONLY when user verifies email / OTP
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Only create profile row if the user's email/OTP has been confirmed
+  IF NEW.email_confirmed_at IS NOT NULL THEN
+    INSERT INTO public.profiles (id, email, full_name, mobile, total_coins, redeemed_coins, total_savings, created_at)
+    VALUES (
+      NEW.id,
+      NEW.email,
+      COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'display_name', NEW.raw_user_meta_data->>'name', ''),
+      COALESCE(NEW.raw_user_meta_data->>'mobile', NEW.raw_user_meta_data->>'phone', ''),
+      0,
+      0,
+      0,
+      NEW.created_at
+    )
+    ON CONFLICT (id) DO UPDATE SET
+      email = EXCLUDED.email,
+      full_name = CASE WHEN EXCLUDED.full_name <> '' THEN EXCLUDED.full_name ELSE public.profiles.full_name END,
+      mobile = CASE WHEN EXCLUDED.mobile <> '' THEN EXCLUDED.mobile ELSE public.profiles.mobile END;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger execution on auth.users insert
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Trigger execution when email_confirmed_at is updated on auth.users (after OTP verification)
+CREATE OR REPLACE FUNCTION public.handle_user_confirmed()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF OLD.email_confirmed_at IS NULL AND NEW.email_confirmed_at IS NOT NULL THEN
+    INSERT INTO public.profiles (id, email, full_name, mobile, total_coins, redeemed_coins, total_savings, created_at)
+    VALUES (
+      NEW.id,
+      NEW.email,
+      COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'display_name', NEW.raw_user_meta_data->>'name', ''),
+      COALESCE(NEW.raw_user_meta_data->>'mobile', NEW.raw_user_meta_data->>'phone', ''),
+      0,
+      0,
+      0,
+      NEW.created_at
+    )
+    ON CONFLICT (id) DO UPDATE SET
+      email = EXCLUDED.email,
+      full_name = CASE WHEN EXCLUDED.full_name <> '' THEN EXCLUDED.full_name ELSE public.profiles.full_name END,
+      mobile = CASE WHEN EXCLUDED.mobile <> '' THEN EXCLUDED.mobile ELSE public.profiles.mobile END;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_confirmed ON auth.users;
+CREATE TRIGGER on_auth_user_confirmed
+  AFTER UPDATE ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_user_confirmed();
 
 -- Create transactions table (run once)
 CREATE TABLE IF NOT EXISTS public.transactions (
@@ -32,9 +109,6 @@ ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 -- Policy: Allow service role to do everything (used by admin dashboard API routes)
 CREATE POLICY "Service role full access" ON public.transactions
   FOR ALL USING (true) WITH CHECK (true);
-
--- Confirm profiles table has created_at column
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now());
 
 -- Create click_logs table for Cuelinks / Mobile App click tracking
 CREATE TABLE IF NOT EXISTS public.click_logs (
@@ -84,5 +158,6 @@ CREATE INDEX IF NOT EXISTS idx_offers_valid_till ON public.offers(valid_till DES
 ALTER TABLE public.offers ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Service role offers access" ON public.offers
   FOR ALL USING (true) WITH CHECK (true);
+
 
 
