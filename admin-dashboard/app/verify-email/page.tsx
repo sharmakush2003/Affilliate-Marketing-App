@@ -10,11 +10,17 @@ export default function VerifyEmailPage() {
   const [isError, setIsError] = useState(false)
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const accessToken = params.get('access_token')
-    const refreshToken = params.get('refresh_token')
-    const email = params.get('email') ?? ''
-    const error = params.get('error')
+    // Supabase passes tokens in the URL fragment (#) not search string (?)
+    const hash = window.location.hash.substring(1) // remove the '#'
+    const params = new URLSearchParams(hash)
+    
+    // Fallback to search string if not found in hash
+    const searchParams = new URLSearchParams(window.location.search)
+    
+    const accessToken = params.get('access_token') || searchParams.get('access_token')
+    const refreshToken = params.get('refresh_token') || searchParams.get('refresh_token')
+    const email = params.get('email') || searchParams.get('email') ?? ''
+    const error = params.get('error') || searchParams.get('error')
 
     if (error) {
       setIsError(true)
