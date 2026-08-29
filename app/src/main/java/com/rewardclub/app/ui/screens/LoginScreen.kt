@@ -89,6 +89,17 @@ fun LoginScreen(
                         }
                     }
                 }
+
+                // Save pending registration data to SharedPreferences for deep link auto-login
+                if (isRegistering) {
+                    val prefs = context.getSharedPreferences("pending_registration", android.content.Context.MODE_PRIVATE)
+                    prefs.edit()
+                        .putString("full_name", fullName.trim())
+                        .putString("mobile", mobileNumber.trim())
+                        .putString("email", email.trim())
+                        .apply()
+                }
+
                 scope.launch(kotlinx.coroutines.Dispatchers.Main) {
                     isSendingEmail = false
                     otpCode = ""

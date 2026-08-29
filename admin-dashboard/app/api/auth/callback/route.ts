@@ -18,8 +18,9 @@ export async function GET(req: NextRequest) {
       type: type as any,
     })
 
-    if (!error && data?.user) {
+    if (!error && data?.user && data?.session) {
       const user = data.user
+      const { access_token, refresh_token } = data.session
 
       // Use service role to upsert the profile (bypass RLS)
       const supabaseAdmin = createClient(
@@ -41,7 +42,12 @@ export async function GET(req: NextRequest) {
         total_savings: 0,
       }, { onConflict: 'id', ignoreDuplicates: false })
 
-      return NextResponse.redirect(new URL('/verify-email', req.url))
+      // Redirect to verify-email page with tokens so app can auto-login
+      const redirectUrl = new URL('/verify-email', req.url)
+      redirectUrl.searchParams.set('access_token', access_token)
+      redirectUrl.searchParams.set('refresh_token', refresh_token)
+      redirectUrl.searchParams.set('email', user.email ?? '')
+      return NextResponse.redirect(redirectUrl)
     }
   }
 

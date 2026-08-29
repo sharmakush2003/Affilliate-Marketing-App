@@ -1,6 +1,9 @@
 // © 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
 package com.rewardclub.app
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -88,6 +91,9 @@ class MainActivity : ComponentActivity() {
         // Step 3: Initialize Cuelinks SDK (reads Channel ID 301603 from AndroidManifest)
         com.cuelinks.sdk.Cuelinks.initialize(this)
 
+        // Handle deep link if app was opened via email verification link
+        handleDeepLink(intent)
+
         setContent {
             XYZTheme {
                 Surface(
@@ -96,6 +102,90 @@ class MainActivity : ComponentActivity() {
                 ) {
                     AppMainContainer()
                 }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleDeepLink(intent)
+    }
+
+    private fun handleDeepLink(intent: Intent) {
+        val uri: Uri = intent.data ?: return
+        if (uri.scheme != "rewardclub") return
+
+        // Parse fragment for access_token (format: rewardclub://home#access_token=XXX&refresh_token=YYY)
+        val fragment = uri.fragment ?: return
+        val params = fragment.split("&").associate {
+            val parts = it.split("=", limit = 2)
+            (parts.getOrNull(0) ?: "") to java.net.URLDecoder.decode(parts.getOrNull(1) ?: "", "UTF-8")
+        }
+
+        val accessToken = params["access_token"] ?: return
+        val refreshToken = params["refresh_token"] ?: ""
+
+        lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                // Import the session into Supabase client
+                val fullUri = "rewardclub://home#access_token=$accessToken&refresh_token=$refreshToken&token_type=bearer&type=signup"
+                Supabase.client.auth.parseSessionFromUrl(fullUri)
+
+                val user = Supabase.client.auth.currentUserOrNull() ?: return@launch
+
+                // Read pending registration data from SharedPreferences
+                val prefs = getSharedPreferences("pending_registration", Context.MODE_PRIVATE)
+                val pendingName = prefs.getString("full_name", "") ?: ""
+                val pendingMobile = prefs.getString("mobile", "") ?: ""
+                val pendingEmail = prefs.getString("email", user.email ?: "") ?: ""
+
+                if (pendingName.isNotEmpty()) {
+                    try {
+                        // Update auth user metadata
+                        Supabase.client.auth.updateUser {
+                            data = kotlinx.serialization.json.buildJsonObject {
+                                put("full_name", pendingName)
+                                put("mobile", pendingMobile)
+                                put("name", pendingName)
+                            }
+                        }
+                        // Upsert profile with real name and mobile
+                        Supabase.client.postgrest["profiles"].upsert(
+                            com.rewardclub.app.model.DbProfile(
+                                id = user.id,
+                                email = pendingEmail,
+                                full_name = pendingName,
+                                mobile = pendingMobile,
+                                total_coins = 0L,
+                                redeemed_coins = 0L,
+                                total_savings = 0L
+                            )
+                        )
+                        // Clear pending registration data
+                        prefs.edit().clear().apply()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+
+                // Auto-login to UserSession
+                val name = pendingName.ifEmpty {
+                    user.userMetadata?.get("full_name")?.toString()?.trim('"') ?: ""
+                }
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    com.rewardclub.app.utils.UserSession.login(
+                        userEmail = user.email ?: pendingEmail,
+                        uid = user.id,
+                        name = name
+                    )
+                    android.widget.Toast.makeText(
+                        this@MainActivity,
+                        "Welcome to Reward Club! 🎉",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
