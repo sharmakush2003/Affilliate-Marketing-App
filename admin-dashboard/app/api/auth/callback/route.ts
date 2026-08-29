@@ -5,24 +5,46 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type')
-  const next = searchParams.get('next') ?? '/verify-email'
 
   if (token_hash && type) {
+    // Use anon client to verify the OTP
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
-    const { error } = await supabase.auth.verifyOtp({
+    const { data, error } = await supabase.auth.verifyOtp({
       token_hash,
       type: type as any,
     })
 
-    if (!error) {
+    if (!error && data?.user) {
+      const user = data.user
+
+      // Use service role to upsert the profile (bypass RLS)
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      )
+
+      // Upsert profile into public.profiles table
+      const fullName = user.user_metadata?.full_name || user.user_metadata?.name || ''
+      const mobile = user.user_metadata?.mobile || user.user_metadata?.phone || ''
+
+      await supabaseAdmin.from('profiles').upsert({
+        id: user.id,
+        email: user.email ?? '',
+        full_name: fullName,
+        mobile: mobile,
+        total_coins: 0,
+        redeemed_coins: 0,
+        total_savings: 0,
+      }, { onConflict: 'id', ignoreDuplicates: false })
+
       return NextResponse.redirect(new URL('/verify-email', req.url))
     }
   }
 
-  // On error, still redirect to verify-email with error param
+  // On error, redirect to verify-email with error param
   return NextResponse.redirect(new URL('/verify-email?error=1', req.url))
 }
