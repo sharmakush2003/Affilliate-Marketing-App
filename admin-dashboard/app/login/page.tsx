@@ -32,11 +32,23 @@ export default function LoginPage() {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
-        router.push('/dashboard')
+        // Only redirect to dashboard if the user is a valid admin
+        const { isAllowedAdminEmail } = await import('@/lib/adminAuth')
+        if (isAllowedAdminEmail(session.user.email)) {
+          router.push('/dashboard')
+        }
       }
     }
     checkUser()
     generateCaptcha()
+
+    // Read error search parameters
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('error') === 'unauthorized') {
+        setError('Access Denied: You are not authorized to view the admin dashboard.')
+      }
+    }
   }, [router])
 
   const handleLogin = async (e: React.FormEvent) => {

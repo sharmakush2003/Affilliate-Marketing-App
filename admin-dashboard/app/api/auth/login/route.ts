@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { isAllowedAdminEmail } from '@/lib/adminAuth'
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,34 +11,35 @@ export async function POST(req: NextRequest) {
 
     const cleanEmail = email.trim().toLowerCase()
 
-    // 1. Check if user exists in Supabase Auth using Admin API
+    // 1. Enforce admin allowlist verification
+    if (!isAllowedAdminEmail(cleanEmail)) {
+      console.warn(`[auth/login] Blocked unauthorized login attempt: ${cleanEmail}`)
+      return NextResponse.json(
+        { error: 'Access Denied: You are not an authorized admin.' },
+        { status: 403 }
+      )
+    }
+
+    // 2. Check if user exists in Supabase Auth using Admin API
     const { data: usersData, error: listError } = await supabaseAdmin.auth.admin.listUsers()
     
-    let targetUser = usersData?.users?.find(
+    if (listError) {
+      console.error('[auth/login] listUsers error:', listError.message)
+      return NextResponse.json({ error: 'Internal auth verification error' }, { status: 500 })
+    }
+
+    const targetUser = usersData?.users?.find(
       (u) => u.email?.trim().toLowerCase() === cleanEmail
     )
 
     if (!targetUser) {
-      // Create admin user in Supabase Auth if not present
-      const { data: newUserData, error: createError } = await supabaseAdmin.auth.admin.createUser({
-        email: cleanEmail,
-        password: password,
-        email_confirm: true,
-      })
-
-      if (createError) {
-        return NextResponse.json({ error: createError.message }, { status: 400 })
-      }
-      targetUser = newUserData.user
-    } else {
-      // Ensure user password is updated & email confirmed for admin access
-      await supabaseAdmin.auth.admin.updateUserById(targetUser.id, {
-        password: password,
-        email_confirm: true,
-      })
+      return NextResponse.json(
+        { error: 'Invalid admin credentials or account does not exist.' },
+        { status: 401 }
+      )
     }
 
-    // 2. Generate Session Token or return success
+    // 3. Return success so client can proceed with secure supabase.auth.signInWithPassword
     return NextResponse.json({
       success: true,
       userId: targetUser.id,

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Sidebar } from '@/components/Sidebar'
 import { Header } from '@/components/Header'
+import { isAllowedAdminEmail } from '@/lib/adminAuth'
 import type { ReactNode } from 'react'
 
 export default function Layout({ children }: { children: ReactNode }) {
@@ -18,23 +19,34 @@ export default function Layout({ children }: { children: ReactNode }) {
         const { data: { session } } = await supabase.auth.getSession()
         if (!session) {
           router.push('/login')
-        } else {
-          const sessionId = sessionStorage.getItem('current_admin_session_id')
-          if (sessionId) {
-            const verifyRes = await fetch(`/api/auth/sessions/verify?id=${sessionId}`)
-            if (verifyRes.ok) {
-              const verifyData = await verifyRes.json()
-              if (!verifyData.valid) {
-                sessionStorage.removeItem('current_admin_session_id')
-                await supabase.auth.signOut()
-                router.push('/login')
-                return
-              }
+          return
+        }
+
+        // Verify if logged-in user is allowed to access the admin dashboard
+        if (!isAllowedAdminEmail(session.user.email)) {
+          console.warn(`[dashboard/layout] Access denied for user: ${session.user.email}`)
+          sessionStorage.removeItem('current_admin_session_id')
+          await supabase.auth.signOut()
+          router.push('/login?error=unauthorized')
+          return
+        }
+
+        const sessionId = sessionStorage.getItem('current_admin_session_id')
+        if (sessionId) {
+          const verifyRes = await fetch(`/api/auth/sessions/verify?id=${sessionId}`)
+          if (verifyRes.ok) {
+            const verifyData = await verifyRes.json()
+            if (!verifyData.valid) {
+              sessionStorage.removeItem('current_admin_session_id')
+              await supabase.auth.signOut()
+              router.push('/login')
+              return
             }
           }
-          setAuthenticated(true)
-          setLoading(false)
         }
+        
+        setAuthenticated(true)
+        setLoading(false)
       } catch (err) {
         console.error('Auth verification failed:', err)
         router.push('/login')
@@ -43,11 +55,18 @@ export default function Layout({ children }: { children: ReactNode }) {
 
     checkAuth()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
         setAuthenticated(false)
         router.push('/login')
       } else if (session) {
+        if (!isAllowedAdminEmail(session.user.email)) {
+          setAuthenticated(false)
+          sessionStorage.removeItem('current_admin_session_id')
+          await supabase.auth.signOut()
+          router.push('/login?error=unauthorized')
+          return
+        }
         setAuthenticated(true)
         setLoading(false)
       }
