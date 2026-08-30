@@ -20,3 +20,30 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: errorMsg }, { status: 500 })
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = req.nextUrl
+    const sessionId = searchParams.get('id')
+    
+    if (!sessionId) {
+      return NextResponse.json({ error: 'Session ID is required' }, { status: 400 })
+    }
+
+    const { error } = await supabaseAdmin
+      .from('admin_sessions')
+      .delete()
+      .eq('id', sessionId)
+      .eq('status', 'logged_out')
+
+    if (error) {
+      console.error('[sessions] db delete error:', error.message)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : 'Unknown sessions delete error'
+    return NextResponse.json({ error: errorMsg }, { status: 500 })
+  }
+}

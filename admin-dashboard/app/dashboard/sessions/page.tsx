@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { ShieldCheck, History, Monitor, Smartphone, Globe, AlertTriangle, LogOut, Search, Clock, KeyRound, MapPin, Database } from 'lucide-react'
+import { ShieldCheck, History, Monitor, Smartphone, Globe, AlertTriangle, LogOut, Search, Clock, KeyRound, MapPin, Database, Trash2 } from 'lucide-react'
 
 interface AdminSession {
   id: string
@@ -21,6 +21,7 @@ export default function AdminSessionsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
   const [terminatingId, setTerminatingId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState('')
   const router = useRouter()
 
@@ -66,6 +67,26 @@ export default function AdminSessionsPage() {
       alert(err.message || 'Failed to terminate session.')
     } finally {
       setTerminatingId(null)
+    }
+  }
+
+  const handleDeleteSession = async (sessionId: string) => {
+    if (!confirm('Are you sure you want to permanently delete this session log? This action cannot be undone.')) {
+      return
+    }
+    setDeletingId(sessionId)
+    try {
+      const res = await fetch(`/api/auth/sessions?id=${sessionId}`, {
+        method: 'DELETE',
+      })
+
+      if (!res.ok) throw new Error('Deletion request failed')
+
+      await fetchSessions()
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete session log.')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -268,7 +289,14 @@ export default function AdminSessionsPage() {
                             {terminatingId === session.id ? 'Ending...' : isCurrent ? 'Log Out' : 'Force End'}
                           </button>
                         ) : (
-                          <span style={styles.terminatedText}>Closed</span>
+                          <button
+                            disabled={deletingId !== null}
+                            onClick={() => handleDeleteSession(session.id)}
+                            style={styles.deleteButton}
+                          >
+                            <Trash2 size={12} style={{ marginRight: 4 }} />
+                            {deletingId === session.id ? 'Deleting...' : 'Delete'}
+                          </button>
                         )}
                       </td>
                     </tr>
@@ -580,6 +608,19 @@ const styles: Record<string, React.CSSProperties> = {
     border: '1px solid #fee2e2',
     borderRadius: '8px',
     color: '#991b1b',
+    fontSize: '12px',
+    fontWeight: '700',
+    padding: '6px 12px',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    transition: 'all 0.15s ease',
+  },
+  deleteButton: {
+    background: '#fff5f5',
+    border: '1px solid #fee2e2',
+    borderRadius: '8px',
+    color: '#dc2626',
     fontSize: '12px',
     fontWeight: '700',
     padding: '6px 12px',
