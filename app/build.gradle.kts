@@ -13,6 +13,7 @@ val otpServerUrl: String = localProperties.getProperty("OTP_SERVER_URL") ?: ""
 val otpApiSecret: String = localProperties.getProperty("OTP_API_SECRET") ?: ""
 val supabaseUrl: String = localProperties.getProperty("SUPABASE_URL") ?: ""
 val supabaseAnonKey: String = localProperties.getProperty("SUPABASE_ANON_KEY") ?: ""
+val supabaseServiceRoleKey: String = localProperties.getProperty("SUPABASE_SERVICE_ROLE_KEY") ?: ""
 
 val releaseStoreFile: String = localProperties.getProperty("RELEASE_STORE_FILE") ?: ""
 val releaseStorePassword: String = localProperties.getProperty("RELEASE_STORE_PASSWORD") ?: ""
@@ -38,8 +39,8 @@ android {
         applicationId = "com.rewardclub.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 9
-        versionName = "1.0.8"
+        versionCode = 10
+        versionName = "1.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "CUELINKS_API_KEY", "\"$cuelinksApiKey\"")
@@ -50,6 +51,7 @@ android {
         buildConfigField("String", "OTP_API_SECRET", "\"$otpApiSecret\"")
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
+        buildConfigField("String", "SUPABASE_SERVICE_ROLE_KEY", "\"$supabaseServiceRoleKey\"")
     }
 
     signingConfigs {
@@ -65,8 +67,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("release")
         }

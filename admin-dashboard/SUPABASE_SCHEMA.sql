@@ -18,28 +18,25 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Service role profiles access" ON public.profiles
   FOR ALL USING (true) WITH CHECK (true);
 
--- Automatic trigger: create/update profile ONLY when user verifies email / OTP
+-- Automatic trigger: create/update profile immediately when any user is created in auth.users
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  -- Only create profile row if the user's email/OTP has been confirmed
-  IF NEW.email_confirmed_at IS NOT NULL THEN
-    INSERT INTO public.profiles (id, email, full_name, mobile, total_coins, redeemed_coins, total_savings, created_at)
-    VALUES (
-      NEW.id,
-      NEW.email,
-      COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'display_name', NEW.raw_user_meta_data->>'name', ''),
-      COALESCE(NEW.raw_user_meta_data->>'mobile', NEW.raw_user_meta_data->>'phone', ''),
-      0,
-      0,
-      0,
-      NEW.created_at
-    )
-    ON CONFLICT (id) DO UPDATE SET
-      email = EXCLUDED.email,
-      full_name = CASE WHEN EXCLUDED.full_name <> '' THEN EXCLUDED.full_name ELSE public.profiles.full_name END,
-      mobile = CASE WHEN EXCLUDED.mobile <> '' THEN EXCLUDED.mobile ELSE public.profiles.mobile END;
-  END IF;
+  INSERT INTO public.profiles (id, email, full_name, mobile, total_coins, redeemed_coins, total_savings, created_at)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NULLIF(NEW.raw_user_meta_data->>'full_name', ''), NULLIF(NEW.raw_user_meta_data->>'display_name', ''), NULLIF(NEW.raw_user_meta_data->>'name', ''), split_part(NEW.email, '@', 1)),
+    COALESCE(NEW.raw_user_meta_data->>'mobile', NEW.raw_user_meta_data->>'phone', ''),
+    0,
+    0,
+    0,
+    NEW.created_at
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    full_name = CASE WHEN EXCLUDED.full_name <> '' THEN EXCLUDED.full_name ELSE public.profiles.full_name END,
+    mobile = CASE WHEN EXCLUDED.mobile <> '' THEN EXCLUDED.mobile ELSE public.profiles.mobile END;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

@@ -53,9 +53,9 @@ export default function AdminSessionsPage() {
 
       if (!res.ok) throw new Error('Termination request failed')
 
-      const currentSessionId = localStorage.getItem('current_admin_session_id')
+      const currentSessionId = sessionStorage.getItem('current_admin_session_id')
       if (currentSessionId === sessionId) {
-        localStorage.removeItem('current_admin_session_id')
+        sessionStorage.removeItem('current_admin_session_id')
         await supabase.auth.signOut()
         router.push('/login')
         return
@@ -95,7 +95,7 @@ export default function AdminSessionsPage() {
     session.location.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const currentSessionId = typeof window !== 'undefined' ? localStorage.getItem('current_admin_session_id') : null
+  const currentSessionId = typeof window !== 'undefined' ? sessionStorage.getItem('current_admin_session_id') : null
 
   // Calculate statistics
   const activeSessionsCount = sessions.filter(s => s.status === 'active').length

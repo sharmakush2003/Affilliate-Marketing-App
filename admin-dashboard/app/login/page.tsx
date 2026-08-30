@@ -119,7 +119,7 @@ export default function LoginPage() {
             if (logRes.ok) {
               const logData = await logRes.json()
               if (logData.sessionId) {
-                localStorage.setItem('current_admin_session_id', logData.sessionId)
+                sessionStorage.setItem('current_admin_session_id', logData.sessionId)
               }
             }
 

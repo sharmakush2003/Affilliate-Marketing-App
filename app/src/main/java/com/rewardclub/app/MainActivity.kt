@@ -122,22 +122,29 @@ class MainActivity : ComponentActivity() {
         val uri: Uri = intent.data ?: return
         if (uri.scheme != "rewardclub") return
 
-        // Parse fragment for access_token (format: rewardclub://home#access_token=XXX&refresh_token=YYY)
-        val fragment = uri.fragment ?: return
-        val params = fragment.split("&").associate {
+        // Parse fragment or query string (format: rewardclub://home#access_token=XXX or rewardclub://home?access_token=XXX)
+        val rawData = uri.fragment ?: uri.query ?: return
+        val params = rawData.split("&").associate {
             val parts = it.split("=", limit = 2)
-            (parts.getOrNull(0) ?: "") to java.net.URLDecoder.decode(parts.getOrNull(1) ?: "", "UTF-8")
+            val key = parts.getOrNull(0) ?: ""
+            val rawVal = parts.getOrNull(1) ?: ""
+            val valDecoded = try { java.net.URLDecoder.decode(rawVal, "UTF-8") } catch (e: Exception) { rawVal }
+            key to valDecoded
         }
 
         val accessToken = params["access_token"] ?: return
-        val refreshToken = params["refresh_token"] ?: ""
 
         lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             try {
                 // Import the access token into the Supabase SDK session
                 Supabase.client.auth.importAuthToken(accessToken)
 
-                val user = Supabase.client.auth.currentUserOrNull() ?: return@launch
+                // Retrieve user profile (fall back to retrieveUser if currentUserOrNull returns null initially)
+                val user = try {
+                    Supabase.client.auth.retrieveUser(accessToken)
+                } catch (e: Exception) {
+                    Supabase.client.auth.currentUserOrNull()
+                } ?: return@launch
 
                 // Read pending registration data from SharedPreferences
                 val prefs = getSharedPreferences("pending_registration", Context.MODE_PRIVATE)
@@ -174,20 +181,35 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                // Auto-login to UserSession
-                val name = pendingName.ifEmpty {
-                    user.userMetadata?.get("full_name")?.toString()?.trim('"') ?: ""
+                // Check database profile for full_name if pendingName was empty
+                var displayName = pendingName
+                if (displayName.isEmpty()) {
+                    displayName = try {
+                        val dbProf = Supabase.client.postgrest["profiles"]
+                            .select { filter { eq("id", user.id) } }
+                            .decodeSingleOrNull<DbProfile>()
+                        dbProf?.full_name ?: ""
+                    } catch (e: Exception) {
+                        ""
+                    }
                 }
+                if (displayName.isEmpty()) {
+                    displayName = user.userMetadata?.get("full_name")?.toString()?.trim('"') 
+                        ?: user.email?.substringBefore("@") 
+                        ?: "Member"
+                }
+
+                // Auto-login to UserSession
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
                     UserSession.login(
                         userEmail = user.email ?: pendingEmail,
                         uid = user.id,
-                        name = name
+                        name = displayName
                     )
-                    android.widget.Toast.makeText(
+                    Toast.makeText(
                         this@MainActivity,
-                        "Welcome to Reward Club! 🎉",
-                        android.widget.Toast.LENGTH_SHORT
+                        "Email Verified! Welcome to Reward Club 🎉",
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             } catch (e: Exception) {
@@ -629,7 +651,7 @@ fun AppMainContainer() {
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(Color(0xFFE8F5E9), Color(0xFFFFFFFF))
+                        colors = listOf(Color(0xFF0B0F19), Color(0xFF002244), Color(0xFF0B0F19))
                     )
                 ),
             contentAlignment = Alignment.Center
@@ -641,33 +663,32 @@ fun AppMainContainer() {
                 Box(
                     modifier = Modifier
                         .size(100.dp)
-                        .background(Color.White, CircleShape)
-                        .border(1.5.dp, DarkGreen, CircleShape)
-                        .shadow(8.dp, CircleShape),
+                        .background(Color(0xFF1E293B), CircleShape)
+                        .border(2.dp, Color(0xFF60A5FA), CircleShape)
+                        .shadow(16.dp, CircleShape, spotColor = Color(0x66000000)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "RC",
-                        fontSize = 36.sp,
-                        fontWeight = FontWeight.Black,
-                        color = DarkGreen
+                        text = "🛍️",
+                        fontSize = 44.sp
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Reward Club",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextDark
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White,
+                    letterSpacing = 1.sp
                 )
                 Text(
-                    text = "Loading your session...",
-                    fontSize = 14.sp,
-                    color = TextGray
+                    text = "Loading your experience...",
+                    fontSize = 13.5.sp,
+                    color = Color(0xFF94A3B8)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 CircularProgressIndicator(
-                    color = DarkGreen,
+                    color = Color(0xFF38BDF8),
                     strokeWidth = 3.dp,
                     modifier = Modifier.size(28.dp)
                 )

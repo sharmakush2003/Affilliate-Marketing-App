@@ -29,7 +29,7 @@ object UserSession {
     var currentUser by mutableStateOf<MockUser?>(null)
         private set
 
-    var isSessionChecked by mutableStateOf(false)
+    var isSessionChecked by mutableStateOf(true)
         private set
 
     var isGuest by mutableStateOf(false)
@@ -118,7 +118,7 @@ object UserSession {
         }
     }
 
-    fun login(userEmail: String, uid: String, name: String = "") {
+    fun login(userEmail: String, uid: String, name: String = "", userMobile: String = "") {
         val cleanEmail = userEmail.trim().lowercase()
         val defaultName = name.ifEmpty { cleanEmail.split("@").firstOrNull()?.replaceFirstChar { it.uppercase() } ?: "User" }
         
@@ -129,7 +129,7 @@ object UserSession {
         )
         email = cleanEmail
         fullName = defaultName
-        mobile = ""
+        mobile = userMobile
         totalCoins = 0L
         redeemedCoins = 0L
         totalSavings = 0L

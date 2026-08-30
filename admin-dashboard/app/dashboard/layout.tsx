@@ -19,13 +19,13 @@ export default function Layout({ children }: { children: ReactNode }) {
         if (!session) {
           router.push('/login')
         } else {
-          const sessionId = localStorage.getItem('current_admin_session_id')
+          const sessionId = sessionStorage.getItem('current_admin_session_id')
           if (sessionId) {
             const verifyRes = await fetch(`/api/auth/sessions/verify?id=${sessionId}`)
             if (verifyRes.ok) {
               const verifyData = await verifyRes.json()
               if (!verifyData.valid) {
-                localStorage.removeItem('current_admin_session_id')
+                sessionStorage.removeItem('current_admin_session_id')
                 await supabase.auth.signOut()
                 router.push('/login')
                 return
