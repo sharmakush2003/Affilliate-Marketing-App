@@ -6,12 +6,6 @@ import {
   Search,
   Filter,
   ExternalLink,
-  RefreshCw,
-  Plus,
-  Globe,
-  Smartphone,
-  Calendar,
-  CheckCircle2,
 } from 'lucide-react'
 
 type ClickRecord = {
@@ -83,13 +77,6 @@ export default function ClicksPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [selectedCampaign, setSelectedCampaign] = useState('all')
-  const [isRefreshing, setIsRefreshing] = useState(false)
-  const [showSimulateModal, setShowSimulateModal] = useState(false)
-
-  // Form states for test click simulation
-  const [simCampaign, setSimCampaign] = useState('Bank Bazaar Credit Card')
-  const [simUrl, setSimUrl] = useState('https://www.bankbazaar.com/credit-card.html')
-  const [simSubId, setSimSubId] = useState('SUB_TEST_USER_99')
 
   const fetchClicks = async () => {
     setLoading(true)
@@ -107,7 +94,6 @@ export default function ClicksPage() {
       setClicks(mockClicks)
     } finally {
       setLoading(false)
-      setIsRefreshing(false)
     }
   }
 
@@ -116,29 +102,6 @@ export default function ClicksPage() {
     const interval = setInterval(fetchClicks, 15000)
     return () => clearInterval(interval)
   }, [search, selectedCampaign])
-
-  const handleSimulateClick = async (e: React.FormEvent) => {
-    e.preventDefault()
-    try {
-      const res = await fetch('/api/clicks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          campaignName: simCampaign,
-          destinationUrl: simUrl,
-          subId: simSubId,
-          source: 'api',
-          platform: 'mobile',
-        }),
-      })
-      if (res.ok) {
-        setShowSimulateModal(false)
-        fetchClicks()
-      }
-    } catch (err) {
-      console.error('Error logging test click:', err)
-    }
-  }
 
   const filteredClicks = clicks.filter((c) => {
     const matchSearch =
@@ -152,7 +115,7 @@ export default function ClicksPage() {
 
   return (
     <div style={{ maxWidth: 1150 }}>
-      {/* Page Heading & Header Actions */}
+      {/* Page Heading */}
       <div
         style={{
           display: 'flex',
@@ -180,50 +143,6 @@ export default function ClicksPage() {
           <p style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>
             Real-time affiliate link redirect tracking & CueLinks click logs.
           </p>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <button
-            onClick={() => {
-              setIsRefreshing(true)
-              fetchClicks()
-            }}
-            className="card"
-            style={{
-              padding: '8px 14px',
-              fontSize: 13,
-              fontWeight: 600,
-              color: '#374151',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              cursor: 'pointer',
-              border: '1px solid #e5e7eb',
-            }}
-          >
-            <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
-            Refresh Logs
-          </button>
-
-          <button
-            onClick={() => setShowSimulateModal(true)}
-            style={{
-              padding: '8px 16px',
-              fontSize: 13,
-              fontWeight: 600,
-              color: '#ffffff',
-              background: '#2563eb',
-              borderRadius: 8,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              cursor: 'pointer',
-              border: 'none',
-            }}
-          >
-            <Plus size={15} />
-            Simulate Click
-          </button>
         </div>
       </div>
 
@@ -508,129 +427,6 @@ export default function ClicksPage() {
           </tbody>
         </table>
       </div>
-
-      {/* Simulate Click Modal */}
-      {showSimulateModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.4)',
-            backdropFilter: 'blur(4px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-          }}
-        >
-          <div
-            className="card"
-            style={{
-              width: '100%',
-              maxWidth: 480,
-              padding: 24,
-              background: '#ffffff',
-              borderRadius: 12,
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-            }}
-          >
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#111827', margin: 0, marginBottom: 16 }}>
-              Simulate Test Click Event
-            </h2>
-            <form onSubmit={handleSimulateClick} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>
-                  Campaign Name
-                </label>
-                <input
-                  type="text"
-                  value={simCampaign}
-                  onChange={(e) => setSimCampaign(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    fontSize: 13,
-                    border: '1px solid #e5e7eb',
-                    borderRadius: 6,
-                  }}
-                  required
-                />
-              </div>
-
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>
-                  Destination Target URL
-                </label>
-                <input
-                  type="url"
-                  value={simUrl}
-                  onChange={(e) => setSimUrl(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    fontSize: 13,
-                    border: '1px solid #e5e7eb',
-                    borderRadius: 6,
-                  }}
-                  required
-                />
-              </div>
-
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 4 }}>
-                  SubID / User Reference
-                </label>
-                <input
-                  type="text"
-                  value={simSubId}
-                  onChange={(e) => setSimSubId(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    fontSize: 13,
-                    border: '1px solid #e5e7eb',
-                    borderRadius: 6,
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 12 }}>
-                <button
-                  type="button"
-                  onClick={() => setShowSimulateModal(false)}
-                  style={{
-                    padding: '8px 14px',
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: '#4b5563',
-                    background: '#f3f4f6',
-                    border: 'none',
-                    borderRadius: 6,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  style={{
-                    padding: '8px 16px',
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: '#ffffff',
-                    background: '#2563eb',
-                    border: 'none',
-                    borderRadius: 6,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Log Click
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
