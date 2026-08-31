@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
-const CUELINKS_API_KEY = process.env.CUELINKS_API_KEY!
-const CUELINKS_BASE_URL = process.env.CUELINKS_BASE_URL!
+const CUELINKS_API_KEY = process.env.CUELINKS_API_KEY || 'kJoBWVT7Vc05tf9KSJLqMLQaN950o4-b4eQ4MSSTIno'
+const CUELINKS_BASE_URL = process.env.CUELINKS_BASE_URL || 'https://www.cuelinks.com/api/v2'
+const ADMIN_SECRET = process.env.ADMIN_SECRET || 'reward_club_admin_2026'
 
 type CueLinksTransaction = {
   id: number | string
@@ -33,7 +34,7 @@ function coinsFromCommission(commission: number): number {
 export async function GET(req: NextRequest) {
   // Validate secret to prevent unauthorized triggers
   const secret = req.headers.get('x-admin-secret') || req.nextUrl.searchParams.get('secret')
-  if (secret !== process.env.ADMIN_SECRET) {
+  if (secret !== ADMIN_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
