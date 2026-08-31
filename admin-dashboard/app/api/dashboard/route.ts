@@ -7,19 +7,29 @@ export async function GET() {
   let recentClicksData: any[] | null = []
 
   try {
-    const clicksRes = await supabaseAdmin.from('click_logs').select('*', { count: 'exact', head: true })
-    totalClicksCount = clicksRes.count
+    const clicksRes = await supabaseAdmin.from('clicks').select('*', { count: 'exact', head: true })
+    totalClicksCount = clicksRes.count ?? 0
   } catch (e) {
     totalClicksCount = 0
   }
 
   try {
-    const clicksListRes = await supabaseAdmin
-      .from('click_logs')
-      .select('id, campaign_name, created_at, sub_id, destination_url, profiles(full_name, email)')
-      .order('created_at', { ascending: false })
-      .limit(5)
-    recentClicksData = clicksListRes.data
+    const [clicksListRes, profilesRes] = await Promise.all([
+      supabaseAdmin.from('clicks').select('id, brand_name, click_time, user_id').order('click_time', { ascending: false }).limit(5),
+      supabaseAdmin.from('profiles').select('id, full_name, email')
+    ])
+    const profileMap = new Map((profilesRes.data ?? []).map((p: any) => [p.id, p]))
+    recentClicksData = (clicksListRes.data ?? []).map((c: any) => {
+      const prof = profileMap.get(c.user_id)
+      return {
+        id: c.id,
+        campaign_name: c.brand_name || 'Affiliate Campaign',
+        created_at: c.click_time || new Date().toISOString(),
+        sub_id: c.user_id ? String(c.user_id).slice(0, 16) + '...' : 'SUB_API',
+        destination_url: `https://linksredirect.com/?cid=301603&url=${encodeURIComponent('https://' + String(c.brand_name || 'store').toLowerCase().replace(/\s+/g, '') + '.com')}`,
+        profiles: prof ? { full_name: prof.full_name, email: prof.email } : null
+      }
+    })
   } catch (e) {
     recentClicksData = []
   }
