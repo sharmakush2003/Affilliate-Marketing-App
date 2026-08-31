@@ -62,8 +62,8 @@ export async function GET() {
   const rejectedCount = allTransactions.filter((t: any) => t.status === 'rejected').length
   const totalUnpaidCommission = (pendingStats ?? []).reduce((sum: number, t: any) => sum + (t.commission_earned ?? 0), 0)
 
-  // Return actual total clicks count from click_logs or 23 matching live CueLinks Dashboard
-  const finalClicks = (totalClicksCount && totalClicksCount >= 23) ? totalClicksCount : 23
+  // Return actual live count from Supabase click_logs
+  const finalClicks = totalClicksCount ?? 0
 
   return NextResponse.json({
     kpis: {

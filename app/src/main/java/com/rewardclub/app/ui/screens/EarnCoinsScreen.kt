@@ -182,7 +182,7 @@ fun EarnCoinsScreen(
 
                             // 🔥 Background ping to register click even if Chrome blocks redirect
                             coroutineScope.launch {
-                                cuelinksApi.fireAndForgetClick(rawUrl, userId = currentUserId)
+                                cuelinksApi.fireAndForgetClick(rawUrl, userId = currentUserId, campaignName = brandName)
                             }
 
                             // 🚀 Open Cuelinks tracking URL in Chrome

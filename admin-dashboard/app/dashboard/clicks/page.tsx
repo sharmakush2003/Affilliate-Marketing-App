@@ -74,6 +74,7 @@ const mockClicks: ClickRecord[] = [
 
 export default function ClicksPage() {
   const [clicks, setClicks] = useState<ClickRecord[]>([])
+  const [totalCount, setTotalCount] = useState<number>(0)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [selectedCampaign, setSelectedCampaign] = useState('all')
@@ -83,15 +84,17 @@ export default function ClicksPage() {
     try {
       const res = await fetch(`/api/clicks?search=${encodeURIComponent(search)}&campaign=${selectedCampaign}`)
       const data = await res.json()
-      if (data.clicks && data.clicks.length > 0) {
+      if (data.clicks) {
         setClicks(data.clicks)
+        setTotalCount(data.total ?? data.clicks.length ?? 0)
       } else {
-        // Fallback to mock clicks if DB table empty so admin gets immediate rich UI
-        setClicks(mockClicks)
+        setClicks([])
+        setTotalCount(0)
       }
     } catch (err) {
       console.error('Error fetching clicks:', err)
-      setClicks(mockClicks)
+      setClicks([])
+      setTotalCount(0)
     } finally {
       setLoading(false)
     }
@@ -160,7 +163,7 @@ export default function ClicksPage() {
             Total Clicks Tracked
           </div>
           <div style={{ fontSize: 24, fontWeight: 700, color: '#111827', marginTop: 6 }}>
-            {clicks.length >= 23 ? clicks.length : 23}
+            {totalCount}
           </div>
           <div style={{ fontSize: 12, color: '#16a34a', marginTop: 4, fontWeight: 500 }}>
             ↑ 47.83% from last week

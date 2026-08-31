@@ -58,12 +58,15 @@ class CuelinksApiService {
     suspend fun fireAndForgetClick(
         targetUrl: String,
         userId: String = "",
-        channelId: String = CuelinksConfig.PUBLISHER_ID
+        channelId: String = CuelinksConfig.PUBLISHER_ID,
+        campaignName: String = "Affiliate Store"
     ): Boolean = withContext(Dispatchers.IO) {
         return@withContext try {
             val encodedUrl = URLEncoder.encode(targetUrl, "UTF-8")
             val subParam = if (userId.isNotBlank()) "&subid=${URLEncoder.encode(userId, "UTF-8")}" else ""
             val trackingUrl = "https://linksredirect.com/?cid=$channelId&source=api${subParam}&url=$encodedUrl"
+            
+            // 1. Ping CueLinks tracking server
             val url = URL(trackingUrl)
             val conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "GET"
@@ -78,8 +81,32 @@ class CuelinksApiService {
             conn.connect()
             val code = conn.responseCode
             conn.disconnect()
+
+            // 2. Real-time log into Reward Club Backend & Supabase
+            try {
+                val apiUrl = URL("https://affilliate-marketing-app.vercel.app/api/clicks")
+                val apiConn = apiUrl.openConnection() as HttpURLConnection
+                apiConn.requestMethod = "POST"
+                apiConn.setRequestProperty("Content-Type", "application/json; charset=utf-8")
+                apiConn.doOutput = true
+                apiConn.connectTimeout = 5000
+                apiConn.readTimeout = 5000
+                val body = org.json.JSONObject().apply {
+                    put("campaignName", campaignName)
+                    put("destinationUrl", targetUrl)
+                    put("subId", userId)
+                    put("userId", userId)
+                    put("channelId", channelId)
+                    put("source", "api")
+                    put("platform", "mobile")
+                }.toString()
+                java.io.OutputStreamWriter(apiConn.outputStream, "UTF-8").use { it.write(body) }
+                apiConn.responseCode
+                apiConn.disconnect()
+            } catch (_: Exception) {}
+
             if (com.rewardclub.app.BuildConfig.DEBUG) {
-                android.util.Log.d("Cuelinks", "Click ping response: $code | SubID: $userId")
+                android.util.Log.d("Cuelinks", "Click ping response: $code | SubID: $userId | Campaign: $campaignName")
             }
             code in 200..399
         } catch (e: Exception) {
