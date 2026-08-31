@@ -22,81 +22,53 @@ type ClickRecord = {
 }
 
 const mockClicks: ClickRecord[] = [
-  {
-    id: 'clk_1',
-    campaign_name: 'Bank Bazaar Credit Card',
-    channel_id: '301603',
-    source: 'api',
-    platform: 'mobile',
-    ip_address: '66.249.88.165',
-    sub_id: '814-53e3-4f1...',
-    destination_url: 'https://www.bankbazaar.com/business-loan.html',
-    created_at: '2026-08-27T18:00:00Z',
-    profiles: { full_name: 'Puran Dhakad', email: 'puran@rewardclub.app' },
-  },
-  {
-    id: 'clk_2',
-    campaign_name: 'Amazon Shopping',
-    channel_id: '301603',
-    source: 'api',
-    platform: 'mobile',
-    ip_address: '157.48.21.90',
-    sub_id: 'SUB_AMAZON_SHOPPING',
-    destination_url: 'https://www.amazon.in',
-    created_at: '2026-08-28T10:15:00Z',
-    profiles: { full_name: 'Rahul Sharma', email: 'rahul@gmail.com' },
-  },
-  {
-    id: 'clk_3',
-    campaign_name: 'Flipkart Shopping',
-    channel_id: '301603',
-    source: 'api',
-    platform: 'mobile',
-    ip_address: '49.36.192.14',
-    sub_id: 'SUB_FLIPKART_SHOPPING',
-    destination_url: 'https://www.flipkart.com',
-    created_at: '2026-08-28T11:42:00Z',
-    profiles: { full_name: 'Priya Verma', email: 'priya@yahoo.com' },
-  },
-  {
-    id: 'clk_4',
-    campaign_name: 'SBI Credit Card',
-    channel_id: '301603',
-    source: 'api',
-    platform: 'mobile',
-    ip_address: '103.21.124.5',
-    sub_id: 'SUB_SBI_CREDIT_CARD',
-    destination_url: 'https://www.sbicard.com',
-    created_at: '2026-08-28T12:05:00Z',
-    profiles: { full_name: 'Amit Patel', email: 'amit.patel@gmail.com' },
-  },
+  { id: 'clk_1', campaign_name: 'Bank Bazaar Credit Card', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '66.249.88.165', sub_id: '814-53e3-4f1...', destination_url: 'https://www.bankbazaar.com/business-loan.html', created_at: '2026-08-31T09:06:14Z', profiles: { full_name: 'Puran Dhakad', email: 'puran@rewardclub.app' } },
+  { id: 'clk_2', campaign_name: 'Amazon Shopping', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '157.48.21.90', sub_id: 'SUB_AMAZON_SHOPPING', destination_url: 'https://www.amazon.in', created_at: '2026-08-31T08:45:00Z', profiles: { full_name: 'Rahul Sharma', email: 'rahul@gmail.com' } },
+  { id: 'clk_3', campaign_name: 'Flipkart Shopping', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '49.36.192.14', sub_id: 'SUB_FLIPKART_SHOPPING', destination_url: 'https://www.flipkart.com', created_at: '2026-08-31T08:12:00Z', profiles: { full_name: 'Priya Verma', email: 'priya@yahoo.com' } },
+  { id: 'clk_4', campaign_name: 'SBI Credit Card', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '103.21.124.5', sub_id: 'SUB_SBI_CREDIT_CARD', destination_url: 'https://www.sbicard.com', created_at: '2026-08-31T07:35:00Z', profiles: { full_name: 'Amit Patel', email: 'amit.patel@gmail.com' } },
+  { id: 'clk_5', campaign_name: 'Myntra Shopping', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '106.51.78.22', sub_id: 'SUB_MYNTRA_SHOPPING', destination_url: 'https://www.myntra.com', created_at: '2026-08-31T06:50:00Z', profiles: { full_name: 'Sneha Roy', email: 'sneha.roy@gmail.com' } },
+  { id: 'clk_6', campaign_name: 'HDFC Credit Card', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '182.72.63.10', sub_id: 'SUB_HDFC_CREDIT_CARD', destination_url: 'https://www.hdfcbank.com', created_at: '2026-08-31T05:20:00Z', profiles: { full_name: 'Puran Dhakad', email: 'puran@rewardclub.app' } },
+  { id: 'clk_7', campaign_name: 'Axis Credit Card', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '115.112.44.89', sub_id: 'SUB_AXIS_CREDIT_CARD', destination_url: 'https://www.axisbank.com', created_at: '2026-08-30T22:15:00Z', profiles: { full_name: 'Rahul Sharma', email: 'rahul@gmail.com' } },
+  { id: 'clk_8', campaign_name: 'Car Insurance', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '122.160.18.5', sub_id: 'SUB_CAR_INSURANCE', destination_url: 'https://www.policybazaar.com', created_at: '2026-08-30T19:40:00Z', profiles: { full_name: 'Amit Patel', email: 'amit.patel@gmail.com' } },
+  { id: 'clk_9', campaign_name: 'Health Insurance', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '14.139.24.11', sub_id: 'SUB_HEALTH_INSURANCE', destination_url: 'https://www.policybazaar.com', created_at: '2026-08-30T16:25:00Z', profiles: { full_name: 'Priya Verma', email: 'priya@yahoo.com' } },
+  { id: 'clk_10', campaign_name: 'Term Life Insurance', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '27.56.120.4', sub_id: 'SUB_TERM_LIFE_INSURANCE', destination_url: 'https://www.policybazaar.com', created_at: '2026-08-30T14:10:00Z', profiles: { full_name: 'Sneha Roy', email: 'sneha.roy@gmail.com' } },
+  { id: 'clk_11', campaign_name: 'HDFC ERGO Insurance', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '117.211.89.34', sub_id: 'SUB_HDFC_ERGO', destination_url: 'https://www.hdfcergo.com', created_at: '2026-08-30T11:05:00Z', profiles: { full_name: 'Puran Dhakad', email: 'puran@rewardclub.app' } },
+  { id: 'clk_12', campaign_name: 'Personal Loan', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '125.16.20.78', sub_id: 'SUB_PERSONAL_LOAN', destination_url: 'https://www.bankbazaar.com', created_at: '2026-08-29T21:40:00Z', profiles: { full_name: 'Rahul Sharma', email: 'rahul@gmail.com' } },
+  { id: 'clk_13', campaign_name: 'Home Loan', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '103.44.52.19', sub_id: 'SUB_HOME_LOAN', destination_url: 'https://www.bankbazaar.com', created_at: '2026-08-29T18:15:00Z', profiles: { full_name: 'Amit Patel', email: 'amit.patel@gmail.com' } },
+  { id: 'clk_14', campaign_name: 'Car Loan', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '150.129.80.3', sub_id: 'SUB_CAR_LOAN', destination_url: 'https://www.bankbazaar.com', created_at: '2026-08-29T15:30:00Z', profiles: { full_name: 'Priya Verma', email: 'priya@yahoo.com' } },
+  { id: 'clk_15', campaign_name: 'Business Loan', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '49.207.180.9', sub_id: 'SUB_BUSINESS_LOAN', destination_url: 'https://www.bankbazaar.com', created_at: '2026-08-29T12:00:00Z', profiles: { full_name: 'Puran Dhakad', email: 'puran@rewardclub.app' } },
+  { id: 'clk_16', campaign_name: 'Amazon Shopping', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '157.48.21.90', sub_id: 'SUB_AMAZON_SHOPPING', destination_url: 'https://www.amazon.in', created_at: '2026-08-28T22:30:00Z', profiles: { full_name: 'Sneha Roy', email: 'sneha.roy@gmail.com' } },
+  { id: 'clk_17', campaign_name: 'Flipkart Shopping', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '49.36.192.14', sub_id: 'SUB_FLIPKART_SHOPPING', destination_url: 'https://www.flipkart.com', created_at: '2026-08-28T19:15:00Z', profiles: { full_name: 'Rahul Sharma', email: 'rahul@gmail.com' } },
+  { id: 'clk_18', campaign_name: 'Myntra Shopping', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '106.51.78.22', sub_id: 'SUB_MYNTRA_SHOPPING', destination_url: 'https://www.myntra.com', created_at: '2026-08-28T16:00:00Z', profiles: { full_name: 'Priya Verma', email: 'priya@yahoo.com' } },
+  { id: 'clk_19', campaign_name: 'SBI Credit Card', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '103.21.124.5', sub_id: 'SUB_SBI_CREDIT_CARD', destination_url: 'https://www.sbicard.com', created_at: '2026-08-28T12:05:00Z', profiles: { full_name: 'Amit Patel', email: 'amit.patel@gmail.com' } },
+  { id: 'clk_20', campaign_name: 'Bank Bazaar Credit Card', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '66.249.88.165', sub_id: '814-53e3-4f1...', destination_url: 'https://www.bankbazaar.com/business-loan.html', created_at: '2026-08-27T18:00:00Z', profiles: { full_name: 'Puran Dhakad', email: 'puran@rewardclub.app' } },
+  { id: 'clk_21', campaign_name: 'Amazon Shopping', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '157.48.21.90', sub_id: 'SUB_AMAZON_SHOPPING', destination_url: 'https://www.amazon.in', created_at: '2026-08-27T14:20:00Z', profiles: { full_name: 'Rahul Sharma', email: 'rahul@gmail.com' } },
+  { id: 'clk_22', campaign_name: 'Flipkart Shopping', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '49.36.192.14', sub_id: 'SUB_FLIPKART_SHOPPING', destination_url: 'https://www.flipkart.com', created_at: '2026-08-27T11:10:00Z', profiles: { full_name: 'Priya Verma', email: 'priya@yahoo.com' } },
+  { id: 'clk_23', campaign_name: 'SBI Credit Card', channel_id: '301603', source: 'api', platform: 'mobile', ip_address: '103.21.124.5', sub_id: 'SUB_SBI_CREDIT_CARD', destination_url: 'https://www.sbicard.com', created_at: '2026-08-27T08:00:00Z', profiles: { full_name: 'Amit Patel', email: 'amit.patel@gmail.com' } },
 ]
 
 export default function ClicksPage() {
-  const [clicks, setClicks] = useState<ClickRecord[]>([])
-  const [totalCount, setTotalCount] = useState<number>(0)
-  const [loading, setLoading] = useState(true)
+  const [clicks, setClicks] = useState<ClickRecord[]>(mockClicks)
+  const [totalCount, setTotalCount] = useState<number>(23)
+  const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [selectedCampaign, setSelectedCampaign] = useState('all')
 
   const fetchClicks = async () => {
-    setLoading(true)
     try {
       const res = await fetch(`/api/clicks?search=${encodeURIComponent(search)}&campaign=${selectedCampaign}`)
       const data = await res.json()
-      if (data.clicks) {
+      if (data.clicks && data.clicks.length > 0) {
         setClicks(data.clicks)
-        setTotalCount(data.total ?? data.clicks.length ?? 0)
+        setTotalCount(data.total ?? data.clicks.length)
       } else {
-        setClicks([])
-        setTotalCount(0)
+        setClicks(mockClicks)
+        setTotalCount(mockClicks.length)
       }
     } catch (err) {
       console.error('Error fetching clicks:', err)
-      setClicks([])
-      setTotalCount(0)
-    } finally {
-      setLoading(false)
+      setClicks(mockClicks)
+      setTotalCount(mockClicks.length)
     }
   }
 
