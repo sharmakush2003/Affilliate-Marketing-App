@@ -35,6 +35,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.ui.draw.shadow
 import kotlinx.coroutines.delay
 import com.rewardclub.app.R
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import androidx.compose.ui.platform.LocalContext
+import com.rewardclub.app.data.CampaignData
+import com.rewardclub.app.data.CampaignItem
+import com.rewardclub.app.data.CategoryGroup
 
 // Mock data classes
 data class BrandEarn(
@@ -114,37 +120,10 @@ fun HomeScreen(
 ) {
     val scrollState = rememberScrollState()
 
-    val brands = listOf(
-        BrandEarn("Amazon", "amazon", "Upto 12", "per ₹100", Color(0xFFFF9900), R.drawable.amazon_logo),
-        BrandEarn("Flipkart", "Flipkart", "Upto 200", "per transaction", Color(0xFF2874F0), R.drawable.flipkart_logo),
-        BrandEarn("Myntra", "Myntra", "Upto 10", "per ₹100", Color(0xFFE63956), R.drawable.myntra_logo),
-        BrandEarn("HP Pay", "HP Pay", "Upto 10", "per ₹100", Color(0xFF0033A0), R.drawable.hp_pay_logo)
-    )
-
     val categories = listOf(
         RedeemCategory("Products", "📦"),
         RedeemCategory("Vouchers", "🎟️"),
         RedeemCategory("Utilities", "🧾", true, "NEW")
-    )
-
-    val creditCards = listOf(
-        CreditCardMock("SBI SimplyCLICK Card", "SBI Card", "5,000 Coins", "On card approval", Color(0xFF0F3E5F), R.drawable.sbi_logo),
-        CreditCardMock("HDFC Regalia Gold", "HDFC Bank", "8,000 Coins", "On card approval", Color(0xFF1A1A1A), R.drawable.hdfc_logo),
-        CreditCardMock("ICICI Amazon Pay", "ICICI Bank", "3,500 Coins", "On card approval", Color(0xFFB85D06), R.drawable.icici_logo)
-    )
-
-    val insurances = listOf(
-        InsuranceMock("Vehicle Insurance", "🚗/🏍️", "Up to 25% Earning", "Car & Bike insurance online", Color(0xFFE3F2FD), R.drawable.car_insurance_icon),
-        InsuranceMock("Health Insurance", "🛡️", "Up to 25% Earning", "Cashless claims network", Color(0xFFE8F5E9), R.drawable.health_insurance_icon),
-        InsuranceMock("Term Life Insurance", "👥", "Up to 25% Earning", "Secure family's future", Color(0xFFFFF3E0), R.drawable.term_life_insurance_icon),
-        InsuranceMock("HDFC ERGO Insurance", "🏥", "Up to 25% Earning", "Complete motor & health", Color(0xFFFFEBEE), R.drawable.hdfc_ergo_icon)
-    )
-
-    val loans = listOf(
-        LoanMock("Personal Loan", "💰", "Upto 10,000 Coins", "Instant loan approvals", Color(0xFFF1F8E9), R.drawable.personal_loan_icon),
-        LoanMock("Home Loan", "🏠", "Upto 25,000 Coins", "Lowest interest rates", Color(0xFFE8F5E9), R.drawable.home_loan_icon),
-        LoanMock("Car Loan", "🚗", "Upto 15,000 Coins", "Quick processing payouts", Color(0xFFE3F2FD), R.drawable.car_loan_icon),
-        LoanMock("Business Loan", "📈", "Upto 30,000 Coins", "Fund business growth", Color(0xFFFFF3E0), R.drawable.business_loan_icon)
     )
 
     val coupons = listOf(
@@ -180,111 +159,23 @@ fun HomeScreen(
         // Banner Slider Section (NOW ACTIVE)
         BannerSliderSection()
 
-        // Shop & Earn Coins (placed at the very top)
-        SectionHeader(title = "Shop & Earn Coins", onViewAllClick = onViewAllBrandsClick)
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(brands) { brand ->
-                BrandCard(brand = brand, onClick = { onBrandClick(brand.name) })
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Loan Enquiries [NEW]
-        SectionHeader(
-            title = "Loan Enquiries",
-            showViewAll = true,
-            onViewAllClick = onViewAllLoansClick
-        )
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(loans) { loan ->
-                LoanItem(loan = loan, onClick = { onBrandClick(loan.name) })
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Insurance [NEW]
-        SectionHeader(
-            title = "Insurance",
-            showViewAll = true,
-            onViewAllClick = onViewAllInsuranceClick
-        )
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(insurances) { insurance ->
-                InsuranceItem(insurance = insurance, onClick = { onBrandClick(insurance.name) })
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Credit Cards [NEW]
-        SectionHeader(
-            title = "Credit Cards",
-            showViewAll = true,
-            onViewAllClick = onViewAllCardsClick
-        )
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(creditCards) { card ->
-                CreditCardItem(card = card, onClick = { onBrandClick(card.name) })
-            }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Zillion-Style Slogans Footer
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = LightGreen),
-            border = BorderStroke(1.dp, BorderColor)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+        // 5 Pre-Approved Categories from CueLinks (100% Active Tracking)
+        CampaignData.allCategories.forEach { category ->
+            SectionHeader(
+                title = "${category.iconEmoji} ${category.title}",
+                showViewAll = true,
+                onViewAllClick = { onViewAllBrandsClick() }
+            )
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "that makes you go",
-                    color = TextGray,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = "ahaaaaaaa!",
-                    color = DarkGreen,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 1.sp
-                )
-                Text(
-                    text = "Everyday 1 Lakh+ Users Earn & Spend Coins",
-                    color = TextDark,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center
-                )
+                items(category.campaigns) { campaign ->
+                    CampaignCard(campaign = campaign, onClick = { onBrandClick(campaign.name) })
+                }
             }
+            Spacer(modifier = Modifier.height(18.dp))
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -462,10 +353,10 @@ fun CoinBalanceSection(onRedeemClick: () -> Unit) {
 @Composable
 fun BannerSliderSection() {
     val banners = listOf(
-        R.drawable.banner_welcome,
-        R.drawable.banner_amazon,
-        R.drawable.banner_flipkart,
-        R.drawable.banner_finance
+        R.drawable.banner_credit_cards,
+        R.drawable.banner_electronics_tech,
+        R.drawable.banner_fashion_beauty,
+        R.drawable.banner_travel_flights
     )
     
     var currentSlide by remember { mutableStateOf(0) }
@@ -499,7 +390,7 @@ fun BannerSliderSection() {
                     painter = painterResource(id = banners[slideIndex]),
                     contentDescription = "Offer Banner",
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.Crop
                 )
             }
         }
@@ -598,6 +489,112 @@ fun SectionHeader(
                     contentDescription = null,
                     tint = DarkGreen,
                     modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CampaignCard(campaign: CampaignItem, onClick: () -> Unit) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = White),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(2.dp),
+        modifier = Modifier
+            .width(175.dp)
+            .height(225.dp)
+            .clickable { onClick() }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Brand Logo container
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(82.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFFAFAFA))
+                    .border(1.dp, BorderColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(campaign.logoUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = campaign.name,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
+
+            // Campaign Name & Subtitle
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = campaign.name,
+                    color = TextDark,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = campaign.subtitle,
+                    color = TextGray,
+                    fontSize = 10.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            // Earning Pill & Detail
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .background(Color(0xFFE8F5E9), shape = RoundedCornerShape(6.dp))
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(text = "🪙", fontSize = 10.sp)
+                        Text(
+                            text = campaign.earnCoinsText,
+                            color = DarkGreen,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(3.dp))
+
+                Text(
+                    text = campaign.rateDetail,
+                    color = TextGray,
+                    fontSize = 9.sp,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

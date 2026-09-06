@@ -24,7 +24,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rewardclub.app.R
+import com.rewardclub.app.data.CampaignData
+import com.rewardclub.app.data.CampaignItem
 import com.rewardclub.app.ui.theme.*
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,12 +37,7 @@ fun BrandsScreen(
     onBackClick: () -> Unit,
     onBrandClick: (String) -> Unit
 ) {
-    val allBrands = listOf(
-        BrandEarn("Amazon", "amazon", "Upto 12%", "Rewards on purchase", Color(0xFFFF9900), R.drawable.amazon_logo),
-        BrandEarn("Flipkart", "Flipkart", "Upto 12%", "Rewards on purchase", Color(0xFF2874F0), R.drawable.flipkart_logo),
-        BrandEarn("Myntra", "Myntra", "Upto 10%", "Rewards on purchase", Color(0xFFE63956), R.drawable.myntra_logo),
-        BrandEarn("HP Pay", "HP Pay", "Upto 10%", "Rewards on purchase", Color(0xFF0033A0), R.drawable.hp_pay_logo)
-    )
+    val allBrands = remember { CampaignData.allCampaigns }
 
     Scaffold(
         topBar = {
@@ -107,13 +107,15 @@ fun BrandsScreen(
                         elevation = CardDefaults.cardElevation(2.dp),
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(245.dp)
                             .clickable { onBrandClick(brand.name) }
                     ) {
                         Column(
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .fillMaxSize()
                                 .padding(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.SpaceBetween
                         ) {
                             // Brand Logo container
                             Box(
@@ -125,70 +127,66 @@ fun BrandsScreen(
                                     .border(1.dp, BorderColor.copy(alpha = 0.3f), RoundedCornerShape(14.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                if (brand.logoResId != null) {
-                                    Image(
-                                        painter = painterResource(id = brand.logoResId),
-                                        contentDescription = brand.name,
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(12.dp),
-                                        contentScale = ContentScale.Fit
-                                    )
-                                } else {
-                                    Text(
-                                        text = brand.logoText,
-                                        color = Color.Black,
-                                        fontWeight = FontWeight.Black,
-                                        fontSize = 16.sp
-                                    )
-                                }
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(brand.logoUrl)
+                                        .crossfade(true)
+                                        .build(),
+                                    contentDescription = brand.name,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(8.dp),
+                                    contentScale = ContentScale.Fit
+                                )
                             }
 
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Text(
-                                text = brand.name,
-                                color = TextDark,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-
-                            Spacer(modifier = Modifier.height(6.dp))
-
-                            // Premium tag badge for rate
-                            Box(
-                                modifier = Modifier
-                                    .background(Color(0xFFE8F5E9), shape = RoundedCornerShape(6.dp))
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            // Brand Name & Detail
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                Text(
+                                    text = brand.name,
+                                    color = TextDark,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                // Premium tag badge for rate
+                                Box(
+                                    modifier = Modifier
+                                        .background(Color(0xFFE8F5E9), shape = RoundedCornerShape(6.dp))
+                                        .padding(horizontal = 8.dp, vertical = 3.dp)
                                 ) {
-                                    Text(text = "🪙", fontSize = 10.sp)
-                                    Text(
-                                        text = brand.earnRate,
-                                        color = DarkGreen,
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Black
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Text(text = "🪙", fontSize = 10.sp)
+                                        Text(
+                                            text = brand.earnCoinsText,
+                                            color = DarkGreen,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Black
+                                        )
+                                    }
                                 }
+
+                                Spacer(modifier = Modifier.height(3.dp))
+
+                                Text(
+                                    text = brand.rateDetail,
+                                    color = TextGray,
+                                    fontSize = 10.sp,
+                                    textAlign = TextAlign.Center,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             }
-
-                            Spacer(modifier = Modifier.height(6.dp))
-
-                            Text(
-                                text = brand.rateDetail,
-                                color = TextGray,
-                                fontSize = 10.sp,
-                                textAlign = TextAlign.Center,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-
-                            Spacer(modifier = Modifier.height(10.dp))
 
                             // Shop Button
                             Button(

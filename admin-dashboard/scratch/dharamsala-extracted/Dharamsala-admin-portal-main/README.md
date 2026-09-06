@@ -1,6 +1,0 @@
-# Dharamsala-Admin-Portal
-
-<!-- Updated for Vercel Portal deployment -->
-
-This is the admin panel for the Jain Dharamshala System, now hosted at:
-https://dharamsala-admin-portal.vercel.app/

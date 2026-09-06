@@ -1,4 +1,4 @@
-// © 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
+// 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
 package com.rewardclub.app.ui.screens
 
 import android.accounts.AccountManager
@@ -14,16 +14,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -39,11 +42,7 @@ import com.google.android.gms.common.api.ApiException
 import com.rewardclub.app.BuildConfig
 import com.rewardclub.app.R
 import com.rewardclub.app.ui.theme.*
-import com.rewardclub.app.utils.DbProfile
-import com.rewardclub.app.utils.Supabase
 import com.rewardclub.app.utils.UserSession
-import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.launch
 
 @Composable
@@ -235,10 +234,8 @@ fun LoginScreen(
 
                 scope.launch(kotlinx.coroutines.Dispatchers.Main) {
                     if (existingMobile.isNotEmpty()) {
-                        // Mobile number already exists, finish login directly!
                         completeLogin(resolvedUid, email, resolvedName, existingMobile)
                     } else {
-                        // Prompt user to enter their 10-digit mobile number
                         isLoading = false
                         pendingUid = resolvedUid
                         pendingEmail = email
@@ -318,7 +315,7 @@ fun LoginScreen(
         }
     }
 
-    // Modal Dialog for Collecting 10-Digit Mobile Number
+    // Modal Dialog for Collecting 10-Digit Mobile Number (Clean White & Slate)
     if (showMobileDialog) {
         Dialog(
             onDismissRequest = {
@@ -333,86 +330,103 @@ fun LoginScreen(
                 elevation = CardDefaults.cardElevation(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(12.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(20.dp),
+                        .padding(22.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Box(
                         modifier = Modifier
                             .size(56.dp)
                             .background(Color(0xFFEFF6FF), CircleShape)
-                            .border(1.5.dp, Color(0xFF2563EB).copy(alpha = 0.3f), CircleShape),
+                            .border(1.5.dp, Color(0xFF3B82F6).copy(alpha = 0.4f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "📱", fontSize = 28.sp)
+                        Text(text = "📱", fontSize = 26.sp)
                     }
 
-                    Text(
-                        text = "Complete Your Profile",
-                        fontWeight = FontWeight.Black,
-                        fontSize = 19.sp,
-                        color = Color(0xFF0F172A),
-                        textAlign = TextAlign.Center
-                    )
-
-                    Text(
-                        text = "Hello $pendingName! Please enter your 10-digit mobile number to complete your account registration.",
-                        fontSize = 13.sp,
-                        color = Color(0xFF475569),
-                        textAlign = TextAlign.Center,
-                        lineHeight = 18.sp
-                    )
-
-                    Column(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
                         Text(
-                            text = "Mobile Number",
+                            text = "Link Your Mobile",
+                            fontWeight = FontWeight.Black,
+                            fontSize = 19.sp,
                             color = Color(0xFF0F172A),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.fillMaxWidth()
+                            textAlign = TextAlign.Center
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        BasicTextField(
-                            value = inputMobile,
-                            onValueChange = { if (it.length <= 10 && it.all { char -> char.isDigit() }) inputMobile = it },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        Text(
+                            text = "Welcome $pendingName! Please enter your 10-digit mobile number for 1-tap UPI coin withdrawals & order tracking.",
+                            fontSize = 12.5.sp,
+                            color = Color(0xFF64748B),
+                            textAlign = TextAlign.Center,
+                            lineHeight = 17.sp
+                        )
+                    }
+
+                    // Clean Mobile Input with +91 Prefix
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(48.dp)
-                                .background(color = Color(0xFFF8FAFC), shape = RoundedCornerShape(10.dp))
+                                .height(50.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(Color(0xFFF8FAFC))
                                 .border(
-                                    width = if (isMobileFocused) 2.dp else 1.dp,
-                                    color = if (isMobileFocused) Color(0xFF2563EB) else Color(0xFFE2E8F0),
-                                    shape = RoundedCornerShape(10.dp)
+                                    width = if (isMobileFocused) 1.5.dp else 1.dp,
+                                    color = if (isMobileFocused) Color(0xFF059669) else Color(0xFFCBD5E1),
+                                    shape = RoundedCornerShape(12.dp)
                                 )
-                                .onFocusChanged { isMobileFocused = it.isFocused },
-                            decorationBox = { innerTextField ->
-                                Row(
-                                    modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Phone,
-                                        contentDescription = null,
-                                        tint = if (isMobileFocused) Color(0xFF2563EB) else Color(0xFF94A3B8),
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Box(modifier = Modifier.weight(1f)) {
+                                .padding(horizontal = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Country Code Pill
+                            Box(
+                                modifier = Modifier
+                                    .background(Color(0xFFE2E8F0), RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = "🇮🇳 +91",
+                                    color = Color(0xFF0F172A),
+                                    fontSize = 12.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            BasicTextField(
+                                value = inputMobile,
+                                onValueChange = { if (it.length <= 10 && it.all { char -> char.isDigit() }) inputMobile = it },
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                textStyle = androidx.compose.ui.text.TextStyle(
+                                    color = Color(0xFF0F172A),
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                ),
+                                cursorBrush = SolidColor(Color(0xFF059669)),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .onFocusChanged { isMobileFocused = it.isFocused },
+                                decorationBox = { innerTextField ->
+                                    Box {
                                         if (inputMobile.isEmpty()) {
-                                            Text("9876543210", color = Color(0xFF94A3B8), fontSize = 14.sp)
+                                            Text(
+                                                text = "Enter 10-digit number",
+                                                color = Color(0xFF94A3B8),
+                                                fontSize = 13.5.sp
+                                            )
                                         }
                                         innerTextField()
                                     }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
 
                     Button(
@@ -423,234 +437,344 @@ fun LoginScreen(
                             }
                             completeLogin(pendingUid, pendingEmail, pendingName, inputMobile.trim())
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF16A34A)),
-                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669)),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(46.dp)
+                            .height(48.dp)
                     ) {
-                        Text("Save & Continue 🚀", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(
+                            text = "Save & Start Earning 🚀",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
                     }
                 }
             }
         }
     }
 
-    // World-Class Centered Amazon/E-Commerce Sign-In Layout with Prominent ChittorTech Logo
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color(0xFFFFFFFF)
+    // ── PREMIUM FINTECH LOGIN SCREEN (Soft Light Blue Theme) ─────────
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        Color(0xFFE0F2FE),
+                        Color(0xFFF0F7FF),
+                        Color(0xFFE2EEFC)
+                    )
+                )
+            )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .padding(horizontal = 20.dp, vertical = 12.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Main Top & Middle Section (Centered Alignment)
+            // ── TOP BAR & BRAND LOGO ──────────────────────────────────────────
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Stylish Brand Badge Header
-                Box(
+                // Top row with optional back navigation
+                Row(
                     modifier = Modifier
-                        .size(80.dp)
-                        .background(
-                            Brush.linearGradient(
-                                colors = listOf(Color(0xFF0066FF), Color(0xFF003899))
-                            ),
-                            CircleShape
-                        )
-                        .border(3.dp, Color(0xFF90CAF9), CircleShape)
-                        .shadow(14.dp, CircleShape, spotColor = Color(0x400052CC)),
-                    contentAlignment = Alignment.Center
+                        .fillMaxWidth()
+                        .padding(top = 4.dp, bottom = 12.dp),
+                    horizontalArrangement = Arrangement.Start
                 ) {
-                    Text("🛍️", fontSize = 40.sp)
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                            .border(1.dp, Color(0xFFE2E8F0), CircleShape)
+                            .shadow(2.dp, CircleShape)
+                            .clickable { onBackClick() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color(0xFF0F172A),
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                // Official Reward Club Logo Card (Pure White with Subtle Shadow)
+                Box(
+                    modifier = Modifier
+                        .height(76.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color.White)
+                        .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(20.dp))
+                        .shadow(4.dp, RoundedCornerShape(20.dp), spotColor = Color(0x1A000000))
+                        .padding(horizontal = 22.dp, vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.reward_club_logo),
+                        contentDescription = "Reward Club Logo",
+                        modifier = Modifier.fillMaxHeight(),
+                        contentScale = ContentScale.Fit
+                    )
+                }
 
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Luxury Status Tag
+                Box(
+                    modifier = Modifier
+                        .background(Color(0xFFFEF3C7), RoundedCornerShape(20.dp))
+                        .border(1.dp, Color(0xFFFDE68A), RoundedCornerShape(20.dp))
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        Text("👑", fontSize = 11.sp)
+                        Text(
+                            text = "PREMIER REWARDS & CASHBACK CLUB",
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFFB45309),
+                            letterSpacing = 0.6.sp
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Hero Headline
                 Text(
-                    text = "Reward Club",
-                    fontSize = 28.sp,
+                    text = "Welcome to Reward Club",
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Black,
-                    color = Color(0xFF0052CC),
-                    letterSpacing = 0.5.sp,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = "Shop. Earn Coins. Redeem Rewards.",
-                    fontSize = 13.sp,
-                    color = Color(0xFF64748B),
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(28.dp))
-
-                // Centered Main Heading & Subtitle
-                Text(
-                    text = "Sign in or create account",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
                     color = Color(0xFF0F172A),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    letterSpacing = 0.3.sp
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = "Fast, 1-tap secure Google sign-in. Join thousands of shoppers earning cashback coins daily.",
-                    fontSize = 13.5.sp,
-                    color = Color(0xFF475569),
+                    text = "Earn up to ₹1,950 Coins per card approval & flat cash rewards on 28+ pre-approved top brands.",
+                    fontSize = 13.sp,
+                    color = Color(0xFF64748B),
                     textAlign = TextAlign.Center,
-                    lineHeight = 19.sp,
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    lineHeight = 18.sp,
+                    modifier = Modifier.padding(horizontal = 8.dp)
                 )
 
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                // Main Full-Width Google Sign-In Button
+                // ── 3-PILLAR BENEFIT STRIP (Clean White Elevated Cards) ───────
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf(
+                        Triple("💳 Cards", "Flat ₹1,950", "Instant approval"),
+                        Triple("🛍️ Shop", "Upto 90 Coins", "Per ₹100 spend"),
+                        Triple("⚡ UPI", "Bank Payout", "1-Tap transfer")
+                    ).forEach { (cat, title, sub) ->
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(14.dp),
+                            border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                            elevation = CardDefaults.cardElevation(2.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = cat,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color(0xFF059669)
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = title,
+                                    fontSize = 11.5.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color(0xFF0F172A),
+                                    maxLines = 1
+                                )
+                                Text(
+                                    text = sub,
+                                    fontSize = 8.5.sp,
+                                    color = Color(0xFF64748B),
+                                    maxLines = 1
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // ── GOOGLE SIGN-IN BUTTON (Clean High-Contrast Card) ──────────
                 Button(
                     onClick = { startGoogleSignIn() },
                     enabled = !isLoading,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF0052CC),
-                        contentColor = Color.White
+                        containerColor = Color.White,
+                        contentColor = Color(0xFF0F172A)
                     ),
+                    border = BorderStroke(1.dp, Color(0xFFCBD5E1)),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(54.dp)
-                        .shadow(4.dp, RoundedCornerShape(12.dp), spotColor = Color(0x330052CC))
+                        .height(52.dp)
+                        .shadow(4.dp, RoundedCornerShape(14.dp), spotColor = Color(0x14000000))
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(
-                            color = Color.White,
+                            color = Color(0xFF059669),
                             strokeWidth = 2.5.dp,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(22.dp)
                         )
                     } else {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .background(Color.White, CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("G", fontSize = 16.sp, fontWeight = FontWeight.Black, color = Color(0xFF4285F4))
-                            }
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_google_logo),
+                                contentDescription = "Google Logo",
+                                modifier = Modifier.size(20.dp)
+                            )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = "Continue with Google",
-                                color = Color.White,
+                                color = Color(0xFF0F172A),
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
+                                fontSize = 15.sp,
+                                letterSpacing = 0.2.sp
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = null,
+                                tint = Color(0xFF64748B),
+                                modifier = Modifier.size(16.dp)
                             )
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(22.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 // Clean Divider
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
                 ) {
-                    HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFE2E8F0))
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFCBD5E1))
                     Text(
                         text = "  OR  ",
                         color = Color(0xFF94A3B8),
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFE2E8F0))
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFCBD5E1))
                 }
 
-                Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
-                // Guest Button
+                // Guest Access Button (Clean White Outlined)
                 OutlinedButton(
                     onClick = {
                         UserSession.isGuest = true
                         onLoginSuccess()
                     },
-                    shape = RoundedCornerShape(12.dp),
-                    border = BorderStroke(1.5.dp, Color(0xFFE2E8F0)),
-                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color(0xFFF8FAFC)),
+                    shape = RoundedCornerShape(14.dp),
+                    border = BorderStroke(1.dp, Color(0xFFCBD5E1)),
+                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp)
+                        .height(48.dp)
                 ) {
-                    Text(
-                        text = "Browse as Guest 🛍️",
-                        color = Color(0xFF334155),
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text("🪙 ", fontSize = 14.sp)
+                        Text(
+                            text = "Explore Deals as Guest",
+                            color = Color(0xFF334155),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
 
-            // Prominent Official ChittorTech Security Badge Footer
+            // ── CHITTORTECH OFFICIAL SECURITY FOOTER (Clean White Card) ──────
             Surface(
-                color = Color(0xFFF8FAFC),
+                color = Color.White,
                 shape = RoundedCornerShape(16.dp),
                 border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                shadowElevation = 2.dp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp, bottom = 8.dp)
+                    .padding(top = 20.dp, bottom = 4.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Text("🔒 ", fontSize = 15.sp)
+                        Text("🔒 ", fontSize = 12.sp)
                         Text(
-                            text = "Secured by",
+                            text = "256-Bit SSL Encrypted • Secured by",
                             color = Color(0xFF475569),
-                            fontSize = 13.5.sp,
-                            fontWeight = FontWeight.Bold
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
 
                     Spacer(modifier = Modifier.height(6.dp))
 
-                    // Large Prominent ChittorTech Logo Image
                     Image(
                         painter = painterResource(id = R.drawable.chittortech_logo),
                         contentDescription = "ChittorTech Logo",
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
-                            .height(42.dp)
-                            .fillMaxWidth(0.65f)
+                            .height(30.dp)
+                            .fillMaxWidth(0.55f)
                     )
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(3.dp))
 
                     Text(
-                        text = "Encrypted Data Protection • All Rights Reserved",
+                        text = "Official Security Partner • All Rights Reserved",
                         color = Color(0xFF94A3B8),
-                        fontSize = 11.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
