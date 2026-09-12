@@ -34,7 +34,6 @@ export async function DELETE(req: NextRequest) {
       .from('admin_sessions')
       .delete()
       .eq('id', sessionId)
-      .eq('status', 'logged_out')
 
     if (error) {
       console.error('[sessions] db delete error:', error.message)

@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
 
-    const cleanEmail = email.trim().lowercase()
+    const cleanEmail = email.trim().toLowerCase()
     const cleanName = fullName?.trim() || cleanEmail.split('@')[0]
     const cleanMobile = mobile?.trim() || ''
 

@@ -102,10 +102,10 @@ export default function DashboardPage() {
   }
 
   return (
-    <div style={{ maxWidth: 1100 }}>
+    <div style={{ width: '100%' }}>
 
       {/* Page heading */}
-      <div style={{ marginBottom: 24 }}>
+      <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: '#111827', margin: 0, letterSpacing: '-0.02em' }}>
           Overview
         </h1>
@@ -116,11 +116,11 @@ export default function DashboardPage() {
 
       {/* ── KPI row ─────────────────────────────────────────────── */}
       {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 12, marginBottom: 20 }}>
-          {[1,2,3,4,5,6].map(i => <div key={i} className="skeleton" style={{ height: 90 }} />)}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 20 }}>
+          {[1,2,3,4,5,6].map(i => <div key={i} className="skeleton" style={{ height: 90, borderRadius: 10 }} />)}
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 12, marginBottom: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 20 }}>
           <MetricCard label="Users"            value={kpis?.totalUsers ?? 0} sub="Registered in app" icon={Users} iconColor="#2563eb" bg="#eff6ff" href="/dashboard/users" />
           <MetricCard label="Clicks"           value={kpis?.totalClicks ?? 24} sub="CueLinks & app clicks" positive={true} icon={MousePointerClick} iconColor="#db2777" bg="#fce7f3" href="/dashboard/clicks" />
           <MetricCard label="Order Volume"     value={`₹${parseFloat(kpis?.totalOrderVolume ?? '0').toLocaleString('en-IN')}`} sub="Lifetime GMV" positive={true} icon={IndianRupee} iconColor="#16a34a" bg="#f0fdf4" href="/dashboard/transactions" />

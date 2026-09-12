@@ -19,7 +19,8 @@ object CuelinksConfig {
     // 🔒 Dynamically read from local.properties via BuildConfig (git-ignored, 100% safe)
     var CUELINKS_API_KEY: String = com.rewardclub.app.BuildConfig.CUELINKS_API_KEY
     var PUBLISHER_ID: String = com.rewardclub.app.BuildConfig.CUELINKS_CHANNEL_ID
-    const val BASE_URL: String = "https://api.cuelinks.com/v2"
+    // ✅ FIX: Aligned with admin dashboard — was "https://api.cuelinks.com/v2" (wrong host)
+    const val BASE_URL: String = "https://www.cuelinks.com/api/v2"
 }
 
 data class CuelinksCampaign(

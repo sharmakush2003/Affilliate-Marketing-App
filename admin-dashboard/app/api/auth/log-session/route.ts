@@ -26,6 +26,10 @@ export async function POST(req: NextRequest) {
     const otpCode = generateOTP()
     const otpExpires = new Date(Date.now() + 5 * 60 * 1000).toISOString() // 5 minutes
 
+    console.log(`\n========================================`)
+    console.log(`🔑 [2FA OTP CODE] for ${email}: ${otpCode}`)
+    console.log(`========================================\n`)
+
     const { data, error } = await supabaseAdmin
       .from('admin_sessions')
       .insert({

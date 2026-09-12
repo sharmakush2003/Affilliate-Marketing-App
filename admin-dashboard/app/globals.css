@@ -38,73 +38,78 @@ body {
   border-color: rgba(0,0,0,0.15);
 }
 
-/* ── SIDEBAR (OBSIDIAN GLASS - FROM DHARAMSALA CSS) ───────────────────────── */
+/* ── SIDEBAR (OBSIDIAN GLASS - RESPONSIVE & LAPTOP OPTIMIZED) ─────────────── */
 .sidebar {
-  width: 260px;
-  background: rgba(17, 24, 39, 0.9); /* Premium dark obsidian glass */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  width: 240px;
+  background: rgba(17, 24, 39, 0.95); /* Premium dark obsidian glass */
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   color: #f9fafb;
   display: flex;
   flex-direction: column;
-  padding: 28px 16px;
+  padding: 16px 12px;
   position: sticky;
   top: 0;
   height: 100vh;
+  max-height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;
   flex-shrink: 0;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 20;
+}
+
+.sidebar-collapsed {
+  padding: 16px 8px;
 }
 
 .sidebar::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
 }
 .sidebar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 10px;
 }
 
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding: 0 10px;
+  margin-bottom: 14px;
 }
 .sidebar-brand-title { 
-  font-size: 1.15rem; 
+  font-size: 1.05rem; 
   font-weight: 900; 
-  letter-spacing: -0.8px; 
-  background: linear-gradient(to bottom, #ffffff, #94a3b8);
+  letter-spacing: -0.6px; 
+  background: linear-gradient(to bottom, #ffffff, #cbd5e1);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  line-height: 1;
+  line-height: 1.1;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 14px;
-  border-radius: 10px;
+  gap: 9px;
+  padding: 8px 11px;
+  border-radius: 8px;
   cursor: pointer;
   color: #94a3b8;
-  margin-bottom: 2px;
-  font-size: 0.88rem;
-  font-weight: 700;
+  margin-bottom: 1px;
+  font-size: 0.84rem;
+  font-weight: 600;
   text-decoration: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .nav-link:hover { 
-  background: rgba(255, 255, 255, 0.05); 
+  background: rgba(255, 255, 255, 0.06); 
   color: #ffffff; 
 }
 .nav-link.active { 
   background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); 
   color: #0f172a !important; 
-  font-weight: 900; 
-  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+  font-weight: 800; 
+  box-shadow: 0 4px 14px -3px rgba(0, 0, 0, 0.3);
 }
 .nav-link.active svg {
   color: #4f46e5 !important;
@@ -236,40 +241,39 @@ hr { border: none; border-top: 1px solid #e5e7eb; margin: 0; }
 }
 .toggle-paid:hover { opacity: 0.75; }
 
-/* ── DEVELOPER CREDITS — PREMIUM CHITTORTECH STYLE (FROM DHARAMSALA CSS) ── */
+/* ── DEVELOPER CREDITS — COMPACT & LAPTOP FIT ────────────────────────────── */
 .developer-credits {
-  padding: 20px 14px;
-  margin: 20px 8px 10px 8px;
+  padding: 10px 10px;
+  margin: 8px 0 2px 0;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  transition: all 0.3s ease;
+  gap: 8px;
+  transition: all 0.25s ease;
   text-align: left;
 }
 
 .developer-credits:hover {
   background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .dev-pill {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 10px 14px;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 6px 10px;
   border-radius: 50px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .dev-logo {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
   object-fit: contain;
 }
 
@@ -279,61 +283,59 @@ hr { border: none; border-top: 1px solid #e5e7eb; margin: 0; }
 }
 
 .dev-label {
-  font-size: 0.6rem;
+  font-size: 0.52rem;
   font-weight: 800;
   color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   margin: 0;
+  line-height: 1;
 }
 
 .dev-brand {
-  font-size: 0.95rem;
-  font-weight: 900;
+  font-size: 0.82rem;
+  font-weight: 800;
   color: #ffffff;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.2px;
   margin: 0;
+  line-height: 1.2;
 }
 
 .dev-badges {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding-left: 4px;
+  gap: 2px;
+  padding-left: 2px;
 }
 
 .dev-badge-item {
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   font-weight: 700;
   color: #00ff88;
   opacity: 0.9;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   margin: 0;
-}
-
-.dev-badge-item::before {
-  content: "•";
-  color: rgba(255,255,255,0.3);
+  line-height: 1.2;
 }
 
 .dev-contact {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  gap: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
 }
 
 .dev-contact a {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #94a3b8;
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   transition: all 0.2s ease;
 }
 
@@ -342,14 +344,14 @@ hr { border: none; border-top: 1px solid #e5e7eb; margin: 0; }
 }
 
 .dev-rights {
-  font-size: 0.6rem;
+  font-size: 0.54rem;
   font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   text-align: center;
-  line-height: 1.4;
-  margin-top: 4px;
+  line-height: 1.2;
+  margin: 0;
 }
 
 /* Hide default browser password reveal eye icon (Edge and Chrome) */

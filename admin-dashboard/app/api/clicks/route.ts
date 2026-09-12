@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
     let query = supabaseAdmin
       .from('clicks')
-      .select('id, user_id, brand_name, click_time, profiles(full_name, email)', { count: 'exact' })
+      .select('id, user_id, brand_name, click_time', { count: 'exact' })
       .order('click_time', { ascending: false })
 
     if (campaign && campaign !== 'all') {
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (search) {
-      query = query.or(`brand_name.ilike.%${search}%,user_id.ilike.%${search}%`)
+      query = query.ilike('brand_name', `%${search}%`)
     }
 
     const [
@@ -45,13 +45,16 @@ export async function GET(req: NextRequest) {
         id: c.id,
         campaign_name: c.brand_name || 'Affiliate Campaign',
         channel_id: '301603',
-        source: 'api',
-        platform: 'mobile',
-        ip_address: '66.249.88.165',
-        sub_id: c.user_id ? String(c.user_id).slice(0, 18) + '...' : 'SUB_API_TRACKING',
-        destination_url: `https://linksredirect.com/?cid=301603&url=${encodeURIComponent('https://' + String(c.brand_name || 'store').toLowerCase().replace(/\s+/g, '') + '.com')}`,
+        source: c.source || 'api',
+        platform: c.platform || 'mobile',
+        // ip_address: stored at click time (null if not captured)
+        ip_address: c.ip_address || null,
+        sub_id: c.user_id ? String(c.user_id).slice(0, 18) + '...' : null,
+        destination_url: c.destination_url || null,
         created_at: c.click_time || new Date().toISOString(),
-        profiles: prof ? { full_name: prof.full_name, email: prof.email } : null,
+        profiles: prof
+          ? { full_name: prof.full_name || null, email: prof.email }
+          : null,
       }
     })
 
@@ -72,24 +75,12 @@ export async function POST(req: NextRequest) {
     const { userId, campaignName, brandName } = body
     const name = campaignName || brandName || 'Affiliate Campaign'
 
+    // ✅ Guest / invalid UUID: insert with user_id = null (do NOT fall back to first real user)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     let resolvedUserId: string | null = null
-    if (userId && userId.length > 10) {
-      const { data: profile } = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .eq('id', userId)
-        .single()
-      if (profile) resolvedUserId = profile.id
-    }
 
-    // If no valid profile found yet, attach to first profile for foreign key constraint
-    if (!resolvedUserId) {
-      const { data: firstProfile } = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .limit(1)
-        .single()
-      resolvedUserId = firstProfile?.id || null
+    if (userId && uuidRegex.test(userId)) {
+      resolvedUserId = userId
     }
 
     const { data: click, error } = await supabaseAdmin
@@ -102,6 +93,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error) {
+      console.error('Click insert error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 

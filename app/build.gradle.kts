@@ -13,7 +13,8 @@ val otpServerUrl: String = localProperties.getProperty("OTP_SERVER_URL") ?: ""
 val otpApiSecret: String = localProperties.getProperty("OTP_API_SECRET") ?: ""
 val supabaseUrl: String = localProperties.getProperty("SUPABASE_URL") ?: ""
 val supabaseAnonKey: String = localProperties.getProperty("SUPABASE_ANON_KEY") ?: ""
-val supabaseServiceRoleKey: String = localProperties.getProperty("SUPABASE_SERVICE_ROLE_KEY") ?: ""
+// 🔒 SECURITY: SUPABASE_SERVICE_ROLE_KEY removed from APK — admin ops now via server proxy
+val adminApiBaseUrl: String = localProperties.getProperty("ADMIN_API_BASE_URL") ?: "https://affilliate-marketing-app.vercel.app"
 
 val releaseStoreFile: String = localProperties.getProperty("RELEASE_STORE_FILE") ?: ""
 val releaseStorePassword: String = localProperties.getProperty("RELEASE_STORE_PASSWORD") ?: ""
@@ -51,7 +52,8 @@ android {
         buildConfigField("String", "OTP_API_SECRET", "\"$otpApiSecret\"")
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
-        buildConfigField("String", "SUPABASE_SERVICE_ROLE_KEY", "\"$supabaseServiceRoleKey\"")
+        // Admin proxy URL — the app calls this instead of Supabase Admin API directly
+        buildConfigField("String", "ADMIN_API_BASE_URL", "\"$adminApiBaseUrl\"")
     }
 
     signingConfigs {

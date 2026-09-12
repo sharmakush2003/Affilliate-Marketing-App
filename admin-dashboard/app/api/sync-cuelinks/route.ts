@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
-const CUELINKS_API_KEY = process.env.CUELINKS_API_KEY || 'kJoBWVT7Vc05tf9KSJLqMLQaN950o4-b4eQ4MSSTIno'
+// 🔒 SECURITY: Never hardcode secrets — must be in .env.local / Vercel env vars
+const CUELINKS_API_KEY = process.env.CUELINKS_API_KEY
 const CUELINKS_BASE_URL = process.env.CUELINKS_BASE_URL || 'https://www.cuelinks.com/api/v2'
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'reward_club_admin_2026'
+const ADMIN_SECRET = process.env.ADMIN_SECRET
 
 type CueLinksTransaction = {
   id: number | string
@@ -32,6 +33,14 @@ function coinsFromCommission(commission: number): number {
 }
 
 export async function GET(req: NextRequest) {
+  // Guard: env vars must be set
+  if (!CUELINKS_API_KEY) {
+    return NextResponse.json({ error: 'Server misconfiguration: CUELINKS_API_KEY not set in environment variables.' }, { status: 500 })
+  }
+  if (!ADMIN_SECRET) {
+    return NextResponse.json({ error: 'Server misconfiguration: ADMIN_SECRET not set in environment variables.' }, { status: 500 })
+  }
+
   // Validate secret to prevent unauthorized triggers
   const secret = req.headers.get('x-admin-secret') || req.nextUrl.searchParams.get('secret')
   if (secret !== ADMIN_SECRET) {
@@ -118,10 +127,12 @@ export async function GET(req: NextRequest) {
 
       synced++
 
-      // ── 4. If approved + unpaid + has a valid user → credit coins ────────
+      // ── 4. If approved + NOT YET CREDITED + has a valid user → credit coins ─
+      // Guard uses cashback_credited_coins === 0 (immutable once set) to prevent
+      // double-crediting if sync runs twice before admin marks as paid.
       if (
         normalizedStatus === 'approved' &&
-        upserted?.payment_status === 'unpaid' &&
+        (upserted?.cashback_credited_coins ?? 0) === 0 &&
         resolvedUserId &&
         commission > 0
       ) {

@@ -48,9 +48,9 @@ const mockClicks: ClickRecord[] = [
 ]
 
 export default function ClicksPage() {
-  const [clicks, setClicks] = useState<ClickRecord[]>(mockClicks)
-  const [totalCount, setTotalCount] = useState<number>(23)
-  const [loading, setLoading] = useState(false)
+  const [clicks, setClicks] = useState<ClickRecord[]>([])
+  const [totalCount, setTotalCount] = useState<number>(0)
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [selectedCampaign, setSelectedCampaign] = useState('all')
 
@@ -58,17 +58,14 @@ export default function ClicksPage() {
     try {
       const res = await fetch(`/api/clicks?search=${encodeURIComponent(search)}&campaign=${selectedCampaign}`)
       const data = await res.json()
-      if (data.clicks && data.clicks.length > 0) {
+      if (data.clicks) {
         setClicks(data.clicks)
         setTotalCount(data.total ?? data.clicks.length)
-      } else {
-        setClicks(mockClicks)
-        setTotalCount(mockClicks.length)
       }
     } catch (err) {
       console.error('Error fetching clicks:', err)
-      setClicks(mockClicks)
-      setTotalCount(mockClicks.length)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -89,7 +86,7 @@ export default function ClicksPage() {
   })
 
   return (
-    <div style={{ maxWidth: 1150 }}>
+    <div style={{ width: '100%' }}>
       {/* Page Heading */}
       <div
         style={{

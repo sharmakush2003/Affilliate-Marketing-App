@@ -6,7 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run --reporter=verbose",
+    "test:watch": "vitest --reporter=verbose",
+    "test:coverage": "vitest run --coverage",
+    "test:p1": "vitest run __tests__/phase1_auth.test.ts --reporter=verbose",
+    "test:p2": "vitest run __tests__/phase2_3_clicks_sync.test.ts --reporter=verbose",
+    "test:p3": "vitest run __tests__/phase4_5_sessions_withdrawals.test.ts --reporter=verbose",
+    "test:p4": "vitest run __tests__/phase6_7_8_dashboard_security_schema.test.ts --reporter=verbose"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",
@@ -24,10 +31,13 @@
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^2.1.8",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
     "pg": "^8.23.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^2.1.8"
   }
 }
