@@ -204,15 +204,24 @@ export async function POST(req: NextRequest) {
     </html>
     `
 
-    // 4. Send email via SMTP
-    await transporter.sendMail({
-      from: `"Reward Club" <${SMTP_USER}>`,
+    // 4. Send email via SMTP with plain-text fallback (crucial for Gmail spam filters)
+    const textContent = `Hello,\n\nA request has been received to reset your Reward Club administrator password.\n\nPlease visit the following secure link to set your new password:\n${actionLink}\n\nIf you did not request this, please ignore this email.\n\n— Reward Club Security`
+
+    const info = await transporter.sendMail({
+      from: `"Reward Club Security" <${SMTP_USER}>`,
       to: trimmedEmail,
       subject: 'Reset your Reward Club Admin Password',
+      text: textContent,
       html: htmlContent,
     })
 
-    return NextResponse.json({ success: true, message: 'Recovery email dispatched successfully.' })
+    console.log(`[forgot-password] Email sent to ${trimmedEmail} (messageId: ${info.messageId})`)
+
+    return NextResponse.json({
+      success: true,
+      message: 'Recovery email dispatched successfully.',
+      messageId: info.messageId,
+    })
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : 'Unknown SMTP error'
     console.error('[forgot-password] API error:', errorMsg)
