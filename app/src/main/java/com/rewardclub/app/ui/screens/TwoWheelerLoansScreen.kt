@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ElectricBolt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,16 +32,25 @@ import com.rewardclub.app.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InsuranceScreen(
+fun TwoWheelerLoansScreen(
     onBackClick: () -> Unit,
-    onInsuranceClick: (String) -> Unit
+    onLoanClick: (String) -> Unit
 ) {
-    val allInsurances = remember { CampaignData.insuranceCategory.campaigns }
+    val twoWheelerLoans = remember { CampaignData.twoWheelerLoansCategory.campaigns }
+    var selectedFilter by remember { mutableStateOf("All") }
+
+    val filteredPartners = remember(selectedFilter, twoWheelerLoans) {
+        when (selectedFilter) {
+            "Instant Approval" -> twoWheelerLoans.filter { it.badge?.contains("APPROVAL", true) == true || it.badge?.contains("DISBURSAL", true) == true }
+            "Low Interest" -> twoWheelerLoans.filter { it.badge?.contains("LOW", true) == true || it.badge?.contains("EASY", true) == true }
+            else -> twoWheelerLoans
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Insurance Partners", fontWeight = FontWeight.Bold, fontSize = 20.sp) },
+                title = { Text("Two Wheeler Loan Partners", fontWeight = FontWeight.Bold, fontSize = 20.sp) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -60,34 +70,75 @@ fun InsuranceScreen(
                 .background(GrayBackground)
                 .padding(paddingValues)
         ) {
-            // Premium Info Header Banner
+            // Two Wheeler Loan Banner
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 12.dp)
                     .background(
-                        Brush.horizontalGradient(listOf(Color(0xFFFEF9E7), Color(0xFFE8F8F5))),
+                        Brush.horizontalGradient(listOf(Color(0xFFEDE7F6), Color(0xFFFCE4EC))),
                         RoundedCornerShape(16.dp)
                     )
-                    .border(1.dp, Color(0xFFFADBD8), RoundedCornerShape(16.dp))
-                    .padding(16.dp)
+                    .border(1.dp, Color(0xFFD1C4E9), RoundedCornerShape(16.dp))
+                    .padding(14.dp)
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ElectricBolt,
+                            contentDescription = "Fast API",
+                            tint = Color(0xFF6A1B9A),
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = "Two Wheeler Loan • 100% Digital Process",
+                            color = Color(0xFF4A148C),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
                     Text(
-                        text = "Secure Your Assets & Health 🛡️",
-                        color = Color(0xFF78281F),
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Black
-                    )
-                    Text(
-                        text = "Compare policies online with zero commission and get up to 25% Coin cashback directly credited to your wallet.",
+                        text = "Instant approval, minimal documentation, flexible EMI tenure and quick disbursal for your dream bike.",
                         color = Color(0xFF2E4053),
-                        fontSize = 12.sp,
+                        fontSize = 11.5.sp,
                         lineHeight = 16.sp
                     )
                 }
             }
 
+            // Quick Filters
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                listOf("All", "Instant Approval", "Low Interest").forEach { filter ->
+                    val isSelected = selectedFilter == filter
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(if (isSelected) DarkGreen else Color.White)
+                            .border(1.dp, if (isSelected) DarkGreen else BorderColor.copy(alpha = 0.5f), RoundedCornerShape(20.dp))
+                            .clickable { selectedFilter = filter }
+                            .padding(horizontal = 14.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = filter,
+                            color = if (isSelected) Color.White else TextDark,
+                            fontSize = 11.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Partner Cards Grid
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -96,8 +147,8 @@ fun InsuranceScreen(
                     .weight(1f),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp)
             ) {
-                items(allInsurances, key = { it.id }) { insurance ->
-                    InsuranceItemCard(insurance = insurance, onClick = { onInsuranceClick(insurance.name) })
+                items(filteredPartners, key = { it.id }) { partner ->
+                    TwoWheelerLoanCard(partner = partner, onClick = { onLoanClick(partner.name) })
                 }
             }
         }
@@ -105,7 +156,7 @@ fun InsuranceScreen(
 }
 
 @Composable
-fun InsuranceItemCard(insurance: CampaignItem, onClick: () -> Unit) {
+fun TwoWheelerLoanCard(partner: CampaignItem, onClick: () -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = White),
         shape = RoundedCornerShape(18.dp),
@@ -122,7 +173,7 @@ fun InsuranceItemCard(insurance: CampaignItem, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Logo / Icon
+            // Partner Logo
             Box(
                 modifier = Modifier
                     .size(56.dp)
@@ -132,27 +183,27 @@ fun InsuranceItemCard(insurance: CampaignItem, onClick: () -> Unit) {
                     .padding(8.dp),
                 contentAlignment = Alignment.Center
             ) {
-                if (insurance.logoResId != null) {
+                if (partner.logoResId != null) {
                     Image(
-                        painter = painterResource(id = insurance.logoResId),
-                        contentDescription = insurance.name,
+                        painter = painterResource(id = partner.logoResId),
+                        contentDescription = partner.name,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Fit
                     )
                 } else {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(insurance.logoUrl)
+                            .data(partner.logoUrl)
                             .crossfade(true)
                             .build(),
-                        contentDescription = insurance.name,
+                        contentDescription = partner.name,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Fit
                     )
                 }
             }
 
-            // Insurance details
+            // Partner details
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(3.dp)
@@ -162,7 +213,7 @@ fun InsuranceItemCard(insurance: CampaignItem, onClick: () -> Unit) {
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Text(
-                        text = insurance.name,
+                        text = partner.name,
                         color = TextDark,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Black,
@@ -170,15 +221,15 @@ fun InsuranceItemCard(insurance: CampaignItem, onClick: () -> Unit) {
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
                     )
-                    insurance.badge?.let { badgeText ->
+                    partner.badge?.let { badgeText ->
                         Box(
                             modifier = Modifier
-                                .background(insurance.badgeBgColor, RoundedCornerShape(4.dp))
+                                .background(partner.badgeBgColor, RoundedCornerShape(4.dp))
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
                                 text = badgeText,
-                                color = insurance.badgeTextColor,
+                                color = partner.badgeTextColor,
                                 fontSize = 8.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 maxLines = 1
@@ -188,7 +239,7 @@ fun InsuranceItemCard(insurance: CampaignItem, onClick: () -> Unit) {
                 }
 
                 Text(
-                    text = insurance.subtitle,
+                    text = partner.subtitle,
                     color = TextGray,
                     fontSize = 11.sp,
                     maxLines = 1,
@@ -202,7 +253,7 @@ fun InsuranceItemCard(insurance: CampaignItem, onClick: () -> Unit) {
                 ) {
                     Text(text = "🪙", fontSize = 11.sp)
                     Text(
-                        text = "${insurance.earnCoinsText} Coins on Policy",
+                        text = "${partner.earnCoinsText} Coins on Disbursal",
                         color = DarkGreen,
                         fontSize = 11.5.sp,
                         fontWeight = FontWeight.Black
@@ -210,7 +261,7 @@ fun InsuranceItemCard(insurance: CampaignItem, onClick: () -> Unit) {
                 }
             }
 
-            // CTA Button
+            // Apply CTA Button
             Button(
                 onClick = onClick,
                 colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
@@ -219,7 +270,7 @@ fun InsuranceItemCard(insurance: CampaignItem, onClick: () -> Unit) {
                 modifier = Modifier.height(36.dp).defaultMinSize(minWidth = 68.dp)
             ) {
                 Text(
-                    text = "Quote",
+                    text = "Apply",
                     color = White,
                     fontSize = 11.5.sp,
                     fontWeight = FontWeight.Black

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Technical Evaluation: Unified Financial Products API vs Cuelinks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  @page {
+    size: A4;
+    margin: 8mm 10mm;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: #1e293b;
+    font-size: 11px;
+    line-height: 1.45;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    padding: 4px;
+    box-sizing: border-box;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  /* Header Section */
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 45%, #312e81 100%);
+    color: #ffffff;
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .badge-tag-top {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+    background: rgba(255, 255, 255, 0.16);
+    color: #e0e7ff;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
+  .header h1 {
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 4px;
+    letter-spacing: -0.2px;
+  }
+
+  .header p {
+    font-size: 11px;
+    color: #c7d2fe;
+    max-width: 620px;
+    line-height: 1.4;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .meta-item span {
+    display: block;
+    font-size: 8.5px;
+    color: #a5b4fc;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .meta-item strong {
+    font-size: 11px;
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  /* Section Styling */
+  .section {
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+    border-left: 3.5px solid #4f46e5;
+    padding-left: 8px;
+  }
+
+  /* Executive Highlight Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+
+  .card.highlight {
+    background: #f5f3ff;
+    border-color: #ddd6fe;
+  }
+
+  .card h3 {
+    font-size: 11.5px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .card.highlight h3 {
+    color: #4338ca;
+  }
+
+  .card p {
+    font-size: 10.5px;
+    color: #475569;
+    line-height: 1.4;
+  }
+
+  /* Comparison Table */
+  .table-wrapper {
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5px;
+  }
+
+  th {
+    background: #f1f5f9;
+    color: #1e293b;
+    font-weight: 700;
+    text-align: left;
+    padding: 7px 10px;
+    border-bottom: 2px solid #cbd5e1;
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 6.5px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    vertical-align: top;
+    line-height: 1.35;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+
+  .badge-tag {
+    display: inline-block;
+    padding: 1.5px 5px;
+    border-radius: 3px;
+    font-size: 8.5px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .tag-danger {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
+  .tag-success {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  /* Flow Grid (Page 2) */
+  .flow-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 9px;
+    margin-top: 6px;
+  }
+
+  .flow-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    padding: 10px 11px;
+  }
+
+  .flow-box.featured {
+    background: #f0fdf4;
+    border-color: #86efac;
+    grid-column: span 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 15px;
+  }
+
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    background: #4f46e5;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .flow-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 2px;
+  }
+
+  .flow-desc {
+    font-size: 10px;
+    color: #64748b;
+    line-height: 1.35;
+  }
+
+  .flow-endpoint {
+    display: inline-block;
+    font-family: monospace;
+    font-size: 8.5px;
+    background: #e2e8f0;
+    padding: 2px 5px;
+    border-radius: 3px;
+    color: #0f172a;
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* Checklist Card */
+  .checklist-card {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-left: 3.5px solid #0284c7;
+    border-radius: 7px;
+    padding: 11px 14px;
+  }
+
+  .checklist-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px 12px;
+    margin-top: 6px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 10.5px;
+    color: #0369a1;
+  }
+
+  .check-icon {
+    background: #0284c7;
+    color: #ffffff;
+    border-radius: 50%;
+    width: 13px;
+    height: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8.5px;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .check-item strong {
+    color: #0c4a6e;
+  }
+
+  /* Impact Metrics Grid */
+  .impact-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 9px;
+    margin-bottom: 10px;
+  }
+
+  .impact-card {
+    background: #faf5ff;
+    border: 1px solid #e9d5ff;
+    border-radius: 7px;
+    padding: 9px 11px;
+    text-align: center;
+  }
+
+  .impact-value {
+    font-size: 16px;
+    font-weight: 800;
+    color: #7e22ce;
+    margin-bottom: 2px;
+  }
+
+  .impact-label {
+    font-size: 9.5px;
+    color: #6b21a8;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  /* Recommendation Box */
+  .recom-box {
+    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+    border: 1px solid #c7d2fe;
+    border-left: 3.5px solid #4f46e5;
+    border-radius: 7px;
+    padding: 10px 14px;
+  }
+
+  /* Footer */
+  .footer {
+    padding-top: 8px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 9.5px;
+    color: #94a3b8;
+    margin-top: 8px;
+  }
+
+  .footer strong {
+    color: #475569;
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<div class="page">
+  <div>
+    <!-- Header -->
+    <div class="header">
+      <div class="badge-tag-top">Executive Strategic Assessment</div>
+      <h1>Unified Financial Products API vs. Cuelinks</h1>
+      <p>Technical architecture, conversion impact, and operational evaluation for integrating Credit Cards, Personal Loans, and Insurance into the Reward Club platform.</p>
+      
+      <div class="meta-grid">
+        <div class="meta-item">
+          <span>Target Audience</span>
+          <strong>Client & Leadership Team</strong>
+        </div>
+        <div class="meta-item">
+          <span>Prepared By</span>
+          <strong>Engineering & Tech Team</strong>
+        </div>
+        <div class="meta-item">
+          <span>Date</span>
+          <strong>September 2026</strong>
+        </div>
+        <div class="meta-item">
+          <span>Recommendation</span>
+          <strong style="color: #4ade80;">Approved For Rollout</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Executive Overview -->
+    <div class="section">
+      <div class="section-title">1. Executive Summary & Core Dilemma</div>
+      <div class="card-grid">
+        <div class="card">
+          <h3>⚠️ The Current Cuelinks Problem</h3>
+          <p>Cuelinks relies on basic affiliate click-tracking. For banking and insurance products, campaigns frequently get paused, require manual re-approvals, suffer high drop-offs due to external redirects, and lock cash flow with 60–90 day delayed reconciliation.</p>
+        </div>
+        <div class="card highlight">
+          <h3>🚀 The Unified Financial API Solution</h3>
+          <p>A direct, embedded finance aggregator model. One master API key unlocks multiple tier-1 banks, NBFCs, and insurers. Enables native in-app eligibility checks, direct lead submissions, and <strong>instant webhook callbacks</strong> to credit reward coins to users in real time.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side by Side Comparison -->
+    <div class="section">
+      <div class="section-title">2. In-Depth Side-by-Side Comparison</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 22%;">Dimension</th>
+              <th style="width: 39%;">Cuelinks (Affiliate Network)</th>
+              <th style="width: 39%;">Unified Financial Products API</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Architecture</strong></td>
+              <td>Basic affiliate link redirects. Cookie-based browser tracking.</td>
+              <td><span class="badge-tag tag-success">Direct Server-to-Server</span> Robust REST API with instant webhook callbacks.</td>
+            </tr>
+            <tr>
+              <td><strong>Campaign Approvals</strong></td>
+              <td><span class="badge-tag tag-danger">High Operational Friction</span> Every individual brand requires separate application; frequent rejections & sudden pauses.</td>
+              <td><span class="badge-tag tag-success">Single Master API</span> One integration unlocks all active cards, loans, and insurance lines dynamically.</td>
+            </tr>
+            <tr>
+              <td><strong>Tracking & Reliability</strong></td>
+              <td>Lagging conversion reports (days to weeks). Tracking often breaks on ad-blockers & iOS webviews.</td>
+              <td><span class="badge-tag tag-success">Real-Time Webhooks</span> 100% deterministic status updates (<code>APPROVED</code>, <code>DISBURSED</code>, <code>CARD_ISSUED</code>).</td>
+            </tr>
+            <tr>
+              <td><strong>User Experience (UX)</strong></td>
+              <td>User is bounced out of the app to external web forms. High bounce/drop-off rate (>65%).</td>
+              <td><span class="badge-tag tag-success">Native Experience</span> Instant eligibility checks inside app with clean consent capture.</td>
+            </tr>
+            <tr>
+              <td><strong>Reward Coin Attribution</strong></td>
+              <td>Impossible to reward users immediately. Leads to support complaints and churn.</td>
+              <td><span class="badge-tag tag-success">Instant Gamification</span> User receives coins within seconds of loan disbursal or card approval.</td>
+            </tr>
+            <tr>
+              <td><strong>Commission & Payouts</strong></td>
+              <td>Lower payout margins (network cut); 60–90 day payment disbursement cycles.</td>
+              <td><span class="badge-tag tag-success">Direct High CPA / CPL</span> Maximum financial payouts with direct institutional aggregator terms.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div><strong>Reward Club Mobile App</strong> | Technical & Commercial Evaluation</div>
+    <div>Page 1 of 2</div>
+  </div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page page-break">
+  <div>
+    <!-- Section 3: Architecture & Lifecycle -->
+    <div class="section" style="margin-top: 2px;">
+      <div class="section-title">3. End-to-End Technical Lifecycle (6 APIs + 1 Webhook)</div>
+      <div class="flow-grid">
+        <div class="flow-box">
+          <div class="step-num">1</div>
+          <div class="flow-title">Health Check</div>
+          <div class="flow-desc">Validates partner API credentials, token validity, and endpoint uptime.</div>
+          <div class="flow-endpoint">GET /v1/health</div>
+        </div>
+        <div class="flow-box">
+          <div class="step-num">2</div>
+          <div class="flow-title">Product Catalogue</div>
+          <div class="flow-desc">Dynamically retrieves active cards, loan offers, and vehicle insurance.</div>
+          <div class="flow-endpoint">GET /v1/products</div>
+        </div>
+        <div class="flow-box">
+          <div class="step-num">3</div>
+          <div class="flow-title">Product Details</div>
+          <div class="flow-desc">Fetches input field requirements (PAN, Monthly Income, Pincode).</div>
+          <div class="flow-endpoint">GET /v1/products/{id}</div>
+        </div>
+        <div class="flow-box">
+          <div class="step-num">4</div>
+          <div class="flow-title">Eligibility Pre-Check</div>
+          <div class="flow-desc">Pre-qualifies borrower profile before submitting final lead.</div>
+          <div class="flow-endpoint">POST /v1/eligibility</div>
+        </div>
+        <div class="flow-box">
+          <div class="step-num">5</div>
+          <div class="flow-title">Lead Creation</div>
+          <div class="flow-desc">Submits user consent & data; returns unique <code>reference_id</code> & secure URL.</div>
+          <div class="flow-endpoint">POST /v1/leads</div>
+        </div>
+        <div class="flow-box">
+          <div class="step-num">6</div>
+          <div class="flow-title">Lead Status Query</div>
+          <div class="flow-desc">Fallback polling API to check lead lifecycle stage whenever needed.</div>
+          <div class="flow-endpoint">GET /v1/leads/{ref_id}</div>
+        </div>
+        <div class="flow-box featured">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+              <span style="background: #16a34a; color: #ffffff; border-radius: 50%; width: 19px; height: 19px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800;">⚡</span>
+              <strong style="color: #15803d; font-size: 11.5px;">Real-Time Status Webhook (Platform → Reward Club Backend)</strong>
+            </div>
+            <p style="font-size: 10px; color: #166534;">Eliminates polling completely. Sends instant push events on: <code>APPLICATION_STARTED</code> → <code>KYC_PENDING</code> → <code>APPROVED</code> → <code>DISBURSED</code>.</p>
+          </div>
+          <div class="flow-endpoint" style="background: #bbf7d0; color: #14532d; font-size: 9px; padding: 3px 7px;">POST /partner-webhook</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Commercial & Growth Impact -->
+    <div class="section">
+      <div class="section-title">4. Business & Retention Impact</div>
+      <div class="impact-grid">
+        <div class="impact-card">
+          <div class="impact-value">~3x Higher</div>
+          <div class="impact-label">Conversion Rate</div>
+        </div>
+        <div class="impact-card">
+          <div class="impact-value">Instant</div>
+          <div class="impact-label">Coin Attribution</div>
+        </div>
+        <div class="impact-card">
+          <div class="impact-value">0% Pauses</div>
+          <div class="impact-label">Master API Stability</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5: Action Items for Client / Aggregator -->
+    <div class="section">
+      <div class="section-title">5. Information Required to Begin Implementation</div>
+      <div class="checklist-card">
+        <p style="font-size: 11px; font-weight: 700; color: #0369a1; margin-bottom: 5px;">To initiate sandbox environment testing, please request the provider to share:</p>
+        <div class="checklist-grid">
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <div><strong>Sandbox Credentials:</strong> Sandbox Base URL endpoint and partner Test API Key.</div>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <div><strong>Production Details:</strong> Real aggregator platform domain & company contract name.</div>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <div><strong>Commercial Payout Matrix:</strong> Exact CPA/CPL rates per credit card and % per loan disbursal.</div>
+          </div>
+          <div class="check-item">
+            <span class="check-icon">✓</span>
+            <div><strong>Webhook Security Specs:</strong> Secret signature header/token & IP whitelisting guidelines.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Strategic Recommendation -->
+    <div class="section" style="margin-top: 8px;">
+      <div class="recom-box">
+        <strong style="color: #3730a3; font-size: 11.5px;">Strategic Recommendation:</strong>
+        <p style="color: #4338ca; font-size: 10.5px; margin-top: 2px; line-height: 1.4;">
+          We strongly recommend transitioning all financial products (Loans, Credit Cards, Insurance) to this Unified API immediately. Cuelinks can be retained exclusively as a fallback for general retail shopping (Amazon, Flipkart). This delivers maximum monetization per user while giving our engineering team full tracking control.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div><strong>Reward Club Mobile App</strong> | Technical & Commercial Evaluation</div>
+    <div>Page 2 of 2</div>
+  </div>
+</div>
+
+</body>
+</html>

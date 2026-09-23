@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.foundation.border
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -107,6 +108,7 @@ data class TopProductMock(
 
 @Composable
 fun HomeScreen(
+    scrollState: ScrollState,
     onHamburgerClick: () -> Unit,
     onJoinClick: () -> Unit = {},
     onBrandClick: (String) -> Unit,
@@ -115,11 +117,11 @@ fun HomeScreen(
     onCouponClick: (String) -> Unit,
     onViewAllBrandsClick: () -> Unit,
     onViewAllCardsClick: () -> Unit,
-    onViewAllLoansClick: () -> Unit,
+    onViewAllPersonalLoansClick: () -> Unit,
+    onViewAllCarLoansClick: () -> Unit,
+    onViewAllTwoWheelerLoansClick: () -> Unit,
     onViewAllInsuranceClick: () -> Unit
 ) {
-    val scrollState = rememberScrollState()
-
     val categories = listOf(
         RedeemCategory("Products", "📦"),
         RedeemCategory("Vouchers", "🎟️"),
@@ -156,29 +158,40 @@ fun HomeScreen(
         // Green Header
         HeaderSection(onHamburgerClick = onHamburgerClick, onJoinClick = onJoinClick)
 
-        // Banner Slider Section (NOW ACTIVE)
+        // Banner Slider Section
         BannerSliderSection()
+        Spacer(modifier = Modifier.height(6.dp))
 
-        // 5 Pre-Approved Categories from CueLinks (100% Active Tracking)
+        // Official Partner Categories (Shop, Personal Loans, Car Loans, 2-Wheeler Loans, Insurance, Credit Cards)
         CampaignData.allCategories.forEach { category ->
             SectionHeader(
                 title = "${category.iconEmoji} ${category.title}",
                 showViewAll = true,
-                onViewAllClick = { onViewAllBrandsClick() }
+                onViewAllClick = {
+                    when (category.id) {
+                        "shop" -> onViewAllBrandsClick()
+                        "personal_loans", "loans" -> onViewAllPersonalLoansClick()
+                        "car_loans" -> onViewAllCarLoansClick()
+                        "two_wheeler_loans" -> onViewAllTwoWheelerLoansClick()
+                        "insurance" -> onViewAllInsuranceClick()
+                        "credit_cards" -> onViewAllCardsClick()
+                        else -> onCategoryClick(category.title)
+                    }
+                }
             )
             LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(horizontal = 14.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(category.campaigns) { campaign ->
                     CampaignCard(campaign = campaign, onClick = { onBrandClick(campaign.name) })
                 }
             }
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(10.dp))
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -371,14 +384,14 @@ fun BannerSliderSection() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 14.dp, vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(16f / 9f)
-                .shadow(4.dp, RoundedCornerShape(12.dp))
+                .shadow(2.dp, RoundedCornerShape(12.dp))
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color.Black)
         ) {
@@ -390,25 +403,25 @@ fun BannerSliderSection() {
                     painter = painterResource(id = banners[slideIndex]),
                     contentDescription = "Offer Banner",
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.FillWidth
                 )
             }
         }
         
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         
         Row(
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             banners.forEachIndexed { index, _ ->
                 val width by animateDpAsState(
-                    targetValue = if (index == currentSlide) 20.dp else 6.dp,
+                    targetValue = if (index == currentSlide) 14.dp else 5.dp,
                     label = "dotWidth"
                 )
                 Box(
                     modifier = Modifier
-                        .size(height = 6.dp, width = width)
+                        .size(height = 4.dp, width = width)
                         .clip(CircleShape)
                         .background(
                             if (index == currentSlide)
@@ -431,42 +444,42 @@ fun SectionHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 14.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            // Premium left accent bar
+            // Subtle left accent bar
             Box(
                 modifier = Modifier
-                    .width(4.dp)
-                    .height(20.dp)
+                    .width(3.dp)
+                    .height(14.dp)
                     .background(
                         Brush.verticalGradient(listOf(Color(0xFFE8A020), DarkGreen)),
-                        RoundedCornerShape(2.dp)
+                        RoundedCornerShape(1.5.dp)
                     )
             )
             Text(
                 text = title,
                 color = TextDark,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.ExtraBold,
+                fontSize = 13.5.sp,
+                fontWeight = FontWeight.Bold,
                 letterSpacing = 0.1.sp
             )
             if (hasNewBadge) {
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
+                        .clip(RoundedCornerShape(3.dp))
                         .background(OrangeDiscount)
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                        .padding(horizontal = 4.dp, vertical = 1.dp)
                 ) {
                     Text(
                         text = "New",
                         color = White,
-                        fontSize = 10.sp,
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -476,19 +489,22 @@ fun SectionHeader(
         if (showViewAll) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { onViewAllClick() }
+                modifier = Modifier
+                    .clip(RoundedCornerShape(4.dp))
+                    .clickable { onViewAllClick() }
+                    .padding(horizontal = 4.dp, vertical = 2.dp)
             ) {
                 Text(
-                    text = "VIEW ALL",
+                    text = "View all",
                     color = DarkGreen,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.SemiBold
                 )
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
                     contentDescription = null,
                     tint = DarkGreen,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(13.dp)
                 )
             }
         }
@@ -499,18 +515,18 @@ fun SectionHeader(
 fun CampaignCard(campaign: CampaignItem, onClick: () -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = White),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, BorderColor.copy(alpha = 0.5f)),
-        elevation = CardDefaults.cardElevation(2.dp),
+        shape = RoundedCornerShape(10.dp),
+        border = BorderStroke(0.6.dp, BorderColor.copy(alpha = 0.4f)),
+        elevation = CardDefaults.cardElevation(0.5.dp),
         modifier = Modifier
-            .width(175.dp)
-            .height(225.dp)
+            .width(108.dp)
+            .height(138.dp)
             .clickable { onClick() }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(10.dp),
+                .padding(6.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -518,23 +534,34 @@ fun CampaignCard(campaign: CampaignItem, onClick: () -> Unit) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(82.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .height(42.dp)
+                    .clip(RoundedCornerShape(8.dp))
                     .background(Color(0xFFFAFAFA))
-                    .border(1.dp, BorderColor.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
+                    .border(0.5.dp, BorderColor.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(campaign.logoUrl)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = campaign.name,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(8.dp),
-                    contentScale = ContentScale.Fit
-                )
+                if (campaign.logoResId != null) {
+                    Image(
+                        painter = painterResource(id = campaign.logoResId),
+                        contentDescription = campaign.name,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(campaign.logoUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = campaign.name,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
             }
 
             // Campaign Name & Subtitle
@@ -545,17 +572,16 @@ fun CampaignCard(campaign: CampaignItem, onClick: () -> Unit) {
                 Text(
                     text = campaign.name,
                     color = TextDark,
-                    fontSize = 13.sp,
+                    fontSize = 10.5.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = campaign.subtitle,
                     color = TextGray,
-                    fontSize = 10.sp,
+                    fontSize = 8.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center
@@ -569,29 +595,29 @@ fun CampaignCard(campaign: CampaignItem, onClick: () -> Unit) {
             ) {
                 Box(
                     modifier = Modifier
-                        .background(Color(0xFFE8F5E9), shape = RoundedCornerShape(6.dp))
-                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                        .background(Color(0xFFE8F5E9), shape = RoundedCornerShape(4.dp))
+                        .padding(horizontal = 4.dp, vertical = 1.5.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Text(text = "🪙", fontSize = 10.sp)
+                        Text(text = "🪙", fontSize = 8.sp)
                         Text(
                             text = campaign.earnCoinsText,
                             color = DarkGreen,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Black
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(3.dp))
+                Spacer(modifier = Modifier.height(1.dp))
 
                 Text(
                     text = campaign.rateDetail,
                     color = TextGray,
-                    fontSize = 9.sp,
+                    fontSize = 7.5.sp,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -1231,56 +1257,5 @@ fun LoanItem(loan: LoanMock, onClick: () -> Unit) {
     }
 }
 
-data class CategoryItemData(val title: String, val icon: String)
 
-@Composable
-fun CategoryHorizontalStrip(
-    onCategoryClick: (String) -> Unit
-) {
-    val items = listOf(
-        CategoryItemData("Products", "📦"),
-        CategoryItemData("Vouchers", "🎟️"),
-        CategoryItemData("Utilities", "🧾"),
-        CategoryItemData("Loans", "💰"),
-        CategoryItemData("Insurance", "🛡️"),
-        CategoryItemData("Cards", "💳")
-    )
-    
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .border(BorderStroke(0.5.dp, BorderColor.copy(alpha = 0.1f)))
-    ) {
-        items(items) { item ->
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .clickable { onCategoryClick(item.title) }
-                    .width(64.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .background(Color(0xFFF5F7FA), CircleShape)
-                        .border(1.dp, BorderColor.copy(alpha = 0.2f), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = item.icon, fontSize = 24.sp)
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = item.title,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextDark,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-    }
-}
+

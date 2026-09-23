@@ -58,7 +58,7 @@ fun EarnCoinsScreen(
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val cuelinksApi = remember { com.rewardclub.app.api.CuelinksApiService() }
+    val unifiedFinancialApi = remember { com.rewardclub.app.api.UnifiedFinancialApiService() }
 
     val campaign = remember(brandName) { CampaignData.findCampaign(brandName) }
 
@@ -102,17 +102,16 @@ fun EarnCoinsScreen(
 
     val onActivateAndShop = {
         val currentUserId = com.rewardclub.app.utils.UserSession.currentUser?.uid ?: ""
-        val trackingUrl = cuelinksApi.createAffiliateLink(rawUrl, userId = currentUserId)
 
-        // Background ping to register click on Supabase
+        // Background direct server-to-server tracking via Unified Financial API
         coroutineScope.launch {
-            cuelinksApi.fireAndForgetClick(rawUrl, userId = currentUserId, campaignName = brandName)
+            unifiedFinancialApi.trackClick(rawUrl, userId = currentUserId, campaignName = brandName)
         }
 
-        // Open in browser
+        // Direct browser activation without Cuelinks intermediary
         val intent = android.content.Intent(
             android.content.Intent.ACTION_VIEW,
-            android.net.Uri.parse(trackingUrl)
+            android.net.Uri.parse(rawUrl)
         )
         intent.setPackage("com.android.chrome")
         try {
@@ -274,8 +273,16 @@ fun EarnCoinsScreen(
                                 .padding(8.dp),
                             contentAlignment = Alignment.Center
                         ) {
+                            val logoResId = campaign?.logoResId
                             val logoUrl = campaign?.logoUrl
-                            if (!logoUrl.isNullOrBlank()) {
+                            if (logoResId != null) {
+                                Image(
+                                    painter = painterResource(id = logoResId),
+                                    contentDescription = brandName,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Fit
+                                )
+                            } else if (!logoUrl.isNullOrBlank()) {
                                 AsyncImage(
                                     model = ImageRequest.Builder(context)
                                         .data(logoUrl)

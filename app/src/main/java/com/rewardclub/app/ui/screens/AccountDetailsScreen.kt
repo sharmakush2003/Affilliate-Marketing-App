@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rewardclub.app.ui.theme.*
@@ -152,7 +153,7 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
             }
         }
 
-        // ── Stats Row ─────────────────────────────────────────────────────────
+        // ── Stats Row (Total Coins, Pending Coins, Withdrawn Coins) ─────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -165,12 +166,273 @@ fun AccountDetailsScreen(onBackClick: () -> Unit) {
         ) {
             StatItem(value = userSession.totalCoins.toString(), label = "Total\nCoins", emoji = "🪙", valueColor = DarkGreen)
             VerticalDividerLine()
-            StatItem(value = userSession.redeemedCoins.toString(), label = "Redeemed\nCoins", emoji = "🎁", valueColor = Color(0xFFF57C00))
+            StatItem(value = userSession.pendingCoins.toString(), label = "Pending\nCoins", emoji = "⏳", valueColor = Color(0xFFD97706))
             VerticalDividerLine()
-            StatItem(value = "₹${userSession.totalSavings}", label = "Total\nSavings", emoji = "💰", valueColor = Color(0xFF1565C0))
+            StatItem(value = userSession.withdrawnCoins.toString(), label = "Withdrawn\nCoins", emoji = "💸", valueColor = Color(0xFF2563EB))
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        // ── Responsive Instant UPI Withdrawal Card ───────────────────────────
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 6.dp),
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Header: Title & Exchange Rate Badge
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.weight(1f, fill = false)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(Color(0xFFE8F5E9), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("⚡", fontSize = 17.sp)
+                        }
+                        Column {
+                            Text(
+                                text = "Instant UPI Withdrawal",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextDark,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = "Direct Bank Transfer via UPI",
+                                fontSize = 11.sp,
+                                color = Color(0xFF64748B)
+                            )
+                        }
+                    }
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0xFFFEF3C7), RoundedCornerShape(8.dp))
+                            .border(0.8.dp, Color(0xFFFDE68A), RoundedCornerShape(8.dp))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "4 Coins = ₹1",
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFB45309)
+                        )
+                    }
+                }
+
+                // Balance Bar
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    color = Color(0xFFF0FDF4),
+                    border = BorderStroke(1.dp, Color(0xFFDCFCE7))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Available to Withdraw", fontSize = 11.5.sp, color = Color(0xFF166534), fontWeight = FontWeight.Medium)
+                        Text(
+                            text = "${userSession.pendingCoins} Coins (₹${String.format("%.2f", userSession.pendingCoins / 4.0)})",
+                            fontSize = 12.5.sp,
+                            color = DarkGreen,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                var upiIdInput by remember { mutableStateOf("") }
+                var withdrawCoinsInput by remember { mutableStateOf("") }
+                var isSubmittingWithdrawal by remember { mutableStateOf(false) }
+                var showWithdrawalSuccessDialog by remember { mutableStateOf(false) }
+                var lastWithdrawnAmount by remember { mutableStateOf(0.0) }
+                var lastWithdrawnUpi by remember { mutableStateOf("") }
+
+                // UPI ID Input
+                OutlinedTextField(
+                    value = upiIdInput,
+                    onValueChange = { upiIdInput = it },
+                    label = { Text("Enter UPI ID (VPA)", fontSize = 12.sp) },
+                    placeholder = { Text("e.g. 9876543210@paytm or id@okhdfcbank", fontSize = 12.sp, color = Color(0xFF94A3B8)) },
+                    leadingIcon = { Icon(Icons.Default.AccountBalance, contentDescription = null, tint = DarkGreen, modifier = Modifier.size(18.dp)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DarkGreen,
+                        unfocusedBorderColor = Color(0xFFCBD5E1),
+                        focusedLabelColor = DarkGreen
+                    )
+                )
+
+                // Coins to Cash Out Input
+                OutlinedTextField(
+                    value = withdrawCoinsInput,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) withdrawCoinsInput = it },
+                    label = { Text("Coins to Withdraw (Min 100)", fontSize = 12.sp) },
+                    placeholder = { Text("Enter coin count", fontSize = 12.sp, color = Color(0xFF94A3B8)) },
+                    leadingIcon = { Text("🪙", fontSize = 14.sp, modifier = Modifier.padding(start = 12.dp)) },
+                    trailingIcon = {
+                        Surface(
+                            onClick = {
+                                if (userSession.pendingCoins > 0) {
+                                    withdrawCoinsInput = userSession.pendingCoins.toString()
+                                }
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                            color = Color(0xFFE8F5E9),
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text(
+                                "MAX",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = DarkGreen,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                            )
+                        }
+                    },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DarkGreen,
+                        unfocusedBorderColor = Color(0xFFCBD5E1),
+                        focusedLabelColor = DarkGreen
+                    )
+                )
+
+                // Scrollable Preset Chips (Never overflows or clips)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf(100L to "₹25", 250L to "₹62.50", 500L to "₹125", 1000L to "₹250", 2000L to "₹500").forEach { (presetCoins, inr) ->
+                        val isSelected = withdrawCoinsInput == presetCoins.toString()
+                        Surface(
+                            onClick = { withdrawCoinsInput = presetCoins.toString() },
+                            shape = RoundedCornerShape(16.dp),
+                            color = if (isSelected) DarkGreen else Color(0xFFF1F5F9),
+                            border = BorderStroke(1.dp, if (isSelected) DarkGreen else Color(0xFFE2E8F0))
+                        ) {
+                            Text(
+                                text = "$presetCoins 🪙 ($inr)",
+                                fontSize = 11.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                color = if (isSelected) Color.White else TextDark,
+                                modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp)
+                            )
+                        }
+                    }
+                }
+
+                // Action Button
+                Button(
+                    onClick = {
+                        val trimmedUpi = upiIdInput.trim()
+                        val coinsNum = withdrawCoinsInput.toLongOrNull() ?: 0L
+                        if (!trimmedUpi.contains("@")) {
+                            Toast.makeText(context, "Please enter a valid UPI ID (e.g. mobile@upi)", Toast.LENGTH_SHORT).show()
+                        } else if (coinsNum < 100L) {
+                            Toast.makeText(context, "Minimum withdrawal is 100 Coins (₹25)", Toast.LENGTH_SHORT).show()
+                        } else if (coinsNum > userSession.pendingCoins) {
+                            Toast.makeText(context, "Insufficient coins! You have ${userSession.pendingCoins} pending coins.", Toast.LENGTH_SHORT).show()
+                        } else {
+                            isSubmittingWithdrawal = true
+                            scope.launch {
+                                val ok = userSession.requestUpiWithdrawal(trimmedUpi, coinsNum)
+                                isSubmittingWithdrawal = false
+                                lastWithdrawnAmount = coinsNum / 4.0
+                                lastWithdrawnUpi = trimmedUpi
+                                showWithdrawalSuccessDialog = true
+                                upiIdInput = ""
+                                withdrawCoinsInput = ""
+                            }
+                        }
+                    },
+                    enabled = !isSubmittingWithdrawal,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    if (isSubmittingWithdrawal) {
+                        CircularProgressIndicator(color = Color.White, strokeWidth = 2.dp, modifier = Modifier.size(20.dp))
+                    } else {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("⚡", fontSize = 15.sp)
+                            Text("Request UPI Transfer", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
+                        }
+                    }
+                }
+
+                if (showWithdrawalSuccessDialog) {
+                    androidx.compose.ui.window.Dialog(onDismissRequest = { showWithdrawalSuccessDialog = false }) {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(24.dp),
+                            border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                            elevation = CardDefaults.cardElevation(8.dp),
+                            modifier = Modifier.fillMaxWidth().padding(16.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(14.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier.size(64.dp).background(Color(0xFFE8F5E9), CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("🎉", fontSize = 32.sp)
+                                }
+                                Text("Withdrawal Request Submitted!", fontWeight = FontWeight.Black, fontSize = 18.sp, color = TextDark, textAlign = TextAlign.Center)
+                                Text(
+                                    "₹$lastWithdrawnAmount will be deposited directly to your UPI ID:\n$lastWithdrawnUpi\n\nStatus: Pending Admin Approval (Typically within 2-24 hours)",
+                                    fontSize = 13.5.sp,
+                                    color = Color(0xFF475569),
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = 19.sp
+                                )
+                                Button(
+                                    onClick = { showWithdrawalSuccessDialog = false },
+                                    colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
+                                    shape = RoundedCornerShape(12.dp),
+                                    modifier = Modifier.fillMaxWidth().height(48.dp)
+                                ) {
+                                    Text("Done", fontWeight = FontWeight.Bold, color = Color.White)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
 
         // ── Account Settings Accordion ────────────────────────────────────────
         ProfileSectionCard(

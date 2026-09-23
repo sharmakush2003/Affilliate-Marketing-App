@@ -488,27 +488,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
-                    HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFCBD5E1))
-                    Text(text = "  OR  ", color = Color(0xFF94A3B8), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFCBD5E1))
-                }
 
-                Spacer(modifier = Modifier.height(14.dp))
-
-                OutlinedButton(
-                    onClick = { UserSession.isGuest = true; onLoginSuccess() },
-                    shape = RoundedCornerShape(14.dp),
-                    border = BorderStroke(1.dp, Color(0xFFCBD5E1)),
-                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
-                    modifier = Modifier.fillMaxWidth().height(48.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                        Text("🪙 ", fontSize = 14.sp)
-                        Text(text = "Explore Deals as Guest", color = Color(0xFF334155), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                    }
-                }
-            }
 
             Surface(
                 color = Color.White, shape = RoundedCornerShape(16.dp),
@@ -529,3 +509,6 @@ fun LoginScreen(
         }
     }
 }
+}
+
+

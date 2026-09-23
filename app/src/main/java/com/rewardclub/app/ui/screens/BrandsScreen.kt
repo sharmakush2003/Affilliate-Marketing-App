@@ -37,7 +37,7 @@ fun BrandsScreen(
     onBackClick: () -> Unit,
     onBrandClick: (String) -> Unit
 ) {
-    val allBrands = remember { CampaignData.allCampaigns }
+    val allBrands = remember { CampaignData.shoppingCategory.campaigns }
 
     Scaffold(
         topBar = {
@@ -127,17 +127,28 @@ fun BrandsScreen(
                                     .border(1.dp, BorderColor.copy(alpha = 0.3f), RoundedCornerShape(14.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                AsyncImage(
-                                    model = ImageRequest.Builder(LocalContext.current)
-                                        .data(brand.logoUrl)
-                                        .crossfade(true)
-                                        .build(),
-                                    contentDescription = brand.name,
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(8.dp),
-                                    contentScale = ContentScale.Fit
-                                )
+                                if (brand.logoResId != null) {
+                                    Image(
+                                        painter = painterResource(id = brand.logoResId),
+                                        contentDescription = brand.name,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(8.dp),
+                                        contentScale = ContentScale.Fit
+                                    )
+                                } else {
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(LocalContext.current)
+                                            .data(brand.logoUrl)
+                                            .crossfade(true)
+                                            .build(),
+                                        contentDescription = brand.name,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(8.dp),
+                                        contentScale = ContentScale.Fit
+                                    )
+                                }
                             }
 
                             // Brand Name & Detail
