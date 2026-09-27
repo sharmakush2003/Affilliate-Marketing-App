@@ -343,19 +343,20 @@ fun DrawerContent(
                     .fillMaxSize()
                     .verticalScroll(drawerScrollState)
             ) {
-                // ── Hero Profile Header ───────────────────────────────────────
+                // ── Hero Profile Header (Matching Splash Creamy Theme) ─────────
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
                             Brush.verticalGradient(
                                 colors = listOf(
-                                    Color(0xFF0F172A), // Midnight Slate
-                                    Color(0xFF1E1B4B), // Deep Royal Indigo
-                                    Color(0xFF312E81)  // Sapphire Indigo
+                                    Color(0xFFFFFDF8), // Luxury Ivory Cream
+                                    Color(0xFFFAF4E8), // Soft Warm Cream
+                                    Color(0xFFF5EAD4)  // Golden Ivory Tint
                                 )
                             )
                         )
+                        .border(BorderStroke(1.dp, Color(0xFFF1E6D0)))
                         .padding(top = 48.dp, bottom = 24.dp, start = 20.dp, end = 20.dp)
                 ) {
                     Column(
@@ -402,7 +403,7 @@ fun DrawerContent(
                                 ) {
                                     Text(
                                         text = userName.ifEmpty { "Reward Club Member" },
-                                        color = Color.White,
+                                        color = Color(0xFF0F172A),
                                         fontSize = 17.5.sp,
                                         fontWeight = FontWeight.Bold,
                                         maxLines = 1,
@@ -412,7 +413,7 @@ fun DrawerContent(
                                 }
                                 Text(
                                     text = userPhone.ifEmpty { "Tap to Sign In 🔑" },
-                                    color = Color(0xFFC7D2FE),
+                                    color = Color(0xFF475569),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
                                     maxLines = 1,
@@ -421,12 +422,13 @@ fun DrawerContent(
                             }
                         }
 
-                        // Wallet Balance Banner Pill Card
+                        // Wallet Balance Banner Pill Card (Creamy Theme Matched)
                         Surface(
                             onClick = { onItemClick("Order History") },
                             shape = RoundedCornerShape(16.dp),
-                            color = Color(0xFF1E293B).copy(alpha = 0.7f),
-                            border = BorderStroke(1.dp, Color(0xFF334155)),
+                            color = Color.White,
+                            border = BorderStroke(1.dp, Color(0xFFF1E6D0)),
+                            shadowElevation = 4.dp,
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
@@ -454,13 +456,13 @@ fun DrawerContent(
                                     Column {
                                         Text(
                                             text = "Wallet Balance",
-                                            color = Color(0xFF94A3B8),
+                                            color = Color(0xFF64748B),
                                             fontSize = 10.5.sp,
                                             fontWeight = FontWeight.SemiBold
                                         )
                                         Text(
                                             text = "$walletCoins Coins",
-                                            color = Color(0xFFFACC15),
+                                            color = Color(0xFFD97706),
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.ExtraBold
                                         )
@@ -473,14 +475,14 @@ fun DrawerContent(
                                 ) {
                                     Text(
                                         text = "History",
-                                        color = Color(0xFFE2E8F0),
+                                        color = Color(0xFF0F172A),
                                         fontSize = 11.5.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                     Icon(
                                         imageVector = Icons.Default.ChevronRight,
                                         contentDescription = null,
-                                        tint = Color(0xFF94A3B8),
+                                        tint = Color(0xFF64748B),
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }

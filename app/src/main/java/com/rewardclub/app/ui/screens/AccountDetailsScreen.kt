@@ -92,7 +92,7 @@ fun AccountDetailsScreen(
             .background(Color(0xFFF8FAFC))
             .verticalScroll(rememberScrollState())
     ) {
-        // ── Top Bar Header with Gradient (Spacious & Premium) ──────────────────
+        // ── Top Bar Header with Creamy Gradient (Matching Splash Theme) ───────
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -100,11 +100,13 @@ fun AccountDetailsScreen(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF4F46E5), // Indigo / Purple
-                            Color(0xFF2563EB)  // Blue
+                            Color(0xFFFFFDF8), // Luxury Ivory Cream
+                            Color(0xFFFAF4E8), // Soft Warm Cream
+                            Color(0xFFF5EAD4)  // Golden Ivory Tint
                         )
                     )
                 )
+                .border(BorderStroke(1.dp, Color(0xFFF1E6D0)), RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
                 .padding(top = 50.dp, bottom = 32.dp, start = 20.dp, end = 20.dp)
         ) {
             Row(
@@ -115,16 +117,16 @@ fun AccountDetailsScreen(
                 Column {
                     Text(
                         text = "My Profile",
-                        color = Color.White,
+                        color = Color(0xFF0F172A),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "Manage your account and earnings",
-                        color = Color(0xFFE0E7FF),
+                        color = Color(0xFF475569),
                         fontSize = 12.5.sp,
-                        fontWeight = FontWeight.Normal
+                        fontWeight = FontWeight.Medium
                     )
                 }
 
@@ -133,7 +135,9 @@ fun AccountDetailsScreen(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.18f))
+                        .shadow(2.dp, CircleShape)
+                        .background(Color.White)
+                        .border(1.dp, Color(0xFFF1E6D0), CircleShape)
                         .clickable {
                             Toast.makeText(context, "🔔 No new notifications", Toast.LENGTH_SHORT).show()
                         },
@@ -142,7 +146,7 @@ fun AccountDetailsScreen(
                     Icon(
                         imageVector = Icons.Default.Notifications,
                         contentDescription = "Notifications",
-                        tint = Color.White,
+                        tint = Color(0xFF0F172A),
                         modifier = Modifier.size(22.dp)
                     )
                     // Red Notification Dot Badge
@@ -150,7 +154,7 @@ fun AccountDetailsScreen(
                         modifier = Modifier
                             .size(9.dp)
                             .background(Color(0xFFEF4444), CircleShape)
-                            .border(1.5.dp, Color(0xFF4F46E5), CircleShape)
+                            .border(1.5.dp, Color.White, CircleShape)
                             .align(Alignment.TopEnd)
                             .offset(x = (-6).dp, y = 6.dp)
                     )

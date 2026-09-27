@@ -222,9 +222,17 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(NavyDark)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFFFFDF8), // Luxury Ivory Cream
+                        Color(0xFFFAF4E8), // Soft Warm Cream
+                        Color(0xFFF5EAD4)  // Golden Ivory Tint
+                    )
+                )
+            )
             .statusBarsPadding()
-            .border(BorderStroke(0.5.dp, BorderColor.copy(alpha = 0.5f)))
+            .border(BorderStroke(1.dp, Color(0xFFF1E6D0)))
             .padding(bottom = 12.dp)
     ) {
         // ── Top row: hamburger | logo + name | JOIN ──────────────────
@@ -237,7 +245,7 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onHamburgerClick) {
-                    Icon(Icons.Default.Menu, contentDescription = "Menu", tint = TextDark)
+                    Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color(0xFF0F172A))
                 }
                 Image(
                     painter = painterResource(id = R.drawable.reward_club_logo),
@@ -251,7 +259,7 @@ fun HeaderSection(onHamburgerClick: () -> Unit, onJoinClick: () -> Unit = {}) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Reward Club",
-                    color = TextDark,
+                    color = Color(0xFF0F172A),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 0.2.sp
