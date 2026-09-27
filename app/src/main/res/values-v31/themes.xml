@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.RewardClub" parent="android:Theme.Material.Light.NoActionBar">
-        <!-- Make the Android 12+ system splash screen blank so it looks like it's disabled -->
+        <!-- Native Splash Screen matching App Midnight Dark Theme -->
         <item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item>
-        <item name="android:windowSplashScreenBackground">@android:color/white</item>
+        <item name="android:windowSplashScreenBackground">#0F172A</item>
+        <item name="android:windowBackground">#0F172A</item>
+        <item name="android:statusBarColor">#0F172A</item>
+        <item name="android:navigationBarColor">#0F172A</item>
     </style>
 </resources>

@@ -42,38 +42,38 @@ fun AccountDetailsScreen(
     val scope = rememberCoroutineScope()
     val userSession = UserSession
 
-    // Profile state
-    val isGuest = userSession.isGuest
-    var fullName by remember {
+    // Profile state - Check real session
+    val isGuest = userSession.currentUser == null || userSession.isGuest
+    var fullName by remember(userSession.fullName, isGuest) {
         mutableStateOf(
-            if (userSession.fullName.isNotEmpty()) userSession.fullName
-            else if (userSession.email.isNotEmpty()) userSession.email.substringBefore("@").replaceFirstChar { it.uppercase() }
-            else "Rahul Sharma"
+            if (!isGuest && userSession.fullName.isNotEmpty()) userSession.fullName
+            else if (!isGuest && userSession.email.isNotEmpty()) userSession.email.substringBefore("@").replaceFirstChar { it.uppercase() }
+            else "Guest User"
         )
     }
-    var email by remember {
+    var email by remember(userSession.email, isGuest) {
         mutableStateOf(
-            if (userSession.email.isNotEmpty()) userSession.email
-            else if (isGuest) "guest@rewardclub.com" else "rahulsharma@gmail.com"
+            if (!isGuest && userSession.email.isNotEmpty()) userSession.email
+            else "Not Logged In"
         )
     }
-    var mobile by remember {
+    var mobile by remember(userSession.mobile, isGuest) {
         mutableStateOf(
-            if (userSession.mobile.isNotEmpty()) userSession.mobile
-            else "9876543210"
+            if (!isGuest && userSession.mobile.isNotEmpty()) userSession.mobile
+            else "Not Logged In"
         )
     }
-    val userId = remember {
+    val userId = remember(userSession.currentUser, isGuest) {
         val uid = userSession.currentUser?.uid ?: ""
-        if (uid.isNotEmpty()) "RS${uid.take(5).uppercase()}" else "RS12345"
+        if (!isGuest && uid.isNotEmpty()) "RC${uid.take(5).uppercase()}" else "GUEST"
     }
 
-    // Available & Pending Coins (Mock or Session)
-    val availableCoins = remember(userSession.totalCoins) {
-        if (userSession.totalCoins > 0) userSession.totalCoins else 5000L
+    // Available & Pending Coins (Strict 0 Coins for Guests)
+    val availableCoins = remember(userSession.totalCoins, isGuest) {
+        if (!isGuest) userSession.totalCoins else 0L
     }
-    val pendingCoins = remember(userSession.pendingCoins) {
-        if (userSession.pendingCoins > 0) userSession.pendingCoins else 1280L
+    val pendingCoins = remember(userSession.pendingCoins, isGuest) {
+        if (!isGuest) userSession.pendingCoins else 0L
     }
 
     // Modal / Dialog States
@@ -202,7 +202,7 @@ fun AccountDetailsScreen(
                             ) {
                                 Text(
                                     text = fullName.split(" ").mapNotNull { it.firstOrNull() }.take(2)
-                                        .joinToString("").uppercase().ifEmpty { "RS" },
+                                        .joinToString("").uppercase().ifEmpty { "GU" },
                                     fontSize = 22.sp,
                                     fontWeight = FontWeight.ExtraBold,
                                     color = Color.White

@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rewardclub.app.ui.theme.*
 
+import com.rewardclub.app.utils.UserSession
+
 data class TransactionItem(
     val id: String,
     val title: String,
@@ -39,82 +41,89 @@ fun TransactionHistoryScreen(
     var selectedFilterIndex by remember { mutableIntStateOf(0) }
     val filterTabs = listOf("All", "Earned", "Expired", "Redeemed")
 
-    // Mock/Persisted Transactions exactly matching the screenshot
-    val allTransactions = remember {
-        listOf(
-            TransactionItem(
-                id = "tx1",
-                title = "RECHARGE WORLD",
-                timestamp = "23 Aug 2026 08:40:02 pm",
-                amount = -91,
-                status = "Burned",
-                category = "Redeemed"
-            ),
-            TransactionItem(
-                id = "tx2",
-                title = "RECHARGE WORLD",
-                timestamp = "23 Aug 2026 08:40:02 pm",
-                amount = -91,
-                status = "Blocked",
-                category = "Redeemed"
-            ),
-            TransactionItem(
-                id = "tx3",
-                title = "RECHARGE WORLD",
-                timestamp = "12 Aug 2026 06:31:30 pm",
-                amount = -91,
-                status = "Burned",
-                category = "Redeemed"
-            ),
-            TransactionItem(
-                id = "tx4",
-                title = "RECHARGE WORLD",
-                timestamp = "12 Aug 2026 06:31:30 pm",
-                amount = -91,
-                status = "Blocked",
-                category = "Redeemed"
-            ),
-            TransactionItem(
-                id = "tx5",
-                title = "Rewardeez",
-                timestamp = "26 Jul 2026 05:22:35 pm",
-                amount = 91,
-                status = "Burned_reversed",
-                category = "Earned"
-            ),
-            TransactionItem(
-                id = "tx6",
-                title = "Rewardeez",
-                timestamp = "26 Jul 2026 05:22:35 pm",
-                amount = -91,
-                status = "Burned",
-                category = "Redeemed"
-            ),
-            TransactionItem(
-                id = "tx7",
-                title = "Rewardeez",
-                timestamp = "26 Jul 2026 05:22:35 pm",
-                amount = -91,
-                status = "Blocked",
-                category = "Redeemed"
-            ),
-            TransactionItem(
-                id = "tx8",
-                title = "Amazon Shopping Cashback",
-                timestamp = "15 Jul 2026 02:14:10 pm",
-                amount = 250,
-                status = "Earned",
-                category = "Earned"
-            ),
-            TransactionItem(
-                id = "tx9",
-                title = "Flipkart Promo Payout",
-                timestamp = "04 Jul 2026 11:05:44 am",
-                amount = -100,
-                status = "Expired",
-                category = "Expired"
+    val userSession = UserSession
+    val isGuest = userSession.currentUser == null || userSession.isGuest
+
+    // Transactions: Empty list when guest/not logged in, matching user request
+    val allTransactions = remember(isGuest) {
+        if (isGuest) {
+            emptyList()
+        } else {
+            listOf(
+                TransactionItem(
+                    id = "tx1",
+                    title = "RECHARGE WORLD",
+                    timestamp = "23 Aug 2026 08:40:02 pm",
+                    amount = -91,
+                    status = "Burned",
+                    category = "Redeemed"
+                ),
+                TransactionItem(
+                    id = "tx2",
+                    title = "RECHARGE WORLD",
+                    timestamp = "23 Aug 2026 08:40:02 pm",
+                    amount = -91,
+                    status = "Blocked",
+                    category = "Redeemed"
+                ),
+                TransactionItem(
+                    id = "tx3",
+                    title = "RECHARGE WORLD",
+                    timestamp = "12 Aug 2026 06:31:30 pm",
+                    amount = -91,
+                    status = "Burned",
+                    category = "Redeemed"
+                ),
+                TransactionItem(
+                    id = "tx4",
+                    title = "RECHARGE WORLD",
+                    timestamp = "12 Aug 2026 06:31:30 pm",
+                    amount = -91,
+                    status = "Blocked",
+                    category = "Redeemed"
+                ),
+                TransactionItem(
+                    id = "tx5",
+                    title = "Rewardeez",
+                    timestamp = "26 Jul 2026 05:22:35 pm",
+                    amount = 91,
+                    status = "Burned_reversed",
+                    category = "Earned"
+                ),
+                TransactionItem(
+                    id = "tx6",
+                    title = "Rewardeez",
+                    timestamp = "26 Jul 2026 05:22:35 pm",
+                    amount = -91,
+                    status = "Burned",
+                    category = "Redeemed"
+                ),
+                TransactionItem(
+                    id = "tx7",
+                    title = "Rewardeez",
+                    timestamp = "26 Jul 2026 05:22:35 pm",
+                    amount = -91,
+                    status = "Blocked",
+                    category = "Redeemed"
+                ),
+                TransactionItem(
+                    id = "tx8",
+                    title = "Amazon Shopping Cashback",
+                    timestamp = "15 Jul 2026 02:14:10 pm",
+                    amount = 250,
+                    status = "Earned",
+                    category = "Earned"
+                ),
+                TransactionItem(
+                    id = "tx9",
+                    title = "Flipkart Promo Payout",
+                    timestamp = "04 Jul 2026 11:05:44 am",
+                    amount = -100,
+                    status = "Expired",
+                    category = "Expired"
+                )
             )
-        )
+        }
     }
 
     val filteredTransactions = remember(selectedFilterIndex, allTransactions) {
@@ -224,14 +233,26 @@ fun TransactionHistoryScreen(
                                 .padding(vertical = 40.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text("📄", fontSize = 40.sp)
+                            Text(
+                                text = if (isGuest) "🔒" else "📄",
+                                fontSize = 42.sp
+                            )
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                text = "No transactions found in this category",
-                                fontSize = 14.sp,
-                                color = Color.Gray,
-                                fontWeight = FontWeight.Medium
+                                text = if (isGuest) "No Transactions Available" else "No transactions found in this category",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF0F172A)
                             )
+                            if (isGuest) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Sign in to view your coin earnings and withdrawal history",
+                                    fontSize = 12.sp,
+                                    color = Color(0xFF64748B),
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                )
+                            }
                         }
                     } else {
                         filteredTransactions.forEachIndexed { idx, item ->
