@@ -88,6 +88,8 @@ sealed class Screen {
     object CarLoans : Screen()
     object TwoWheelerLoans : Screen()
     object Insurance : Screen()
+    object ContactUs : Screen()
+    object TransactionHistory : Screen()
 }
 
 class MainActivity : ComponentActivity() {
@@ -391,6 +393,12 @@ fun DrawerContent(
                     selected = false,
                     onClick = { onItemClick("Help & Support") }
                 )
+                DrawerBubbleItem(
+                    icon = { Icon(Icons.Default.AccountBox, contentDescription = null, tint = DarkGreen) },
+                    label = "Contact Us",
+                    selected = false,
+                    onClick = { onItemClick("Contact Us") }
+                )
 
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -520,9 +528,10 @@ fun AppMainContainer() {
                             "Header", "Account Details" -> {
                                 if (isLoggedIn) navigateTo(Screen.AccountDetails) else navigateTo(Screen.Login)
                             }
-                            "Order History" -> navigateTo(Screen.Products)
+                            "Order History" -> navigateTo(Screen.TransactionHistory)
                             "About Company" -> navigateTo(Screen.AboutCompany)
                             "Help & Support" -> navigateTo(Screen.HelpSupport)
+                            "Contact Us" -> navigateTo(Screen.ContactUs)
                         }
                     }
                 )
@@ -530,7 +539,7 @@ fun AppMainContainer() {
         ) {
             Scaffold(
                 bottomBar = {
-                    if (currentScreen is Screen.Home || currentScreen is Screen.Profile) {
+                    if (currentScreen is Screen.Home || currentScreen is Screen.Profile || currentScreen is Screen.ContactUs || currentScreen is Screen.TransactionHistory) {
                         BottomNavigationBar(
                             currentScreen = currentScreen,
                             onTabSelected = { screen ->
@@ -629,13 +638,24 @@ fun AppMainContainer() {
                             }
                         )
                         is Screen.AccountDetails -> AccountDetailsScreen(
-                            onBackClick = { navigateBack() }
+                            onBackClick = { navigateBack() },
+                            onContactUsClick = { navigateTo(Screen.ContactUs) },
+                            onTransactionHistoryClick = { navigateTo(Screen.TransactionHistory) }
                         )
                         is Screen.AboutCompany -> AboutCompanyScreen(
                             onBackClick = { navigateBack() }
                         )
                         is Screen.Profile -> AccountDetailsScreen(
-                            onBackClick = { navigateTo(Screen.Home) }
+                            onBackClick = { navigateTo(Screen.Home) },
+                            onContactUsClick = { navigateTo(Screen.ContactUs) },
+                            onTransactionHistoryClick = { navigateTo(Screen.TransactionHistory) }
+                        )
+                        is Screen.ContactUs -> ContactUsScreen(
+                            onBackClick = { navigateBack() },
+                            onNavigateToFaqs = { navigateTo(Screen.HelpSupport) }
+                        )
+                        is Screen.TransactionHistory -> TransactionHistoryScreen(
+                            onBackClick = { navigateBack() }
                         )
                     }
                 }
@@ -670,10 +690,10 @@ fun BottomNavigationBar(
                 )
             )
             NavigationBarItem(
-                selected = currentScreen is Screen.Profile,
+                selected = currentScreen is Screen.Profile || currentScreen is Screen.ContactUs || currentScreen is Screen.TransactionHistory,
                 onClick = { onTabSelected(Screen.Profile) },
                 icon = { Icon(Icons.Default.AccountCircle, contentDescription = "Profile", modifier = Modifier.size(22.dp)) },
-                label = { Text("Profile", fontSize = 10.sp, fontWeight = if (currentScreen is Screen.Profile) FontWeight.Bold else FontWeight.Normal) },
+                label = { Text("Profile", fontSize = 10.sp, fontWeight = if (currentScreen is Screen.Profile || currentScreen is Screen.ContactUs || currentScreen is Screen.TransactionHistory) FontWeight.Bold else FontWeight.Normal) },
                 alwaysShowLabel = true,
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = TextDark,
