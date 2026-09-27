@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.RewardClub" parent="android:Theme.Material.Light.NoActionBar">
-        <!-- Native Splash Screen matching App Midnight Dark Theme -->
+        <!-- Native Splash Screen matching Creamy App Theme -->
         <item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item>
-        <item name="android:windowSplashScreenBackground">#0F172A</item>
-        <item name="android:windowBackground">#0F172A</item>
-        <item name="android:statusBarColor">#0F172A</item>
-        <item name="android:navigationBarColor">#0F172A</item>
+        <item name="android:windowSplashScreenBackground">#FFFDF9</item>
+        <item name="android:windowBackground">#FFFDF9</item>
+        <item name="android:statusBarColor">#FFFDF9</item>
+        <item name="android:navigationBarColor">#FFFDF9</item>
     </style>
 </resources>

@@ -62,10 +62,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.clip
 import kotlinx.coroutines.delay
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.*
 import android.view.animation.OvershootInterpolator
 import androidx.compose.ui.unit.sp
 import com.rewardclub.app.ui.screens.*
@@ -679,6 +676,18 @@ fun RewardClubSplashScreen(onSplashFinished: () -> Unit) {
     val alpha = remember { androidx.compose.animation.core.Animatable(0f) }
     var progress by remember { mutableFloatStateOf(0f) }
 
+    // Infinite bouncing animation for the 3D coin/gift loading object
+    val infiniteTransition = rememberInfiniteTransition(label = "splashBounce")
+    val bounceOffsetY by infiniteTransition.animateFloat(
+        initialValue = -8f,
+        targetValue = 8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = LinearOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "bounceOffsetY"
+    )
+
     LaunchedEffect(Unit) {
         launch {
             scale.animateTo(
@@ -696,7 +705,7 @@ fun RewardClubSplashScreen(onSplashFinished: () -> Unit) {
             )
         }
         val startTime = System.currentTimeMillis()
-        val totalDuration = 2200L
+        val totalDuration = 2400L
         while (System.currentTimeMillis() - startTime < totalDuration) {
             val elapsed = System.currentTimeMillis() - startTime
             progress = (elapsed.toFloat() / totalDuration).coerceIn(0f, 1f)
@@ -713,14 +722,26 @@ fun RewardClubSplashScreen(onSplashFinished: () -> Unit) {
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF0F172A), // Midnight Slate
-                        Color(0xFF1E1B4B), // Deep Royal Indigo
-                        Color(0xFF090D16)  // Pitch Dark
+                        Color(0xFFFFFDF8), // Luxury Ivory Cream
+                        Color(0xFFFAF4E8), // Soft Warm Cream
+                        Color(0xFFF5EAD4)  // Golden Ivory Tint
                     )
                 )
             ),
         contentAlignment = Alignment.Center
     ) {
+        // Decorative Soft Ambient Background Glow Circles
+        Box(
+            modifier = Modifier
+                .size(280.dp)
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(Color(0xFFFDE68A).copy(alpha = 0.35f), Color.Transparent)
+                    ),
+                    CircleShape
+                )
+        )
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -732,73 +753,137 @@ fun RewardClubSplashScreen(onSplashFinished: () -> Unit) {
                 )
                 .padding(24.dp)
         ) {
-            // Glowing Animated Logo Outer Ring
+            // ── Hero Animated Bouncing Logo & 3D Coin Badge Container ─────────
             Box(
-                modifier = Modifier
-                    .size(112.dp)
-                    .shadow(24.dp, CircleShape, spotColor = Color(0xFFFACC15), ambientColor = Color(0xFF4F46E5))
-                    .background(
-                        Brush.linearGradient(
-                            listOf(Color(0xFFFFD700), Color(0xFFFFA000), Color(0xFF6366F1))
-                        ),
-                        CircleShape
-                    )
-                    .padding(3.5.dp)
-                    .background(Color(0xFF0F172A), CircleShape),
+                modifier = Modifier.offset(y = bounceOffsetY.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "🛍️",
-                    fontSize = 54.sp
-                )
+                // Outer Shadow Circle
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .shadow(20.dp, CircleShape, spotColor = Color(0xFFD97706), ambientColor = Color(0xFFF59E0B))
+                        .background(
+                            Brush.linearGradient(
+                                listOf(Color(0xFFFFD700), Color(0xFFFFA000), Color(0xFF4F46E5))
+                            ),
+                            CircleShape
+                        )
+                        .padding(4.dp)
+                        .background(Color.White, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "🛍️",
+                        fontSize = 58.sp
+                    )
+                }
+
+                // Bouncing Gold Crown Coin Badge (Top Right Offset)
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .offset(x = 42.dp, y = (-38).dp)
+                        .shadow(8.dp, CircleShape, spotColor = Color(0xFFFFD700))
+                        .background(
+                            Brush.linearGradient(
+                                listOf(Color(0xFFFEF3C7), Color(0xFFFDE047))
+                            ),
+                            CircleShape
+                        )
+                        .border(1.5.dp, Color(0xFFD97706), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("🪙", fontSize = 18.sp)
+                }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-            // App Name with Golden & White Typography
-            Text(
-                text = "REWARD CLUB",
-                fontSize = 30.sp,
-                fontWeight = FontWeight.Black,
-                color = Color.White,
-                letterSpacing = 2.5.sp
-            )
+            // App Name in Deep Navy Slate & Warm Amber Accent
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = "REWARD CLUB",
+                    fontSize = 31.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color(0xFF0F172A),
+                    letterSpacing = 2.5.sp
+                )
+                Text("👑", fontSize = 24.sp)
+            }
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // Premium Subtitle
+            // Subtitle
             Text(
-                text = "India's #1 Cashback & Financial Rewards App",
+                text = "India's #1 Cashback & Financial Rewards Club",
                 fontSize = 12.5.sp,
-                color = Color(0xFFC7D2FE),
-                fontWeight = FontWeight.Medium,
-                letterSpacing = 0.5.sp
+                color = Color(0xFF475569),
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 0.4.sp
             )
 
             Spacer(modifier = Modifier.height(44.dp))
 
-            // Animated Smooth Progress Indicator
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.width(220.dp)
+            // ── Animated Interactive Bouncing Object Loader Card ─────────────
+            Surface(
+                shape = RoundedCornerShape(24.dp),
+                color = Color.White,
+                border = BorderStroke(1.dp, Color(0xFFF1E6D0)),
+                shadowElevation = 8.dp,
+                modifier = Modifier
+                    .width(260.dp)
+                    .padding(horizontal = 4.dp)
             ) {
-                LinearProgressIndicator(
-                    progress = { progress },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(4.dp)
-                        .clip(RoundedCornerShape(50)),
-                    color = Color(0xFFFACC15),
-                    trackColor = Color.White.copy(alpha = 0.15f)
-                )
+                Column(
+                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 18.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // Animated Bouncing Reward Icons Object Row
+                    Row(
+                        modifier = Modifier.offset(y = (bounceOffsetY * 0.6f).dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text("🪙", fontSize = 20.sp)
+                        Text("🎁", fontSize = 24.sp)
+                        Text("🪙", fontSize = 20.sp)
+                    }
 
-                Text(
-                    text = "Loading your experience...",
-                    fontSize = 11.5.sp,
-                    color = Color(0xFF94A3B8),
-                    fontWeight = FontWeight.Medium
-                )
+                    // Smooth Golden Progress Indicator Bar
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(6.dp)
+                            .clip(RoundedCornerShape(50)),
+                        color = Color(0xFFD97706),
+                        trackColor = Color(0xFFFEF3C7)
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Loading your experience...",
+                            fontSize = 11.5.sp,
+                            color = Color(0xFF64748B),
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            text = "${(progress * 100).toInt()}%",
+                            fontSize = 11.5.sp,
+                            color = Color(0xFFD97706),
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+                }
             }
         }
 
@@ -812,11 +897,11 @@ fun RewardClubSplashScreen(onSplashFinished: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Text("👑", fontSize = 13.sp)
+                Text("✨", fontSize = 13.sp)
                 Text(
                     text = "Exclusive Financial & Cashback Perks",
                     fontSize = 11.5.sp,
-                    color = Color(0xFF64748B),
+                    color = Color(0xFF78716C),
                     fontWeight = FontWeight.SemiBold
                 )
             }
