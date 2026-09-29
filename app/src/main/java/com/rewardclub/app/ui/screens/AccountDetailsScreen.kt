@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -30,12 +31,20 @@ import com.rewardclub.app.ui.theme.*
 import com.rewardclub.app.utils.UserSession
 import kotlinx.coroutines.launch
 
+data class GuestFeaturePrompt(
+    val title: String,
+    val description: String,
+    val iconEmoji: String = "🔒",
+    val featureBadge: String = "MEMBER ONLY"
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountDetailsScreen(
     onBackClick: () -> Unit = {},
     onContactUsClick: () -> Unit = {},
-    onTransactionHistoryClick: () -> Unit = {}
+    onTransactionHistoryClick: () -> Unit = {},
+    onLoginClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
@@ -80,6 +89,8 @@ fun AccountDetailsScreen(
     var showEditProfileDialog by remember { mutableStateOf(false) }
     var showWithdrawalDialog by remember { mutableStateOf(false) }
     var showReferEarnDialog by remember { mutableStateOf(false) }
+    var showGuestAuthSheet by remember { mutableStateOf(false) }
+    var guestSheetFeature by remember { mutableStateOf<GuestFeaturePrompt?>(null) }
 
     // Withdrawal Form State
     var upiIdInput by remember { mutableStateOf("") }
@@ -221,7 +232,17 @@ fun AccountDetailsScreen(
                                     .border(2.dp, Color.White, CircleShape)
                                     .align(Alignment.BottomEnd)
                                     .clickable {
-                                        showEditProfileDialog = true
+                                        if (isGuest) {
+                                            guestSheetFeature = GuestFeaturePrompt(
+                                                title = "Sign In to Manage Profile",
+                                                description = "Please sign in to update your profile photo, full name, and mobile number.",
+                                                iconEmoji = "👤",
+                                                featureBadge = "EDIT PROFILE"
+                                            )
+                                            showGuestAuthSheet = true
+                                        } else {
+                                            showEditProfileDialog = true
+                                        }
                                     },
                                 contentAlignment = Alignment.Center
                             ) {
@@ -295,9 +316,21 @@ fun AccountDetailsScreen(
 
                     HorizontalDivider(color = Color(0xFFF1F5F9), thickness = 1.dp)
 
-                    // Bottom Row: Edit Profile Button (Sleek full-width button, zero overlap!)
+                    // Bottom Row: Edit Profile Button / Sign In for Guest
                     OutlinedButton(
-                        onClick = { showEditProfileDialog = true },
+                        onClick = {
+                            if (isGuest) {
+                                guestSheetFeature = GuestFeaturePrompt(
+                                    title = "Sign In to Manage Profile",
+                                    description = "Please sign in to update your profile, phone number, and account preferences.",
+                                    iconEmoji = "👤",
+                                    featureBadge = "MY PROFILE"
+                                )
+                                showGuestAuthSheet = true
+                            } else {
+                                showEditProfileDialog = true
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(40.dp),
@@ -310,12 +343,12 @@ fun AccountDetailsScreen(
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Edit,
+                                imageVector = if (isGuest) Icons.AutoMirrored.Filled.Login else Icons.Default.Edit,
                                 contentDescription = null,
                                 modifier = Modifier.size(14.dp)
                             )
                             Text(
-                                text = "Edit Profile & Account Details",
+                                text = if (isGuest) "Sign In to Manage Account" else "Edit Profile & Account Details",
                                 fontSize = 12.5.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -429,7 +462,19 @@ fun AccountDetailsScreen(
                 iconTint = Color(0xFF7C3AED),
                 title = "History",
                 subtitle = "View your earnings, withdrawals and more",
-                onClick = onTransactionHistoryClick
+                onClick = {
+                    if (isGuest) {
+                        guestSheetFeature = GuestFeaturePrompt(
+                            title = "Sign In to View History",
+                            description = "Please sign in to view your complete coin earnings, bonus cashback, and withdrawal history.",
+                            iconEmoji = "📄",
+                            featureBadge = "TRANSACTION HISTORY"
+                        )
+                        showGuestAuthSheet = true
+                    } else {
+                        onTransactionHistoryClick()
+                    }
+                }
             )
 
             // Option 2: Withdrawal Request
@@ -439,7 +484,19 @@ fun AccountDetailsScreen(
                 iconTint = Color(0xFFE11D48),
                 title = "Withdrawal Request",
                 subtitle = "Request to withdraw your earnings",
-                onClick = { showWithdrawalDialog = true }
+                onClick = {
+                    if (isGuest) {
+                        guestSheetFeature = GuestFeaturePrompt(
+                            title = "Sign In to Withdraw Earnings",
+                            description = "Please sign in to transfer your earned coins directly into your bank account via UPI.",
+                            iconEmoji = "⚡",
+                            featureBadge = "INSTANT UPI WITHDRAWAL"
+                        )
+                        showGuestAuthSheet = true
+                    } else {
+                        showWithdrawalDialog = true
+                    }
+                }
             )
 
             // Option 3: Refer & Earn
@@ -449,7 +506,19 @@ fun AccountDetailsScreen(
                 iconTint = Color(0xFF16A34A),
                 title = "Refer & Earn",
                 subtitle = "Invite friends and earn more coins",
-                onClick = { showReferEarnDialog = true }
+                onClick = {
+                    if (isGuest) {
+                        guestSheetFeature = GuestFeaturePrompt(
+                            title = "Sign In to Refer & Earn",
+                            description = "Please sign in to unlock your personal referral link and earn unlimited bonus coins.",
+                            iconEmoji = "🎁",
+                            featureBadge = "REFERRAL PROGRAM"
+                        )
+                        showGuestAuthSheet = true
+                    } else {
+                        showReferEarnDialog = true
+                    }
+                }
             )
 
             // Option 4: Contact Us
@@ -466,7 +535,19 @@ fun AccountDetailsScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { showReferEarnDialog = true },
+                    .clickable {
+                        if (isGuest) {
+                            guestSheetFeature = GuestFeaturePrompt(
+                                title = "Sign In to Invite Friends",
+                                description = "Please sign in to share your referral link and earn 500 bonus coins on every friend's first order.",
+                                iconEmoji = "🤝",
+                                featureBadge = "INVITE & EARN"
+                            )
+                            showGuestAuthSheet = true
+                        } else {
+                            showReferEarnDialog = true
+                        }
+                    },
                 shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF3E8FF)),
                 border = BorderStroke(1.dp, Color(0xFFE9D5FF))
@@ -513,23 +594,41 @@ fun AccountDetailsScreen(
                 }
             }
 
-            // ── Sign Out Button ──────────────────────────────────────────────
-            Spacer(modifier = Modifier.height(4.dp))
-            OutlinedButton(
-                onClick = {
-                    userSession.logout()
-                    Toast.makeText(context, "Signed out successfully", Toast.LENGTH_SHORT).show()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(14.dp),
-                border = BorderStroke(1.5.dp, Color(0xFFEF4444)),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFEF4444))
-            ) {
-                Icon(Icons.Default.Logout, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Sign Out", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            if (!isGuest) {
+                // ── Sign Out Button (Only for Logged-In Users) ─────────────────
+                Spacer(modifier = Modifier.height(4.dp))
+                OutlinedButton(
+                    onClick = {
+                        userSession.logout()
+                        Toast.makeText(context, "Signed out successfully", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    border = BorderStroke(1.5.dp, Color(0xFFEF4444)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFEF4444))
+                ) {
+                    Icon(Icons.Default.Logout, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Sign Out", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                }
+            } else {
+                // ── Sign In / Register Button for Guests (Replaces Sign Out) ───
+                Spacer(modifier = Modifier.height(4.dp))
+                Button(
+                    onClick = onLoginClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB)),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.Login, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color.White)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Sign In / Register", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -763,6 +862,130 @@ fun AccountDetailsScreen(
             shape = RoundedCornerShape(20.dp),
             containerColor = Color.White
         )
+    }
+
+    // ── Bottom Sheet: Guest Sign-In Prompt ("Neeche se popup") ────────────
+    if (showGuestAuthSheet && guestSheetFeature != null) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(
+            onDismissRequest = { showGuestAuthSheet = false },
+            sheetState = sheetState,
+            containerColor = Color.White,
+            shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+            dragHandle = {
+                Box(
+                    modifier = Modifier
+                        .padding(top = 12.dp, bottom = 8.dp)
+                        .size(width = 40.dp, height = 4.dp)
+                        .background(Color(0xFFCBD5E1), RoundedCornerShape(2.dp))
+                )
+            }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 36.dp, top = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Feature Category Pill Badge
+                Box(
+                    modifier = Modifier
+                        .background(Color(0xFFEFF6FF), RoundedCornerShape(20.dp))
+                        .border(1.dp, Color(0xFFDBEAFE), RoundedCornerShape(20.dp))
+                        .padding(horizontal = 12.dp, vertical = 5.dp)
+                ) {
+                    Text(
+                        text = guestSheetFeature!!.featureBadge,
+                        fontSize = 10.5.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color(0xFF2563EB),
+                        letterSpacing = 0.8.sp
+                    )
+                }
+
+                // Glowing Emoji Circle
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .background(
+                            Brush.linearGradient(
+                                listOf(Color(0xFFEFF6FF), Color(0xFFDBEAFE))
+                            ),
+                            CircleShape
+                        )
+                        .border(2.dp, Color(0xFF93C5FD).copy(alpha = 0.4f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = guestSheetFeature!!.iconEmoji, fontSize = 28.sp)
+                }
+
+                // Title & Subtitle
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = guestSheetFeature!!.title,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color(0xFF0F172A),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = guestSheetFeature!!.description,
+                        fontSize = 13.sp,
+                        color = Color(0xFF64748B),
+                        textAlign = TextAlign.Center,
+                        lineHeight = 18.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Sign In / Register CTA Button
+                Button(
+                    onClick = {
+                        showGuestAuthSheet = false
+                        onLoginClick()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB)),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Login,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Sign In / Register Now",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+
+                // Dismiss Button
+                TextButton(
+                    onClick = { showGuestAuthSheet = false },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Cancel",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF94A3B8)
+                    )
+                }
+            }
+        }
     }
 }
 

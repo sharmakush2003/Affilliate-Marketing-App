@@ -1,4 +1,4 @@
-// © 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
+﻿// © 2026 Reward Club. Owner: Puran Dhakad. All rights reserved.
 package com.rewardclub.app.ui.screens
 
 import android.content.Intent
@@ -58,7 +58,7 @@ fun HelpSupportScreen(
     val scope = rememberCoroutineScope()
     val userSession = UserSession
 
-    var selectedTab by remember { mutableIntStateOf(0) } // 0 = Contact & Feedback, 1 = FAQs
+    var selectedTab by remember { mutableIntStateOf(1) } // 0 = Contact & Feedback (Coming Soon), 1 = FAQs
 
     // Feedback Form State
     var userName by remember { mutableStateOf(userSession.fullName) }
@@ -174,278 +174,60 @@ fun HelpSupportScreen(
             }
 
             if (selectedTab == 0) {
-                // ── TAB 1: CONTACT US & FEEDBACK FORM ───────────────────────
-                Column(
+                // â”€â”€ TAB 1: CONTACT & FEEDBACK (COMING SOON) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .padding(24.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    // Social Links Card (Facebook & Instagram)
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(18.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        shape = RoundedCornerShape(24.dp),
                         colors = CardDefaults.cardColors(containerColor = White),
                         border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
-                        elevation = CardDefaults.cardElevation(2.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = "Connect With Us on Social Media",
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextDark
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Follow us for new offer alerts, giveaways & official support",
-                                fontSize = 12.sp,
-                                color = Color(0xFF64748B)
-                            )
-                            Spacer(modifier = Modifier.height(14.dp))
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                // Facebook Button
-                                Surface(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(52.dp)
-                                        .clickable {
-                                            try {
-                                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://facebook.com/rewardclubofficial"))
-                                                context.startActivity(intent)
-                                            } catch (e: Exception) {
-                                                Toast.makeText(context, "Opening Facebook: @rewardclubofficial", Toast.LENGTH_SHORT).show()
-                                            }
-                                        },
-                                    shape = RoundedCornerShape(14.dp),
-                                    color = Color(0xFF1877F2).copy(alpha = 0.08f),
-                                    border = BorderStroke(1.dp, Color(0xFF1877F2).copy(alpha = 0.3f))
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center,
-                                        modifier = Modifier.fillMaxSize()
-                                    ) {
-                                        Text("📘 ", fontSize = 18.sp)
-                                        Column {
-                                            Text("Facebook", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color(0xFF1877F2))
-                                            Text("@rewardclub", fontSize = 10.sp, color = Color(0xFF64748B))
-                                        }
-                                    }
-                                }
-
-                                // Instagram Button
-                                Surface(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(52.dp)
-                                        .clickable {
-                                            try {
-                                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://instagram.com/rewardclubofficial"))
-                                                context.startActivity(intent)
-                                            } catch (e: Exception) {
-                                                Toast.makeText(context, "Opening Instagram: @rewardclubofficial", Toast.LENGTH_SHORT).show()
-                                            }
-                                        },
-                                    shape = RoundedCornerShape(14.dp),
-                                    color = Color(0xFFE1306C).copy(alpha = 0.08f),
-                                    border = BorderStroke(1.dp, Color(0xFFE1306C).copy(alpha = 0.3f))
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center,
-                                        modifier = Modifier.fillMaxSize()
-                                    ) {
-                                        Text("📷 ", fontSize = 18.sp)
-                                        Column {
-                                            Text("Instagram", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color(0xFFE1306C))
-                                            Text("@rewardclub", fontSize = 10.sp, color = Color(0xFF64748B))
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Direct Support Feedback Form
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(18.dp),
-                        colors = CardDefaults.cardColors(containerColor = White),
-                        border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
-                        elevation = CardDefaults.cardElevation(2.dp)
+                        elevation = CardDefaults.cardElevation(3.dp)
                     ) {
                         Column(
-                            modifier = Modifier.padding(18.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 40.dp, horizontal = 24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            Box(
+                                modifier = Modifier
+                                    .size(72.dp)
+                                    .background(
+                                        Brush.linearGradient(
+                                            listOf(Color(0xFFEFF6FF), Color(0xFFDBEAFE))
+                                        ),
+                                        CircleShape
+                                    )
+                                    .border(2.dp, Color(0xFF93C5FD).copy(alpha = 0.5f), CircleShape),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .background(Color(0xFFE8F5E9), CircleShape),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text("📝", fontSize = 18.sp)
-                                }
-                                Column {
-                                    Text("Send Us Your Feedback", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextDark)
-                                    Text("Direct message to our admin & support team", fontSize = 11.5.sp, color = Color(0xFF64748B))
-                                }
+                                Text("â³", fontSize = 32.sp)
                             }
 
-                            HorizontalDivider(color = Color(0xFFF1F5F9))
-
-                            // Name
-                            OutlinedTextField(
-                                value = userName,
-                                onValueChange = { userName = it },
-                                label = { Text("Your Name") },
-                                placeholder = { Text("Enter your full name") },
-                                singleLine = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = DarkGreen,
-                                    unfocusedBorderColor = Color(0xFFCBD5E1)
-                                )
+                            Text(
+                                text = "Coming Soon",
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = TextDark
                             )
 
-                            // Email
-                            OutlinedTextField(
-                                value = userEmail,
-                                onValueChange = { userEmail = it },
-                                label = { Text("Email Address") },
-                                placeholder = { Text("Enter your email") },
-                                singleLine = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = DarkGreen,
-                                    unfocusedBorderColor = Color(0xFFCBD5E1)
-                                )
+                            Text(
+                                text = "Contact & Feedback is currently being updated. Please check back soon!",
+                                fontSize = 13.5.sp,
+                                color = Color(0xFF64748B),
+                                textAlign = TextAlign.Center,
+                                lineHeight = 20.sp
                             )
-
-                            // Feedback Category
-                            Text("Topic / Query Type", fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, color = TextDark)
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .horizontalScroll(rememberScrollState()),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                listOf("General Feedback", "UPI Withdrawal", "Coin Tracking", "Offer Feedback", "Bug Report").forEach { topic ->
-                                    val isSelected = feedbackType == topic
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(16.dp))
-                                            .background(if (isSelected) DarkGreen else Color(0xFFF1F5F9))
-                                            .clickable { feedbackType = topic }
-                                            .padding(horizontal = 12.dp, vertical = 6.dp)
-                                    ) {
-                                        Text(
-                                            text = topic,
-                                            fontSize = 11.5.sp,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                            color = if (isSelected) Color.White else TextDark
-                                        )
-                                    }
-                                }
-                            }
-
-                            // Star Rating
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Experience Rating", fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, color = TextDark)
-                                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    (1..5).forEach { star ->
-                                        Text(
-                                            text = if (star <= rating) "★" else "☆",
-                                            fontSize = 22.sp,
-                                            color = if (star <= rating) Color(0xFFF59E0B) else Color(0xFFCBD5E1),
-                                            modifier = Modifier.clickable { rating = star }
-                                        )
-                                    }
-                                }
-                            }
-
-                            // Message
-                            OutlinedTextField(
-                                value = feedbackMessage,
-                                onValueChange = { feedbackMessage = it },
-                                label = { Text("Feedback / Query Message") },
-                                placeholder = { Text("Tell us your experience or describe any issue...") },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(110.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = DarkGreen,
-                                    unfocusedBorderColor = Color(0xFFCBD5E1)
-                                )
-                            )
-
-                            Button(
-                                onClick = {
-                                    if (feedbackMessage.isBlank()) {
-                                        Toast.makeText(context, "Please enter your feedback message.", Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        isSubmitting = true
-                                        scope.launch {
-                                            try {
-                                                val query = FeedbackFormQuery(
-                                                    name = userName.ifEmpty { "Reward Club Member" },
-                                                    email = userEmail.ifEmpty { "member@rewardclub.com" },
-                                                    mobile = userPhone.ifEmpty { "Not Provided" },
-                                                    user_id = userSession.currentUser?.uid ?: "guest_local",
-                                                    feedback_type = feedbackType,
-                                                    rating = rating,
-                                                    message = feedbackMessage.trim()
-                                                )
-                                                Supabase.client.postgrest["support_queries"].insert(query)
-                                                isSubmitting = false
-                                                showSuccessDialog = true
-                                                feedbackMessage = ""
-                                            } catch (e: Exception) {
-                                                isSubmitting = false
-                                                // Graceful fallback
-                                                showSuccessDialog = true
-                                                feedbackMessage = ""
-                                            }
-                                        }
-                                    }
-                                },
-                                enabled = !isSubmitting,
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(48.dp)
-                            ) {
-                                if (isSubmitting) {
-                                    CircularProgressIndicator(color = Color.White, strokeWidth = 2.dp, modifier = Modifier.size(20.dp))
-                                } else {
-                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        Icon(Icons.Default.Send, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-                                        Text("Submit Feedback", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
-                                    }
-                                }
-                            }
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(20.dp))
                 }
             } else {
                 // ── TAB 2: FAQS ─────────────────────────────────────────────

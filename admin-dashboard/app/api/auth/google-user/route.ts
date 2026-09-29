@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
         user_metadata: {
           full_name: cleanName,
           name: cleanName,
+          display_name: cleanName,
           mobile: cleanMobile,
           phone: cleanMobile,
         },
@@ -39,6 +40,7 @@ export async function POST(req: NextRequest) {
         user_metadata: {
           full_name: cleanName,
           name: cleanName,
+          display_name: cleanName,
           mobile: cleanMobile,
           phone: cleanMobile,
         },

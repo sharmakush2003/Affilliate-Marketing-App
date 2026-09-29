@@ -971,9 +971,11 @@ fun AppMainContainer() {
                             "Shop" -> navigateTo(Screen.Brands)
                             "Cards" -> navigateTo(Screen.CreditCards)
                             "Header", "Account Details" -> {
-                                if (isLoggedIn) navigateTo(Screen.AccountDetails) else navigateTo(Screen.Login)
+                                navigateTo(Screen.AccountDetails)
                             }
-                            "Order History" -> navigateTo(Screen.TransactionHistory)
+                            "Order History" -> {
+                                if (isLoggedIn) navigateTo(Screen.TransactionHistory) else navigateTo(Screen.Login)
+                            }
                             "About Company" -> navigateTo(Screen.AboutCompany)
                             "Help & Support" -> navigateTo(Screen.HelpSupport)
                             "Contact Us" -> navigateTo(Screen.ContactUs)
@@ -1085,7 +1087,8 @@ fun AppMainContainer() {
                         is Screen.AccountDetails -> AccountDetailsScreen(
                             onBackClick = { navigateBack() },
                             onContactUsClick = { navigateTo(Screen.ContactUs) },
-                            onTransactionHistoryClick = { navigateTo(Screen.TransactionHistory) }
+                            onTransactionHistoryClick = { navigateTo(Screen.TransactionHistory) },
+                            onLoginClick = { navigateTo(Screen.Login) }
                         )
                         is Screen.AboutCompany -> AboutCompanyScreen(
                             onBackClick = { navigateBack() }
@@ -1093,7 +1096,8 @@ fun AppMainContainer() {
                         is Screen.Profile -> AccountDetailsScreen(
                             onBackClick = { navigateTo(Screen.Home) },
                             onContactUsClick = { navigateTo(Screen.ContactUs) },
-                            onTransactionHistoryClick = { navigateTo(Screen.TransactionHistory) }
+                            onTransactionHistoryClick = { navigateTo(Screen.TransactionHistory) },
+                            onLoginClick = { navigateTo(Screen.Login) }
                         )
                         is Screen.ContactUs -> ContactUsScreen(
                             onBackClick = { navigateBack() },

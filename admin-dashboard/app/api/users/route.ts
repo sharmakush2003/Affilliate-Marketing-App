@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get('page') ?? '1')
     const limit = parseInt(searchParams.get('limit') ?? '50')
     const search = searchParams.get('search') ?? ''
+    const emailParam = searchParams.get('email')?.trim().toLowerCase() ?? ''
     const from = (page - 1) * limit
     const to = from + limit - 1
 
@@ -46,7 +47,9 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false })
       .range(from, to)
 
-    if (search) {
+    if (emailParam) {
+      query = query.eq('email', emailParam)
+    } else if (search) {
       query = query.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`)
     }
 

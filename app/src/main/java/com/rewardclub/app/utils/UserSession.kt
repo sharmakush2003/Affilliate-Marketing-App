@@ -300,7 +300,7 @@ object UserSession {
                 e.printStackTrace()
             }
         }
-        isGuest = false
+        isGuest = true
         clearPersistedSession()
         clearSession()
     }
@@ -344,5 +344,6 @@ object UserSession {
         withdrawnCoins = 0L
         redeemedCoins = 0L
         totalSavings = 0L
+        isGuest = true
     }
 }
